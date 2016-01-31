@@ -38,7 +38,7 @@ public class Camera {
     final File picturesPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     final File screenshotsPath = new File(picturesPath, SCREENSHOTS);
 
-    ArrayList<File> folders = new ArrayList<>();
+    ArrayList<File> watchingFolders = new ArrayList<>();
 
     ContentObserver mediaObserver;
 
@@ -48,7 +48,7 @@ public class Camera {
 
         readDirectories();
 
-// Android 6.0 has a bug preventing FileObserver to work with screenshots. is simply do not fire on Screenshot file creation.
+//        Android 6.0 has a bug preventing FileObserver to work with screenshots. is simply do not fire on Screenshot file creation.
 //        if (dcimPath.exists()) {
 //            watchDirectory(dcimPath, null);
 //        }
@@ -60,7 +60,7 @@ public class Camera {
     }
 
     public List<File> getFolders() {
-        return folders;
+        return watchingFolders;
     }
 
     public File getTargetDir() {
@@ -68,21 +68,21 @@ public class Camera {
     }
 
     public void readDirectories() {
-        folders.clear();
+        watchingFolders.clear();
 
         // add /sdcard/DCIM/*
         for (File f : dcimPath.listFiles()) {
             if (f.exists() && f.isDirectory() && !f.isHidden()) {
-                folders.add(f);
+                watchingFolders.add(f);
             }
         }
         // add /sdcard/Pictures/Screenshots
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
-            folders.add(screenshotsPath);
+            watchingFolders.add(screenshotsPath);
     }
 
     public void watch() {
-        for (File f : folders) {
+        for (File f : watchingFolders) {
             watchFiles(f);
         }
     }
@@ -136,13 +136,13 @@ public class Camera {
         return fo;
     }
 
-    void move() {
-        for(File f : folders) {
-            move(f);
+    void moveDir() {
+        for (File f : watchingFolders) {
+            moveDir(f);
         }
     }
 
-    void move(File ff) {
+    void moveDir(File ff) {
         for (File f : ff.listFiles()) {
             if (f.isDirectory() || f.isHidden())
                 continue;
@@ -190,8 +190,9 @@ public class Camera {
                 if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
                     Log.d(TAG, "onChange " + uri.toString());
 
+                    // rescan dirrectories, in case new were created
                     readDirectories();
-                    move();
+                    moveDir();
                 }
             }
         };

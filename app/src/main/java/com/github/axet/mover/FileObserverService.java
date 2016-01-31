@@ -26,12 +26,11 @@ public class FileObserverService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "START");
-
         if (mCamera == null)
-            mCamera = new Camera(this, new File(Environment.getExternalStorageDirectory() + "/private/Pictures"));
+            mCamera = new Camera(this, new File(Environment.getExternalStorageDirectory() + "/private/mobile"));
 
-        mCamera.move();
+        mCamera.readDirectories();
+        mCamera.moveDir();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -39,7 +38,5 @@ public class FileObserverService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        Log.d(TAG, "DESTROY");
     }
 }
