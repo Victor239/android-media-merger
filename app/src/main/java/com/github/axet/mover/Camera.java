@@ -10,12 +10,14 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
@@ -42,13 +44,18 @@ public class Camera {
 
     ContentObserver mediaObserver;
 
+    Handler handler;
+
     public Camera(final Context context, final File targetDir) {
         this.context = context;
         this.targetDir = targetDir;
 
         readDirectories();
 
+        handler = new Handler();
+
 //        Android 6.0 has a bug preventing FileObserver to work with screenshots. is simply do not fire on Screenshot file creation.
+//
 //        if (dcimPath.exists()) {
 //            watchDirectory(dcimPath, null);
 //        }
@@ -69,6 +76,10 @@ public class Camera {
 
     public void setTargetDir(File s) {
         targetDir = s;
+    }
+
+    public List<File> getMainFolders() {
+        return Arrays.asList(dcimPath, picturesPath);
     }
 
     public void readDirectories() {
@@ -171,8 +182,17 @@ public class Camera {
             to = new File(targetDir, String.format("%s %d.%s", dateString, count, ext));
         }
 
-        Log.d(TAG, "MOVE [" + f + " to " + to + "]");
+        final String log = "MOVE [" + f + " to " + to + "]";
+        Log.d(TAG, log);
+
         f.renameTo(to);
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, log, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     void monitorContentObserver() {

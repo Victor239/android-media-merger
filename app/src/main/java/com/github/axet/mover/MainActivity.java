@@ -89,11 +89,17 @@ public class MainActivity extends AppCompatActivity {
 
         Camera c = ((MyApplication) getApplicationContext()).mCamera;
 
-        for (File f : c.getFolders()) {
-            str += f + "\n";
+        if(c.getFolders().isEmpty()) {
+            for (File f : c.getMainFolders()) {
+                str += f + "\n";
+            }
+        } else {
+            for (File f : c.getFolders()) {
+                str += f + "\n";
+            }
         }
 
-        str += "\nto:\n";
+        str += "\nto:\n\n";
 
         str += c.getTargetDir();
 
