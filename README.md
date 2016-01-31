@@ -7,3 +7,7 @@ Hack utitily moves /sdcard/DCIM/* and /sdcard/Pictures/Screenshots to /sdcard/pr
 Helps keep pictures in one folder.
 
 [Camera.java](/app/src/main/java/com/github/axet/mover/Camera.java)
+
+# Screenshots
+
+![shot1](/docs/shot1.png)
