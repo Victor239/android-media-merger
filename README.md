@@ -10,6 +10,10 @@ Keeps pictures in one folder using nice name format [2015-01-01 13.11.59.png].
 
 Android friendly. Application waits for event from ContentObserver, then scan for new files.
 
+# Install
+
+    ./gradlew assembleRelease && adb install app/build/outputs/apk/app-release-unsigned.apk
+
 # Screenshots
 
 ![shot1](/docs/shot1.png)
