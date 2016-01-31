@@ -16,8 +16,8 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -38,52 +38,78 @@ public class Camera {
     final File picturesPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     final File screenshotsPath = new File(picturesPath, SCREENSHOTS);
 
-    public FileObserver organize(final File path) {
-        Log.d(TAG, "ORGANAZLING [" + path + "]");
+    ArrayList<File> folders = new ArrayList<>();
 
-        if (!path.exists() || !path.isDirectory()) {
-            throw new RuntimeException("no folder exist " + path);
-        }
+    ContentObserver mediaObserver;
 
-        FileObserver ff = new FileObserver(path.getPath(), FileObserver.CREATE | FileObserver.DELETE) {
-            @Override
-            public void onEvent(int event, String file) {
-                if (event == FileObserver.CREATE) {
-                    move();
-                }
-            }
-        };
-        ff.startWatching();
+    public Camera(final Context context, final File targetDir) {
+        this.context = context;
+        this.targetDir = targetDir;
 
-        return ff;
+        readDirectories();
+
+// Android 6.0 has a bug preventing FileObserver to work with screenshots. is simply do not fire on Screenshot file creation.
+//        if (dcimPath.exists()) {
+//            watchDirectory(dcimPath, null);
+//        }
+//        if (picturesPath.exists()) {
+//            watchDirectory(picturesPath, SCREENSHOTS);
+//        }
+
+        monitorContentObserver();
     }
 
-    public void watch(final File path, final String filter) {
-        if (!path.exists() || !path.isDirectory()) {
-            throw new RuntimeException("no folder exist " + path);
+    public List<File> getFolders() {
+        return folders;
+    }
+
+    public File getTargetDir() {
+        return targetDir;
+    }
+
+    public void readDirectories() {
+        folders.clear();
+
+        // add /sdcard/DCIM/*
+        for (File f : dcimPath.listFiles()) {
+            if (f.exists() && f.isDirectory() && !f.isHidden()) {
+                folders.add(f);
+            }
+        }
+        // add /sdcard/Pictures/Screenshots
+        if (screenshotsPath.exists() && screenshotsPath.isDirectory())
+            folders.add(screenshotsPath);
+    }
+
+    public void watch() {
+        for (File f : folders) {
+            watchFiles(f);
+        }
+    }
+
+    // watch dirrectory (path) for subdirectories to emmerge
+    //
+    // filter - dirrectory name, only watch for it apperence or disapearnce
+    public void watchDirectory(final File path, final String filter) {
+        FileObserver fo = organizes.get(path);
+        if (fo != null) {
+            fo.stopWatching();
+            organizes.remove(path);
         }
 
-        Log.d(TAG, "WATCHING / [" + path + "]");
-        FileObserver fo = new FileObserver(path.getPath(), FileObserver.CREATE | FileObserver.DELETE) {
+        fo = new FileObserver(path.getPath(), FileObserver.CREATE | FileObserver.DELETE) {
             @Override
             public void onEvent(int event, String file) {
-                Log.d(TAG, "CREATED/ [" + file + "]");
-
-                if (file == null)
+                if (!filter.equals(file)) {
                     return;
-
-                event &= FileObserver.ALL_EVENTS;
-
-                if (filter != null) {
-                    if (file != filter)
-                        return;
                 }
 
                 File ff = new File(path, file);
-                Log.d(TAG, "CREATED/ [" + ff + "]");
+
                 if (event == FileObserver.CREATE && ff.isDirectory() && !ff.isHidden()) {
-                    organizes.put(ff, organize(ff));
+                    organizes.put(ff, watchFiles(ff));
                 }
+
                 if (event == FileObserver.DELETE) {
                     FileObserver fo = organizes.get(ff);
                     if (fo != null) {
@@ -95,16 +121,19 @@ public class Camera {
         };
         fo.startWatching();
         organizes.put(path, fo);
+    }
 
-        for (File f : path.listFiles()) {
-            if (filter != null) {
-                if (!f.getName().equals(filter))
-                    continue;
+    public FileObserver watchFiles(final File path) {
+        FileObserver fo = new FileObserver(path.getPath(), FileObserver.CREATE) {
+            @Override
+            public void onEvent(int event, String file) {
+                File ff = new File(path, file);
+
+                moveFile(ff);
             }
-            if (f.isDirectory() && !f.isHidden()) {
-                organizes.put(f, organize(f));
-            }
-        }
+        };
+        fo.startWatching();
+        return fo;
     }
 
     void move() {
@@ -130,38 +159,21 @@ public class Camera {
         targetDir.mkdirs();
 
         Date date = new Date(f.lastModified());
-        String newstring = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(date);
+        String dateString = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(date);
         String ext = FilenameUtils.getExtension(f.getName());
-        File to = new File(targetDir, String.format("%s.%s", newstring, ext));
+        File to = new File(targetDir, String.format("%s.%s", dateString, ext));
 
         int count = 0;
         while (to.exists()) {
             count++;
-            to = new File(targetDir, String.format("%s %d.%s", newstring, count, ext));
+            to = new File(targetDir, String.format("%s %d.%s", dateString, count, ext));
         }
 
         Log.d(TAG, "MOVE [" + f + " to " + to + "]");
         f.renameTo(to);
     }
 
-    public Camera(final Context context, final File targetDir) {
-        this.context = context;
-        this.targetDir = targetDir;
-
-        // Android 6.0 has a bug preventing FileObserver to work with screenshots
-
-//        if (dcimPath.exists()) {
-//            watch(dcimPath, null);
-//        }
-//
-//        if (picturesPath.exists()) {
-//            watch(picturesPath, SCREENSHOTS);
-//        }
-
-        monitorContent();
-    }
-
-    void monitorContent() {
+    void monitorContentObserver() {
         HandlerThread handlerThread = new HandlerThread("content_observer");
         handlerThread.start();
         final Handler handler = new Handler(handlerThread.getLooper()) {
@@ -171,30 +183,39 @@ public class Camera {
             }
         };
 
+        if (mediaObserver != null) {
+            context.getContentResolver().unregisterContentObserver(mediaObserver);
+        }
+
+        mediaObserver = new ContentObserver(handler) {
+            @Override
+            public void onChange(boolean selfChange, Uri uri) {
+                super.onChange(selfChange, uri);
+
+                if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
+                    Log.d(TAG, "onChange " + uri.toString());
+                    move();
+                }
+            }
+        };
+
         context.getContentResolver().registerContentObserver(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 true,
-                new ContentObserver(handler) {
-                    @Override
-                    public void onChange(boolean selfChange, Uri uri) {
-                        Log.d(TAG, "onChange " + uri.toString());
-                        if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
-                            move();
-                        }
-                        super.onChange(selfChange, uri);
-                    }
-                }
+                mediaObserver
         );
     }
 
     public void shutdown() {
-        Log.d(TAG, "SHUTDOWN");
-
         for (File f : organizes.keySet()) {
             FileObserver fo = organizes.get(f);
             fo.stopWatching();
         }
-
         organizes.clear();
+
+        if (mediaObserver != null) {
+            context.getContentResolver().unregisterContentObserver(mediaObserver);
+        }
+        mediaObserver = null;
     }
 }

@@ -33,9 +33,25 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case 1:
-                Intent myIntent = new Intent(getBaseContext(), FileObserverService.class);
-                getBaseContext().startService(myIntent);
+                startService();
         }
+    }
+
+    void startService() {
+        Intent myIntent = new Intent(getBaseContext(), FileObserverService.class);
+        getBaseContext().startService(myIntent);
+    }
+
+    // check if we have to ask for permission, then do not start service yet
+    boolean permitted() {
+        String[] ss = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        for (String s : ss) {
+            if (ContextCompat.checkSelfPermission(this, s) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, ss, 1);
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -45,16 +61,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    1);
-        } else {
-            Intent myIntent = new Intent(getBaseContext(), FileObserverService.class);
-            getBaseContext().startService(myIntent);
+        if(permitted()) {
+            startService();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
