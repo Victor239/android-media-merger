@@ -12,7 +12,7 @@ Android friendly. Application waits for event from ContentObserver, then scan fo
 
 # Install
 
-    ./gradlew assembleRelease && adb install app/build/outputs/apk/app-release-unsigned.apk
+    ./gradlew installDebug
 
 # Screenshots
 
