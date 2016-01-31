@@ -1,12 +1,14 @@
 # android-media-merger
 
-Hack utitily moves /sdcard/DCIM/* and /sdcard/Pictures/Screenshots to /sdcard/private/mobile
+Utitily moves /sdcard/DCIM/* and /sdcard/Pictures/Screenshots to user specified folder /sdcard/Media
 
-/sdcard/private then synced with https://github.com/syncthing/syncthing-android
+Can be synced /sdcard/Media with https://github.com/syncthing/syncthing-android
 
-Helps keep pictures in one folder.
+Keeps pictures in one folder using nice name format [2015-01-01 13.11.59.png].
 
 [Camera.java](/app/src/main/java/com/github/axet/mover/Camera.java)
+
+Android friendly. Application waits for event from ContentObserver, then scan for new files.
 
 # Screenshots
 
