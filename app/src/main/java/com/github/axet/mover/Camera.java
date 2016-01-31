@@ -137,13 +137,8 @@ public class Camera {
     }
 
     void move() {
-        for (File f : dcimPath.listFiles()) {
-            if (f.exists() && f.isDirectory() && !f.isHidden()) {
-                move(f);
-            }
-        }
-        if (screenshotsPath.exists() && screenshotsPath.isDirectory() && !screenshotsPath.isHidden()) {
-            move(screenshotsPath);
+        for(File f : folders) {
+            move(f);
         }
     }
 
@@ -194,6 +189,8 @@ public class Camera {
 
                 if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
                     Log.d(TAG, "onChange " + uri.toString());
+
+                    readDirectories();
                     move();
                 }
             }
