@@ -2,9 +2,11 @@ package com.github.axet.mover;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -14,10 +16,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,13 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case 1:
-                startService();
+                ((MyApplication) this.getApplicationContext()).startFileObserver();
         }
-    }
-
-    void startService() {
-        Intent myIntent = new Intent(getBaseContext(), FileObserverService.class);
-        getBaseContext().startService(myIntent);
     }
 
     // check if we have to ask for permission, then do not start service yet
@@ -61,15 +61,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if(permitted()) {
-            startService();
+        if (permitted()) {
+            ((MyApplication) getApplicationContext()).startFileObserver();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startService();
+                ((MyApplication) getApplicationContext()).startFileObserver();
+                updateDirs();
+
                 Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -78,6 +80,25 @@ public class MainActivity extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        updateDirs();
+    }
+
+    void updateDirs() {
+        String str = "Syncing...\n\n";
+
+        Camera c = ((MyApplication) getApplicationContext()).mCamera;
+
+        for (File f : c.getFolders()) {
+            str += f + "\n";
+        }
+
+        str += "\nto:\n";
+
+        str += c.getTargetDir();
+
+        TextView tv = (TextView) findViewById(R.id.id_textview);
+        tv.setText(str);
     }
 
     @Override
@@ -96,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(this, PrefActivity.class);
+            startActivity(i);
             return true;
         }
 
@@ -140,5 +163,12 @@ public class MainActivity extends AppCompatActivity {
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        updateDirs();
     }
 }

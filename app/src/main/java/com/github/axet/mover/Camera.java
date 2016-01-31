@@ -67,13 +67,20 @@ public class Camera {
         return targetDir;
     }
 
+    public void setTargetDir(File s) {
+        targetDir = s;
+    }
+
     public void readDirectories() {
         watchingFolders.clear();
 
         // add /sdcard/DCIM/*
-        for (File f : dcimPath.listFiles()) {
-            if (f.exists() && f.isDirectory() && !f.isHidden()) {
-                watchingFolders.add(f);
+        File[] ff = dcimPath.listFiles();
+        if (ff != null) {
+            for (File f : ff) {
+                if (f.exists() && f.isDirectory() && !f.isHidden()) {
+                    watchingFolders.add(f);
+                }
             }
         }
         // add /sdcard/Pictures/Screenshots

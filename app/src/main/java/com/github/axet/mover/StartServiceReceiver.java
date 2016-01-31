@@ -8,7 +8,6 @@ public class StartServiceReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent myIntent = new Intent(context, FileObserverService.class);
-        context.startService(myIntent);
+        ((MyApplication)context.getApplicationContext()).startFileObserver();
     }
 }

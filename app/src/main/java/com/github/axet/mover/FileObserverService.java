@@ -13,8 +13,6 @@ public class FileObserverService extends Service {
 
     private static final String TAG = "FileObserverService";
 
-    Camera mCamera;
-
     public FileObserverService() {
     }
 
@@ -26,11 +24,10 @@ public class FileObserverService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (mCamera == null)
-            mCamera = new Camera(this, new File(Environment.getExternalStorageDirectory() + "/private/mobile"));
+        Camera camera = ((MyApplication) getBaseContext().getApplicationContext()).mCamera;
 
-        mCamera.readDirectories();
-        mCamera.moveDir();
+        camera.readDirectories();
+        camera.moveDir();
 
         return super.onStartCommand(intent, flags, startId);
     }
