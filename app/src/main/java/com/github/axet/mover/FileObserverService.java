@@ -24,10 +24,7 @@ public class FileObserverService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Camera camera = ((MyApplication) getBaseContext().getApplicationContext()).mCamera;
-
-        camera.readDirectories();
-        camera.moveDir();
+        ((MyApplication) getBaseContext().getApplicationContext()).start();
 
         return super.onStartCommand(intent, flags, startId);
     }

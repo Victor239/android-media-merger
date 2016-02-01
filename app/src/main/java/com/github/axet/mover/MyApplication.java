@@ -16,12 +16,25 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        create();
+    }
+
+    void create() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String syncConnPref = sharedPref.getString("storage", new File(Environment.getExternalStorageDirectory(), "/private/mobile").getPath());
+        String syncConnPref = sharedPref.getString("storage", null);
 
-        sharedPref.edit().putString("storage", syncConnPref).commit();
+        if (syncConnPref != null)
+            mCamera = new Camera(this, new File(syncConnPref));
+    }
 
-        mCamera = new Camera(this, new File(syncConnPref));
+    void start() {
+        if (mCamera == null)
+            create();
+        if (mCamera == null)
+            return;
+
+        mCamera.readDirectories();
+        mCamera.moveDir();
     }
 
     public void startFileObserver() {

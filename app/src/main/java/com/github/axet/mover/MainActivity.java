@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case 1:
                 ((MyApplication) this.getApplicationContext()).startFileObserver();
+                updateDirs();
         }
     }
 
@@ -85,23 +86,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void updateDirs() {
-        String str = "Syncing...\n\n";
+        String str = "";
 
         Camera c = ((MyApplication) getApplicationContext()).mCamera;
 
-        if(c.getFolders().isEmpty()) {
-            for (File f : c.getMainFolders()) {
-                str += f + "\n";
-            }
+        if (c == null) {
+            str += "Please set 'Storage Path' in Settings";
         } else {
-            for (File f : c.getFolders()) {
-                str += f + "\n";
+            str += "Syncing...\n\n";
+
+            if (c.getFolders().isEmpty()) {
+                for (File f : c.getMainFolders()) {
+                    str += f + "\n";
+                }
+            } else {
+                for (File f : c.getFolders()) {
+                    str += f + "\n";
+                }
             }
+
+            str += "\nto:\n\n";
+
+            str += c.getTargetDir();
         }
-
-        str += "\nto:\n\n";
-
-        str += c.getTargetDir();
 
         TextView tv = (TextView) findViewById(R.id.id_textview);
         tv.setText(str);

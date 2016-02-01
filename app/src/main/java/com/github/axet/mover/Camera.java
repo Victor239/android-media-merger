@@ -1,6 +1,7 @@
 package com.github.axet.mover;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Environment;
@@ -186,6 +187,11 @@ public class Camera {
         Log.d(TAG, log);
 
         f.renameTo(to);
+
+        Uri contentUri = Uri.fromFile(to);
+        Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
 
         handler.post(new Runnable() {
             @Override
