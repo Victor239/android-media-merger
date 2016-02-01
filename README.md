@@ -1,12 +1,11 @@
 # android-media-merger
 
-Utitily moves /sdcard/DCIM/* and /sdcard/Pictures/Screenshots to user specified folder /sdcard/Media
+  * Utitily moves [/sdcard/DCIM/] and [/sdcard/Pictures/Screenshots/] to user specified folder.
+  * Rename it with easy to sort format [2015-01-01 13.11.59.png].
 
-Can be synced /sdcard/Media with https://github.com/syncthing/syncthing-android
+Main app logic is here:
 
-Keeps pictures in one folder using nice name format [2015-01-01 13.11.59.png].
-
-[Camera.java](/app/src/main/java/com/github/axet/mover/Camera.java)
+  * [Camera.java](/app/src/main/java/com/github/axet/mover/Camera.java)
 
 Android friendly. Application waits for event from ContentObserver, then scan for new files.
 
