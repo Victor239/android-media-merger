@@ -1,4 +1,4 @@
-# android-media-merger
+# Media Merger
 
 Android OS does not allow you to create symbolic links on /sdcard. It does not allow you to change Camera or Screenshots folder. The only way is to create application which helps combine all folders in one.
 
