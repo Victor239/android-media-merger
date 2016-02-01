@@ -33,8 +33,7 @@ public class MyApplication extends Application {
         if (mCamera == null)
             return;
 
-        mCamera.readDirectories();
-        mCamera.moveDir();
+        mCamera.start();
     }
 
     public void startFileObserver() {

@@ -45,17 +45,18 @@ public class Camera {
 
     ContentObserver mediaObserver;
 
-    Handler handler;
+    Handler handler= new Handler();
 
     public Camera(final Context context, final File targetDir) {
         this.context = context;
         this.targetDir = targetDir;
 
         readDirectories();
+    }
 
-        handler = new Handler();
-
-//        Android 6.0 has a bug preventing FileObserver to work with screenshots. is simply do not fire on Screenshot file creation.
+    public void start() {
+//        Android 6.0 has a bug preventing FileObserver to work with screenshots.
+//        is simply do not fire on Screenshot file creation.
 //
 //        if (dcimPath.exists()) {
 //            watchDirectory(dcimPath, null);
@@ -65,6 +66,7 @@ public class Camera {
 //        }
 
         monitorContentObserver();
+        sync();
     }
 
     public List<File> getFolders() {
@@ -98,6 +100,11 @@ public class Camera {
         // add /sdcard/Pictures/Screenshots
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
             watchingFolders.add(screenshotsPath);
+    }
+
+    public void sync() {
+        readDirectories();
+        moveDir();
     }
 
     public void watch() {
@@ -221,11 +228,8 @@ public class Camera {
                 super.onChange(selfChange, uri);
 
                 if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
-                    Log.d(TAG, "onChange " + uri.toString());
-
-                    // rescan dirrectories, in case new were created
-                    readDirectories();
-                    moveDir();
+                    // rescan directories, in case new were created
+                    sync();
                 }
             }
         };
