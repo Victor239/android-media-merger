@@ -1,7 +1,7 @@
 # android-media-merger
 
   * Utitily moves `/sdcard/DCIM/*]` and `[/sdcard/Pictures/Screenshots/*]` to user specified folder.
-  * All files will be renamed format `[2015-01-01 13.11.59.png]`.
+  * All files will be renamed to `[2015-01-01 13.11.59.png]`.
 
 Main app logic is here:
 
