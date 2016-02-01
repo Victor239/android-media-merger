@@ -1,5 +1,7 @@
 # android-media-merger
 
+Android OS does not allow you to create symbolic links on /sdcard. It does not allow you to change Camera or Screenshots folder. The only way is to create application which helps combine all folders in one.
+
   * Utitily moves `[/sdcard/DCIM/*]` and `[/sdcard/Pictures/Screenshots/*]` to user specified folder.
   * All files will be renamed to `[2015-01-01 13.11.59.png]`.
 
