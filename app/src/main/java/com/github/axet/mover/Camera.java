@@ -16,6 +16,7 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +46,7 @@ public class Camera {
 
     ContentObserver mediaObserver;
 
-    Handler handler= new Handler();
+    Handler handler = new Handler();
 
     public Camera(final Context context, final File targetDir) {
         this.context = context;
@@ -176,6 +177,14 @@ public class Camera {
         }
     }
 
+    static boolean isSame(File f, File t) {
+        try {
+            return f.getCanonicalPath().equals(t.getCanonicalPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     void moveFile(File f) {
         targetDir.mkdirs();
 
@@ -184,11 +193,17 @@ public class Camera {
         String ext = FilenameUtils.getExtension(f.getName());
         File to = new File(targetDir, String.format("%s.%s", dateString, ext));
 
+        if (isSame(f, to))
+            return;
+
         int count = 0;
         while (to.exists()) {
             count++;
             to = new File(targetDir, String.format("%s %d.%s", dateString, count, ext));
         }
+
+        if (isSame(f, to))
+            return;
 
         final String log = "MOVE [" + f + " to " + to + "]";
         Log.d(TAG, log);
