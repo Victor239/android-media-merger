@@ -21,7 +21,6 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.MEDIA_SCANNER_SCAN_FILE" />
             </intent-filter>
         </receiver>
         <receiver android:name=".OnUpgradeReceiver">

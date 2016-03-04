@@ -52,10 +52,10 @@ public class Camera {
         this.context = context;
         this.targetDir = targetDir;
 
-        readDirectories();
+        readDirs();
     }
 
-    public void start() {
+    public void create() {
 //        Android 6.0 has a bug preventing FileObserver to work with screenshots.
 //        is simply do not fire on Screenshot file creation.
 //
@@ -68,6 +68,19 @@ public class Camera {
 
         monitorContentObserver();
         sync();
+    }
+
+    public void close() {
+        for (File f : organizes.keySet()) {
+            FileObserver fo = organizes.get(f);
+            fo.stopWatching();
+        }
+        organizes.clear();
+
+        if (mediaObserver != null) {
+            context.getContentResolver().unregisterContentObserver(mediaObserver);
+        }
+        mediaObserver = null;
     }
 
     public List<File> getFolders() {
@@ -86,7 +99,7 @@ public class Camera {
         return Arrays.asList(dcimPath, picturesPath);
     }
 
-    public void readDirectories() {
+    public void readDirs() {
         watchingFolders.clear();
 
         // add /sdcard/DCIM/*
@@ -104,8 +117,8 @@ public class Camera {
     }
 
     public void sync() {
-        readDirectories();
-        moveDir();
+        readDirs();
+        moveDirs();
     }
 
     public void watch() {
@@ -163,13 +176,13 @@ public class Camera {
         return fo;
     }
 
-    void moveDir() {
+    void moveDirs() {
         for (File f : watchingFolders) {
-            moveDir(f);
+            moveDirs(f);
         }
     }
 
-    void moveDir(File ff) {
+    void moveDirs(File ff) {
         for (File f : ff.listFiles()) {
             if (f.isDirectory() || f.isHidden())
                 continue;
@@ -243,7 +256,6 @@ public class Camera {
                 super.onChange(selfChange, uri);
 
                 if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
-                    // rescan directories, in case new were created
                     sync();
                 }
             }
@@ -254,18 +266,5 @@ public class Camera {
                 true,
                 mediaObserver
         );
-    }
-
-    public void shutdown() {
-        for (File f : organizes.keySet()) {
-            FileObserver fo = organizes.get(f);
-            fo.stopWatching();
-        }
-        organizes.clear();
-
-        if (mediaObserver != null) {
-            context.getContentResolver().unregisterContentObserver(mediaObserver);
-        }
-        mediaObserver = null;
     }
 }

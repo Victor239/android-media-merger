@@ -1,7 +1,10 @@
 package com.github.axet.mover;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -32,14 +35,22 @@ public class MainActivity extends AppCompatActivity {
      */
     private GoogleApiClient client;
 
+    CameraReceiver reciver = new CameraReceiver();
+
+    public class CameraReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateDirs(intent);
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         switch (requestCode) {
             case 1:
-                ((MyApplication) this.getApplicationContext()).startFileObserver();
-                updateDirs();
+                ((MyApplication) this.getApplicationContext()).start();
         }
     }
 
@@ -62,16 +73,20 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FileObserverService.EMPTY);
+        filter.addAction(FileObserverService.FOLDERS);
+        registerReceiver(reciver, filter);
+
         if (permitted()) {
-            ((MyApplication) getApplicationContext()).startFileObserver();
+            ((MyApplication) getApplicationContext()).start();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MyApplication) getApplicationContext()).startFileObserver();
-                updateDirs();
+                ((MyApplication) getApplicationContext()).start();
 
                 Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -81,33 +96,23 @@ public class MainActivity extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-
-        updateDirs();
     }
 
-    void updateDirs() {
+    void updateDirs(Intent intent) {
         String str = "";
 
-        Camera c = ((MyApplication) getApplicationContext()).mCamera;
-
-        if (c == null) {
+        if (intent.getAction().equals(FileObserverService.EMPTY)) {
             str += "Please set 'Storage Path' in Settings";
         } else {
             str += "Syncing...\n\n";
 
-            if (c.getFolders().isEmpty()) {
-                for (File f : c.getMainFolders()) {
-                    str += f + "\n";
-                }
-            } else {
-                for (File f : c.getFolders()) {
-                    str += f + "\n";
-                }
+            for (String f : intent.getStringArrayExtra("folders")) {
+                str += f + "\n";
             }
 
             str += "\nto:\n\n";
 
-            str += c.getTargetDir();
+            str += intent.getStringExtra("target");
         }
 
         TextView tv = (TextView) findViewById(R.id.id_textview);
@@ -182,6 +187,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        updateDirs();
+        ((MyApplication) getApplicationContext()).start();
     }
 }
