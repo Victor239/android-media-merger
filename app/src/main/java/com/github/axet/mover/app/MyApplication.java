@@ -1,7 +1,9 @@
-package com.github.axet.mover;
+package com.github.axet.mover.app;
 
 import android.app.Application;
 import android.content.Intent;
+
+import com.github.axet.mover.services.FileObserverService;
 
 public class MyApplication extends Application {
 

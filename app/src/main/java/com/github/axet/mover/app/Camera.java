@@ -1,4 +1,4 @@
-package com.github.axet.mover;
+package com.github.axet.mover.app;
 
 import android.content.Context;
 import android.content.Intent;
