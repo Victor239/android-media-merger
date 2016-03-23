@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference
+    <com.github.axet.mover.widgets.StoragePathPreference
         android:key="storage"
         android:summary="set where to storge merged media"
         android:title="Storage Path">
-    </EditTextPreference>
+    </com.github.axet.mover.widgets.StoragePathPreference>
 </PreferenceScreen>

@@ -1,4 +1,4 @@
-package com.github.axet.mover;
+package com.github.axet.mover.services;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+
+import com.github.axet.mover.app.Camera;
 
 import java.io.File;
 import java.util.ArrayList;

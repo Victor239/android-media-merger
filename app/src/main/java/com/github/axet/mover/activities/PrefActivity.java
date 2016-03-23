@@ -1,4 +1,4 @@
-package com.github.axet.mover;
+package com.github.axet.mover.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +9,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
+
+import com.github.axet.mover.app.MyApplication;
+import com.github.axet.mover.R;
 
 import java.io.File;
 
