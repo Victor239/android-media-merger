@@ -7,7 +7,7 @@ Android OS does not allow you to create symbolic links on /sdcard. It does not a
 
 Main app logic is here:
 
-  * [Camera.java](/app/src/main/java/com/github/axet/mover/Camera.java)
+  * [Camera.java](/app/src/main/java/com/github/axet/mover/app/Camera.java)
 
 Android friendly. Application waits for event from ContentObserver, then scan for new files.
 
