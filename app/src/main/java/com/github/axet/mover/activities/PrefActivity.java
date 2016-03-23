@@ -10,7 +10,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 
-import com.github.axet.mover.app.MyApplication;
+import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.R;
 
 import java.io.File;
@@ -78,7 +78,7 @@ public class PrefActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        ((MyApplication) getApplicationContext()).start();
+        ((MoverApplication) getApplicationContext()).start();
     }
 
     @Override

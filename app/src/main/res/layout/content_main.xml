@@ -12,9 +12,15 @@
     tools:context=".activities.MainActivity"
     tools:showIn="@layout/activity_main">
 
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
+
     <TextView
-        android:id="@+id/id_textview"
+        android:id="@+id/empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="Please set 'Storage Path' in Settings"
+        android:visibility="gone" />
 </RelativeLayout>

@@ -38,9 +38,12 @@ public class Camera {
 
     TreeMap<File, FileObserver> organizes = new TreeMap<>();
 
-    final File dcimPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-    final File picturesPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-    final File screenshotsPath = new File(picturesPath, SCREENSHOTS);
+    // /sdcard/DCIM/
+    public final File dcimPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+    // /sdcard/Pictures/
+    public final File picturesPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+    // /sdcard/Pictures/Screenshots/
+    public final File screenshotsPath = new File(picturesPath, SCREENSHOTS);
 
     ArrayList<File> watchingFolders = new ArrayList<>();
 
@@ -51,12 +54,10 @@ public class Camera {
     public Camera(final Context context, final File targetDir) {
         this.context = context;
         this.targetDir = targetDir;
-
-        readDirs();
     }
 
     public void create() {
-//        Android 6.0 has a bug preventing FileObserver to work with screenshots.
+//        Android 6.0 has a bug preventing FileObserver to work with screenshots folder.
 //        is simply do not fire on Screenshot file creation.
 //
 //        if (dcimPath.exists()) {
@@ -99,25 +100,34 @@ public class Camera {
         return Arrays.asList(dcimPath, picturesPath);
     }
 
-    public void readDirs() {
-        watchingFolders.clear();
+    public ArrayList<File> readDcim() {
+        ArrayList<File> dirs = new ArrayList<>();
 
-        // add /sdcard/DCIM/*
         File[] ff = dcimPath.listFiles();
         if (ff != null) {
             for (File f : ff) {
                 if (f.exists() && f.isDirectory() && !f.isHidden()) {
-                    watchingFolders.add(f);
+                    dirs.add(f);
                 }
             }
         }
-        // add /sdcard/Pictures/Screenshots
+
+        return dirs;
+    }
+
+    public ArrayList<File> readDirs() {
+        ArrayList<File> dirs = new ArrayList<>();
+
+        dirs.addAll(readDcim());
+
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
-            watchingFolders.add(screenshotsPath);
+            dirs.add(screenshotsPath);
+
+        return dirs;
     }
 
     public void sync() {
-        readDirs();
+        watchingFolders = readDirs();
         moveDirs();
     }
 

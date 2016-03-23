@@ -3,28 +3,47 @@ package com.github.axet.mover.activities;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.ImageButton;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import com.github.axet.mover.app.MyApplication;
+import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.widgets.OpenFileDialog;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,7 +53,190 @@ public class MainActivity extends AppCompatActivity {
      */
     private GoogleApiClient client;
 
+    ListView list;
+    FoldersAdapter adapter;
+    View footer;
+
     CameraReceiver reciver = new CameraReceiver();
+
+    public class FoldersAdapter implements ListAdapter {
+        DataSetObserver listener;
+
+        TreeMap<String, Boolean> auto = new TreeMap<>();
+        ArrayList<String> manual = new ArrayList<>();
+
+        public FoldersAdapter() {
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+
+            int c = shared.getInt(MoverApplication.MANUAL_COUNT, 0);
+            if (c > 0) {
+                for (int i = 0; i < c; i++) {
+                    manual.add(shared.getString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, ""));
+                }
+            }
+            c = shared.getInt(MoverApplication.AUTO_COUNT, 0);
+            if (c > 0) {
+                for (int i = 0; i < c; i++) {
+                    String s = shared.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
+                    Boolean b = shared.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
+                    auto.put(s, b);
+                }
+            }
+        }
+
+        @Override
+        public void registerDataSetObserver(DataSetObserver observer) {
+            listener = observer;
+        }
+
+        @Override
+        public void unregisterDataSetObserver(DataSetObserver observer) {
+            listener = observer;
+        }
+
+        @Override
+        public int getCount() {
+            int count = 0;
+            count += auto.size();
+            count += manual.size();
+            return count;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                LayoutInflater i = LayoutInflater.from(MainActivity.this);
+                convertView = i.inflate(R.layout.item, parent, false);
+            }
+
+            final Switch enabled = (Switch) convertView.findViewById(R.id.enabled);
+            TextView path = (TextView) convertView.findViewById(R.id.path);
+            View trash = convertView.findViewById(R.id.trash);
+
+            if (position < auto.size()) {
+                final String[] keys = auto.keySet().toArray(new String[]{});
+                path.setText(keys[position]);
+                enabled.setVisibility(View.VISIBLE);
+                enabled.setChecked(auto.get(keys[position]));
+                trash.setVisibility(View.GONE);
+                path.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                });
+                enabled.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        auto.put(keys[position], enabled.isChecked());
+                        changed();
+                        save();
+                    }
+                });
+            } else {
+                final int pos = position - auto.size();
+                final String p = manual.get(pos);
+                path.setText(p);
+                enabled.setVisibility(View.GONE);
+                trash.setVisibility(View.VISIBLE);
+
+                path.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
+
+                        f.setCurrentPath(new File(p));
+                        f.setFolderIcon(R.drawable.ic_folder_24dp);
+                        f.setFileIcon(R.drawable.ic_file);
+                        f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                File ff = f.getCurrentPath();
+                                String fileName = ff.getPath();
+                                if (!ff.isDirectory())
+                                    fileName = ff.getParent();
+                                manual.set(pos, fileName);
+                                changed();
+                                save();
+                            }
+                        });
+                        f.show();
+                    }
+                });
+            }
+
+            return convertView;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return 0;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 1;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return getCount() == 0;
+        }
+
+        @Override
+        public boolean areAllItemsEnabled() {
+            return true;
+        }
+
+        @Override
+        public boolean isEnabled(int position) {
+            return true;
+        }
+
+        public void add(String path) {
+            manual.add(path);
+
+            changed();
+        }
+
+        void changed() {
+            if (listener != null)
+                listener.onChanged();
+        }
+
+        public void save() {
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+
+            SharedPreferences.Editor edit = shared.edit();
+            String[] keys = auto.keySet().toArray(new String[]{});
+            edit.putInt(MoverApplication.AUTO_COUNT, keys.length);
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i];
+                edit.putBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, auto.get(key));
+                edit.putString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, key);
+            }
+
+            edit.putInt(MoverApplication.MANUAL_COUNT, manual.size());
+            for (int i = 0; i < manual.size(); i++) {
+                edit.putString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, manual.get(i));
+            }
+            edit.commit();
+        }
+    }
 
     public class CameraReceiver extends BroadcastReceiver {
         @Override
@@ -49,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case 1:
-                ((MyApplication) this.getApplicationContext()).start();
+                ((MoverApplication) this.getApplicationContext()).start();
         }
     }
 
@@ -73,24 +275,51 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(FileObserverService.EMPTY);
-        filter.addAction(FileObserverService.FOLDERS);
+        filter.addAction(FileObserverService.STOP);
+        filter.addAction(FileObserverService.UPDATE);
         registerReceiver(reciver, filter);
 
+        list = (ListView) findViewById(R.id.list);
+
+        list.setHeaderDividersEnabled(false);
+        list.setFooterDividersEnabled(false);
+
+        View header = LayoutInflater.from(this).inflate(R.layout.header, list, false);
+        list.addHeaderView(header);
+
+        footer = LayoutInflater.from(this).inflate(R.layout.footer, list, false);
+        list.addFooterView(footer);
+
         if (permitted()) {
-            ((MyApplication) getApplicationContext()).start();
+            ((MoverApplication) getApplicationContext()).start();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MyApplication) getApplicationContext()).start();
+                final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
 
-                Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                f.setCurrentPath(Environment.getExternalStorageDirectory());
+                f.setFolderIcon(R.drawable.ic_folder_24dp);
+                f.setFileIcon(R.drawable.ic_file);
+                f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File ff = f.getCurrentPath();
+                        String fileName = ff.getPath();
+                        if (!ff.isDirectory())
+                            fileName = ff.getParent();
+                        adapter.add(fileName);
+                        adapter.save();
+                    }
+                });
+                f.show();
             }
         });
+
+        //                Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -100,22 +329,15 @@ public class MainActivity extends AppCompatActivity {
     void updateDirs(Intent intent) {
         String str = "";
 
-        if (intent.getAction().equals(FileObserverService.EMPTY)) {
-            str += "Please set 'Storage Path' in Settings";
-        } else {
-            str += "Syncing...\n\n";
+        adapter = new FoldersAdapter();
 
-            for (String f : intent.getStringArrayExtra("folders")) {
-                str += f + "\n";
-            }
+        list.setAdapter(adapter);
+        list.setEmptyView(findViewById(R.id.empty));
 
-            str += "\nto:\n\n";
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-            str += intent.getStringExtra("target");
-        }
-
-        TextView tv = (TextView) findViewById(R.id.id_textview);
-        tv.setText(str);
+        TextView path = (TextView) footer.findViewById(R.id.path);
+        path.setText("to: \n\n" + shared.getString(MoverApplication.STORAGE, null));
     }
 
     @Override
@@ -186,6 +408,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        ((MyApplication) getApplicationContext()).start();
+        ((MoverApplication) getApplicationContext()).start();
     }
 }

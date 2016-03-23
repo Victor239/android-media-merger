@@ -8,16 +8,19 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import com.github.axet.mover.app.Camera;
+import com.github.axet.mover.app.MoverApplication;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class FileObserverService extends Service {
     private static final String TAG = FileObserverService.class.getSimpleName();
 
-    public static final String EMPTY = FileObserverService.class.getCanonicalName() + ".EMPTY";
-    public static final String FOLDERS = FileObserverService.class.getCanonicalName() + ".FOLDERS";
+    public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
+    public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
 
     Camera camera;
 
@@ -40,29 +43,85 @@ public class FileObserverService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String syncConnPref = sharedPref.getString("storage", null);
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String storage = sharedPref.getString(MoverApplication.STORAGE, null);
 
-        if (syncConnPref != null) {
+        if (storage != null) {
             if (camera != null)
                 camera.close();
 
-            camera = new Camera(this, new File(syncConnPref));
+            camera = new Camera(this, new File(storage)) {
+                @Override
+                public void sync() {
+                    super.sync();
+
+                    TreeMap<String, Boolean> map = new TreeMap<>();
+
+                    // read dir's from sdcard
+                    {
+                        ArrayList<File> dirs = readDcim();
+                        dirs.add(screenshotsPath);
+                        for (File f : dirs) {
+                            map.put(f.toString(), true);
+                        }
+                    }
+
+                    // update status on remaining directories only. forget settings for gone directories
+                    int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
+                    for (int i = 0; i < c; i++) {
+                        String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
+                        boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
+                        Boolean bb = map.get(s);
+                        if (bb != null) {
+                            map.put(s, b);
+                        }
+                    }
+
+                    // save new dir list
+                    SharedPreferences.Editor edit = sharedPref.edit();
+                    String[] keys = map.keySet().toArray(new String[]{});
+                    c = keys.length;
+                    edit.putInt(MoverApplication.AUTO_COUNT, c);
+                    for (int i = 0; i < c; i++) {
+                        String key = keys[i];
+                        edit.putString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, key);
+                        edit.putBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, map.get(key));
+                    }
+                    edit.commit();
+                }
+
+                @Override
+                public ArrayList<File> readDirs() {
+                    ArrayList<File> dirs = super.readDirs();
+
+                    // remove all disabled path's
+                    int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
+                    for (int i = 0; i < c; i++) {
+                        boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
+                        String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
+                        if (!b) {
+                            dirs.remove(s);
+                        }
+                    }
+
+                    // add all manual path's
+                    c = sharedPref.getInt(MoverApplication.MANUAL_COUNT, 0);
+                    for (int i = 0; i < c; i++) {
+                        String s = sharedPref.getString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, "");
+                        dirs.add(new File(s));
+                    }
+
+                    return dirs;
+                }
+            };
             camera.create();
 
-            Intent i = new Intent(FOLDERS);
-
-            if (camera.getFolders().isEmpty()) {
-                i.putExtra("folders", toArray(camera.getMainFolders()));
-            } else {
-                i.putExtra("folders", toArray(camera.getFolders()));
-            }
-            i.putExtra("target", camera.getTargetDir().toString());
+            Intent i = new Intent(UPDATE);
             sendBroadcast(i);
 
             return super.onStartCommand(intent, flags, startId);
         } else {
-            Intent i = new Intent(EMPTY);
+            Intent i = new Intent(STOP);
             sendBroadcast(i);
 
             stopSelf();
