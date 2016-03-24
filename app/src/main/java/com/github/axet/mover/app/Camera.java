@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -206,6 +207,16 @@ public class Camera {
         }
     }
 
+    // check if file save to move (it is not open by another apps)
+    boolean isSafe(File f) {
+        try {
+            FileUtils.touch(f);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     void moveFile(File f) {
         targetDir.mkdirs();
 
@@ -220,6 +231,9 @@ public class Camera {
             to = new File(targetDir, String.format("%s.%s", dateString, ext));
 
         if (isSame(f, to))
+            return;
+
+        if (!isSafe(f))
             return;
 
         int count = 0;
