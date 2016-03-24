@@ -14,10 +14,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,8 +24,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -56,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     ListView list;
     FoldersAdapter adapter;
     View footer;
+    View header;
 
     CameraReceiver reciver = new CameraReceiver();
 
@@ -66,14 +63,21 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         ArrayList<String> manual = new ArrayList<>();
 
         public FoldersAdapter() {
+            load();
+        }
+
+        public void load() {
             SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
+            manual.clear();
             int c = shared.getInt(MoverApplication.MANUAL_COUNT, 0);
             if (c > 0) {
                 for (int i = 0; i < c; i++) {
                     manual.add(shared.getString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, ""));
                 }
             }
+
+            auto.clear();
             c = shared.getInt(MoverApplication.AUTO_COUNT, 0);
             if (c > 0) {
                 for (int i = 0; i < c; i++) {
@@ -125,11 +129,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             }
 
             final Switch enabled = (Switch) convertView.findViewById(R.id.enabled);
-            TextView path = (TextView) convertView.findViewById(R.id.path);
+            final TextView path = (TextView) convertView.findViewById(R.id.path);
             View trash = convertView.findViewById(R.id.trash);
 
             if (position < auto.size()) {
                 final String[] keys = auto.keySet().toArray(new String[]{});
+                boolean c = auto.get(keys[position]);
 
                 path.setText(keys[position]);
                 path.setOnClickListener(null);
@@ -138,12 +143,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 trash.setVisibility(View.GONE);
 
                 enabled.setVisibility(View.VISIBLE);
-                enabled.setChecked(auto.get(keys[position]));
+                enabled.setChecked(c);
                 enabled.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         auto.put(keys[position], enabled.isChecked());
-                        changed();
                         save();
                     }
                 });
@@ -156,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     @Override
                     public void onClick(View v) {
                         final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
-
                         f.setCurrentPath(new File(p));
                         f.setFolderIcon(R.drawable.ic_folder_24dp);
                         f.setFileIcon(R.drawable.ic_file);
@@ -168,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                                 if (!ff.isDirectory())
                                     fileName = ff.getParent();
                                 manual.set(pos, fileName);
-                                changed();
+                                path.setText(fileName);
                                 save();
                             }
                         });
@@ -305,14 +308,53 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         list = (ListView) findViewById(R.id.list);
 
+        adapter = new FoldersAdapter();
+        list.setAdapter(adapter);
+
         list.setHeaderDividersEnabled(false);
         list.setFooterDividersEnabled(false);
 
-        View header = LayoutInflater.from(this).inflate(R.layout.header, list, false);
+        header = LayoutInflater.from(this).inflate(R.layout.header, list, false);
         list.addHeaderView(header);
 
         footer = LayoutInflater.from(this).inflate(R.layout.footer, list, false);
         list.addFooterView(footer);
+
+        View browse = footer.findViewById(R.id.browse);
+
+        browse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
+
+                final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                String path = sharedPref.getString(MoverApplication.STORAGE, null);
+
+                if (path == null) {
+                    File ff = new File(Environment.getExternalStorageDirectory(), "/private/mobile");
+                    if (!ff.exists())
+                        ff = Environment.getExternalStorageDirectory();
+                    path = ff.getPath();
+                }
+
+                f.setCurrentPath(new File(path));
+                f.setFolderIcon(R.drawable.ic_folder_24dp);
+                f.setFileIcon(R.drawable.ic_file);
+                f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File ff = f.getCurrentPath();
+                        String fileName = ff.getPath();
+                        if (!ff.isDirectory())
+                            fileName = ff.getParent();
+                        SharedPreferences.Editor edit =  sharedPref.edit();
+                        edit.putString(MoverApplication.STORAGE, fileName);
+                        edit.commit();
+                    }
+                });
+                f.show();
+            }
+        });
 
         if (permitted()) {
             FileObserverService.start(this);
@@ -323,7 +365,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             @Override
             public void onClick(View view) {
                 final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
-
                 f.setCurrentPath(Environment.getExternalStorageDirectory());
                 f.setFolderIcon(R.drawable.ic_folder_24dp);
                 f.setFileIcon(R.drawable.ic_file);
@@ -342,8 +383,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             }
         });
 
-        //                Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
+//        Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -353,24 +394,31 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     void updateDirs() {
-        String str = "";
-
-        adapter = new FoldersAdapter();
-
-        list.setAdapter(adapter);
-        list.setEmptyView(findViewById(R.id.empty));
+        adapter.load();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        String to = shared.getString(MoverApplication.STORAGE, null);
 
         TextView path = (TextView) footer.findViewById(R.id.path);
-        path.setText("to: \n\n" + shared.getString(MoverApplication.STORAGE, null));
+
+        if (to == null) {
+            to = "(not selected)";
+
+            TextView text = (TextView) header.findViewById(R.id.path);
+            text.setText("Not Synching!\n\nPlease select 'storage_path' with 'Browse' button");
+        } else {
+            TextView text = (TextView) header.findViewById(R.id.path);
+            text.setText("Synching...");
+        }
+
+        path.setText(to);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        // getMenuInflater().inflate(R.menu.menu_main, menu);
+        return false;
     }
 
     @Override

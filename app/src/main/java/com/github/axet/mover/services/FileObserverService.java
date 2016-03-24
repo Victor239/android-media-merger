@@ -24,7 +24,83 @@ public class FileObserverService extends Service implements SharedPreferences.On
     public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
 
-    Camera camera;
+    CameraMan camera;
+
+    public class CameraMan extends Camera {
+        public CameraMan(Context context, File target) {
+            super(context, target);
+        }
+
+        public void updatePrefs() {
+            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+            TreeMap<String, Boolean> map = new TreeMap<>();
+
+            // read dir's from sdcard
+            {
+                ArrayList<File> dirs = readDcim();
+                dirs.add(screenshotsPath);
+                for (File f : dirs) {
+                    map.put(f.toString(), true);
+                }
+            }
+
+            // update status on remaining directories only. forget settings for gone directories
+            int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
+            for (int i = 0; i < c; i++) {
+                String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
+                boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
+                if (map.containsKey(s)) {
+                    map.put(s, b);
+                }
+            }
+
+            // save new dir list
+            SharedPreferences.Editor edit = sharedPref.edit();
+            String[] keys = map.keySet().toArray(new String[]{});
+            c = keys.length;
+            edit.putInt(MoverApplication.AUTO_COUNT, c);
+            for (int i = 0; i < c; i++) {
+                String key = keys[i];
+                edit.putString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, key);
+                edit.putBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, map.get(key));
+            }
+            edit.commit();
+        }
+
+        @Override
+        public void sync() {
+            super.sync();
+
+            updatePrefs();
+        }
+
+        @Override
+        public ArrayList<File> readDirs() {
+            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+            ArrayList<File> dirs = super.readDirs();
+
+            // remove all disabled path's
+            int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
+            for (int i = 0; i < c; i++) {
+                boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
+                String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
+                if (!b) {
+                    dirs.remove(new File(s));
+                }
+            }
+
+            // add all manual path's
+            c = sharedPref.getInt(MoverApplication.MANUAL_COUNT, 0);
+            for (int i = 0; i < c; i++) {
+                String s = sharedPref.getString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, "");
+                dirs.add(new File(s));
+            }
+
+            return dirs;
+        }
+    }
 
     public static void start(Context context) {
         Intent myIntent = new Intent(context, FileObserverService.class);
@@ -67,9 +143,17 @@ public class FileObserverService extends Service implements SharedPreferences.On
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (start()) {
+            Intent i = new Intent(UPDATE);
+            sendBroadcast(i);
             return super.onStartCommand(intent, flags, startId);
         } else {
+            CameraMan man = new CameraMan(this, null);
+            man.updatePrefs();
+            man.close();
+
             stopSelf();
+            Intent i = new Intent(STOP);
+            sendBroadcast(i);
             return START_NOT_STICKY;
         }
     }
@@ -82,79 +166,11 @@ public class FileObserverService extends Service implements SharedPreferences.On
             if (camera != null)
                 camera.close();
 
-            camera = new Camera(this, new File(storage)) {
-                @Override
-                public void sync() {
-                    super.sync();
-
-                    TreeMap<String, Boolean> map = new TreeMap<>();
-
-                    // read dir's from sdcard
-                    {
-                        ArrayList<File> dirs = readDcim();
-                        dirs.add(screenshotsPath);
-                        for (File f : dirs) {
-                            map.put(f.toString(), true);
-                        }
-                    }
-
-                    // update status on remaining directories only. forget settings for gone directories
-                    int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
-                    for (int i = 0; i < c; i++) {
-                        String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
-                        boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
-                        if (map.containsKey(s)) {
-                            map.put(s, b);
-                        }
-                    }
-
-                    // save new dir list
-                    SharedPreferences.Editor edit = sharedPref.edit();
-                    String[] keys = map.keySet().toArray(new String[]{});
-                    c = keys.length;
-                    edit.putInt(MoverApplication.AUTO_COUNT, c);
-                    for (int i = 0; i < c; i++) {
-                        String key = keys[i];
-                        edit.putString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, key);
-                        edit.putBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, map.get(key));
-                    }
-                    edit.commit();
-                }
-
-                @Override
-                public ArrayList<File> readDirs() {
-                    ArrayList<File> dirs = super.readDirs();
-
-                    // remove all disabled path's
-                    int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
-                    for (int i = 0; i < c; i++) {
-                        boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
-                        String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
-                        if (!b) {
-                            dirs.remove(new File(s));
-                        }
-                    }
-
-                    // add all manual path's
-                    c = sharedPref.getInt(MoverApplication.MANUAL_COUNT, 0);
-                    for (int i = 0; i < c; i++) {
-                        String s = sharedPref.getString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, "");
-                        dirs.add(new File(s));
-                    }
-
-                    return dirs;
-                }
-            };
+            camera = new CameraMan(this, new File(storage));
             camera.create();
-
-            Intent i = new Intent(UPDATE);
-            sendBroadcast(i);
             return true;
-        } else {
-            Intent i = new Intent(STOP);
-            sendBroadcast(i);
-            return false;
         }
+        return false;
     }
 
     @Override
