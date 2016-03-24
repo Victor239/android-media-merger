@@ -22,11 +22,6 @@ public class MoverApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        start();
-    }
-
-    public void start() {
-        Intent myIntent = new Intent(this, FileObserverService.class);
-        startService(myIntent);
+        FileObserverService.start(this);
     }
 }

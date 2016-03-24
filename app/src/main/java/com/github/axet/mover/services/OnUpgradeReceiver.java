@@ -15,6 +15,6 @@ public class OnUpgradeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ((MoverApplication)context.getApplicationContext()).start();
+        FileObserverService.start(context);
     }
 }

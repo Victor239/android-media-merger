@@ -45,7 +45,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -130,15 +130,15 @@ public class MainActivity extends AppCompatActivity {
 
             if (position < auto.size()) {
                 final String[] keys = auto.keySet().toArray(new String[]{});
+
                 path.setText(keys[position]);
+                path.setOnClickListener(null);
+                path.setClickable(false);
+
+                trash.setVisibility(View.GONE);
+
                 enabled.setVisibility(View.VISIBLE);
                 enabled.setChecked(auto.get(keys[position]));
-                trash.setVisibility(View.GONE);
-                path.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                });
                 enabled.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -150,10 +150,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 final int pos = position - auto.size();
                 final String p = manual.get(pos);
-                path.setText(p);
-                enabled.setVisibility(View.GONE);
-                trash.setVisibility(View.VISIBLE);
 
+                path.setText(p);
                 path.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -175,6 +173,32 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                         f.show();
+                    }
+                });
+
+                enabled.setVisibility(View.GONE);
+
+                trash.setVisibility(View.VISIBLE);
+                trash.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("Delete folder");
+                        builder.setMessage(p + "\n\nAre you sure?");
+                        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                manual.remove(pos);
+                                changed();
+                                save();
+                            }
+                        });
+                        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        builder.show();
                     }
                 });
             }
@@ -241,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
     public class CameraReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateDirs(intent);
+            updateDirs();
         }
     }
 
@@ -251,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case 1:
-                ((MoverApplication) this.getApplicationContext()).start();
+                FileObserverService.start(this);
         }
     }
 
@@ -291,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
         list.addFooterView(footer);
 
         if (permitted()) {
-            ((MoverApplication) getApplicationContext()).start();
+            FileObserverService.start(this);
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -324,9 +348,11 @@ public class MainActivity extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
-    void updateDirs(Intent intent) {
+    void updateDirs() {
         String str = "";
 
         adapter = new FoldersAdapter();
@@ -408,6 +434,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        ((MoverApplication) getApplicationContext()).start();
+        FileObserverService.start(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        updateDirs();
     }
 }

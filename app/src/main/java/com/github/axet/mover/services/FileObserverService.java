@@ -1,11 +1,13 @@
 package com.github.axet.mover.services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
@@ -16,13 +18,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class FileObserverService extends Service {
+public class FileObserverService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = FileObserverService.class.getSimpleName();
 
     public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
 
     Camera camera;
+
+    public static void start(Context context) {
+        Intent myIntent = new Intent(context, FileObserverService.class);
+        context.startService(myIntent);
+    }
 
     public FileObserverService() {
     }
@@ -42,7 +49,32 @@ public class FileObserverService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPref.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (start()) {
+            return super.onStartCommand(intent, flags, startId);
+        } else {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+    }
+
+    boolean start() {
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
 
@@ -71,8 +103,7 @@ public class FileObserverService extends Service {
                     for (int i = 0; i < c; i++) {
                         String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
                         boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
-                        Boolean bb = map.get(s);
-                        if (bb != null) {
+                        if (map.containsKey(s)) {
                             map.put(s, b);
                         }
                     }
@@ -100,7 +131,7 @@ public class FileObserverService extends Service {
                         boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
                         String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
                         if (!b) {
-                            dirs.remove(s);
+                            dirs.remove(new File(s));
                         }
                     }
 
@@ -118,14 +149,16 @@ public class FileObserverService extends Service {
 
             Intent i = new Intent(UPDATE);
             sendBroadcast(i);
-
-            return super.onStartCommand(intent, flags, startId);
+            return true;
         } else {
             Intent i = new Intent(STOP);
             sendBroadcast(i);
-
-            stopSelf();
-            return START_NOT_STICKY;
+            return false;
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        start();
     }
 }

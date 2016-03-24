@@ -116,9 +116,7 @@ public class Camera {
     }
 
     public ArrayList<File> readDirs() {
-        ArrayList<File> dirs = new ArrayList<>();
-
-        dirs.addAll(readDcim());
+        ArrayList<File> dirs = readDcim();
 
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
             dirs.add(screenshotsPath);
@@ -214,7 +212,12 @@ public class Camera {
         Date date = new Date(f.lastModified());
         String dateString = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(date);
         String ext = FilenameUtils.getExtension(f.getName());
-        File to = new File(targetDir, String.format("%s.%s", dateString, ext));
+        File to;
+
+        if (ext.isEmpty())
+            to = new File(targetDir, dateString);
+        else
+            to = new File(targetDir, String.format("%s.%s", dateString, ext));
 
         if (isSame(f, to))
             return;
@@ -238,10 +241,11 @@ public class Camera {
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
 
+        final File t = to;
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(context, log, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "MOVE [" + t + "]", Toast.LENGTH_SHORT).show();
             }
         });
     }
