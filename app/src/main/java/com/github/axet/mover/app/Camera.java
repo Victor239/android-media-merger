@@ -31,8 +31,8 @@ public class Camera {
 
     private static final String TAG = "Camera";
 
-    Context context;
-    File targetDir;
+    protected Context context;
+    protected File targetDir;
 
     final static String SCREENSHOTS = "Screenshots";
 
