@@ -17,7 +17,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.NonWritableChannelException;
+import java.nio.channels.OverlappingFileLockException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -208,10 +215,21 @@ public class Camera {
     }
 
     // check if file save to move (it is not open by another apps)
+    //
+    // seems like android allow to write currently writting file. so. this function does not work.
     boolean isSafe(File f) {
         try {
-            FileUtils.touch(f);
-            return true;
+            FileOutputStream fis = new FileOutputStream(f, true);
+            FileLock lock = fis.getChannel().tryLock();
+            if (lock != null) {
+                lock.release();
+                fis.close();
+                return true;
+            }
+            fis.close();
+            return false;
+        } catch (NonWritableChannelException e) {
+            return false;
         } catch (IOException e) {
             return false;
         }
@@ -231,9 +249,6 @@ public class Camera {
             to = new File(targetDir, String.format("%s.%s", dateString, ext));
 
         if (isSame(f, to))
-            return;
-
-        if (!isSafe(f))
             return;
 
         int count = 0;
