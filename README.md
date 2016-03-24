@@ -17,7 +17,7 @@ Android friendly. Application waits for event from ContentObserver, then scan fo
 
 Manual install
 
-    ./gradlew installDebug
+    gradle installDebug
 
 # Screenshots
 
