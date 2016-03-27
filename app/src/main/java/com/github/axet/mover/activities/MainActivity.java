@@ -39,6 +39,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -161,8 +162,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     public void onClick(View v) {
                         final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
                         f.setCurrentPath(new File(p));
-                        f.setFolderIcon(R.drawable.ic_folder_24dp);
-                        f.setFileIcon(R.drawable.ic_file);
                         f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -301,6 +300,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(FileObserverService.STOP);
         filter.addAction(FileObserverService.UPDATE);
@@ -338,8 +339,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 }
 
                 f.setCurrentPath(new File(path));
-                f.setFolderIcon(R.drawable.ic_folder_24dp);
-                f.setFileIcon(R.drawable.ic_file);
                 f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -366,8 +365,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             public void onClick(View view) {
                 final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
                 f.setCurrentPath(Environment.getExternalStorageDirectory());
-                f.setFolderIcon(R.drawable.ic_folder_24dp);
-                f.setFileIcon(R.drawable.ic_file);
                 f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
