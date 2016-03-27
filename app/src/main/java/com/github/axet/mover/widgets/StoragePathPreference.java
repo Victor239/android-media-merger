@@ -8,74 +8,37 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.preference.EditTextPreference;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
-import com.github.axet.mover.R;
+import com.github.axet.androidlibrary.R;
+import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 
 import java.io.File;
 
-public class StoragePathPreference extends EditTextPreference {
-    OpenFileDialog f;
-
+public class StoragePathPreference extends com.github.axet.androidlibrary.widgets.StoragePathPreference {
     public StoragePathPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     public StoragePathPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public StoragePathPreference(Context context) {
-        super(context);
+        this(context, null);
     }
 
     @Override
-    protected void onBindDialogView(View view) {
-        super.onBindDialogView(view);
-    }
-
-    @Override
-    protected void showDialog(Bundle state) {
-        f = new OpenFileDialog(getContext());
-
-        String path = getText();
-
-        if (path == null) {
-            File f = new File(Environment.getExternalStorageDirectory(), "/private/mobile");
-            if (!f.exists())
-                f = Environment.getExternalStorageDirectory();
-            path = f.getPath();
-        }
-
-        f.setCurrentPath(new File(path));
-        f.setFolderIcon(R.drawable.ic_folder_24dp);
-        f.setFileIcon(R.drawable.ic_file);
-        f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                File ff = f.getCurrentPath();
-                String fileName = ff.getPath();
-                if (!ff.isDirectory())
-                    fileName = ff.getParent();
-                if (callChangeListener(fileName)) {
-                    setText(fileName);
-                }
-            }
-        });
-        f.show();
+    public String getDefault() {
+        return new File(Environment.getExternalStorageDirectory(), def == null ? "" : def).getPath();
     }
 
     @Override
     protected Object onGetDefaultValue(TypedArray a, int index) {
-        String s = a.getString(index);
-        if (s.isEmpty()) {
-            s = new File(Environment.getExternalStorageDirectory(), "Audio Recorder").getAbsolutePath();
-        }
-        return s;
+        def = a.getString(index);
+        // we need no default value, user has to specify it's own
+        return null;
     }
 
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        super.onRestoreInstanceState(state);
-    }
 }
