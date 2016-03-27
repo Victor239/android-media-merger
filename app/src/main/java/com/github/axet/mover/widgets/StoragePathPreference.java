@@ -10,6 +10,7 @@ import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.mover.R;
 
 import java.io.File;

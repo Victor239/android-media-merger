@@ -29,10 +29,10 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.FileObserverService;
-import com.github.axet.mover.widgets.OpenFileDialog;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
