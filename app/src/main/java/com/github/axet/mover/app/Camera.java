@@ -171,17 +171,19 @@ public class Camera {
             return false;
         }
 
-        for (File fold : old.keySet()) {
-            for (File fnew : list.keySet()) {
-                if (fold.equals(fnew)) {
-                    Stats sold = old.get(fold);
-                    Stats snew = list.get(fnew);
-                    if (sold.equals(snew)) {
-                        moveFile(fold);
-                    }
+        for (File f : list.keySet()) {
+            if (old.containsKey(f)) {
+                Stats sold = old.get(f);
+                Stats snew = list.get(f);
+                if (sold.equals(snew)) {
+                    moveFile(f);
+                    list.remove(f);
                 }
             }
         }
+
+        if(list.isEmpty())
+            return true;
 
         old = list;
         return false;
