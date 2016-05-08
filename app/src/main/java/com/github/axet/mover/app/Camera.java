@@ -175,6 +175,11 @@ public class Camera {
                 }
             };
             handler.postDelayed(sync, REFRESH_TIME);
+        } else {
+            if (sync != null)
+                handler.removeCallbacks(sync);
+
+            sync = null;
         }
     }
 
