@@ -133,7 +133,7 @@ public class Camera {
         return Arrays.asList(dcimPath, picturesPath);
     }
 
-    public ArrayList<File> readDcim() {
+    public ArrayList<File> generateDcim() {
         ArrayList<File> dirs = new ArrayList<>();
 
         File[] ff = dcimPath.listFiles();
@@ -149,7 +149,7 @@ public class Camera {
     }
 
     public ArrayList<File> generateDirs() {
-        ArrayList<File> dirs = readDcim();
+        ArrayList<File> dirs = generateDcim();
 
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
             dirs.add(screenshotsPath);
@@ -159,13 +159,16 @@ public class Camera {
 
     public void sync() {
         if (!fsync()) {
+            if (sync == null)
+                handler.removeCallbacks(sync);
+
             sync = new Runnable() {
                 @Override
                 public void run() {
                     sync();
                 }
             };
-            handler.postDelayed(sync, 3 * 1000);
+            handler.postDelayed(sync, REFRESH_TIME);
         }
     }
 
@@ -195,6 +198,8 @@ public class Camera {
                 if (sold.equals(snew)) {
                     moveFile(f);
                     list.remove(f);
+                } else {
+                    Log.d(TAG, "Delaying: " + f);
                 }
             }
         }
