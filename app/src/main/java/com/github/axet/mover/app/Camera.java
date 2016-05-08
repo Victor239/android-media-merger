@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Organize DCIM/Camera && Pictures/Screenshots folders
@@ -171,7 +172,7 @@ public class Camera {
             return false;
         }
 
-        for (File f : list.keySet()) {
+        for (File f : new TreeSet<>(list.keySet())) {
             if (old.containsKey(f)) {
                 Stats sold = old.get(f);
                 Stats snew = list.get(f);
@@ -182,7 +183,7 @@ public class Camera {
             }
         }
 
-        if(list.isEmpty())
+        if (list.isEmpty())
             return true;
 
         old = list;
