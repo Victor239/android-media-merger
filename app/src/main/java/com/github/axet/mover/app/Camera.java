@@ -16,8 +16,11 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.text.SimpleDateFormat;
@@ -360,7 +363,7 @@ public class Camera {
         final String log = "MOVE [" + f + " to " + to + "]";
         Log.d(TAG, log);
 
-        f.renameTo(to);
+        move(f, to);
 
         Uri contentUri = Uri.fromFile(to);
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
@@ -374,6 +377,27 @@ public class Camera {
                 Toast.makeText(context, "MOVE [" + t + "]", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void move(File f, File to) {
+        if(f.renameTo(to))
+            return;
+
+        try {
+            InputStream in = new FileInputStream(f);
+            OutputStream out = new FileOutputStream(to);
+
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+            f.delete();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void monitorContentObserver() {
