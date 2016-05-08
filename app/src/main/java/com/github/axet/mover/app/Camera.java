@@ -13,23 +13,20 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
-import java.nio.channels.OverlappingFileLockException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -58,6 +55,24 @@ public class Camera {
     ContentObserver mediaObserver;
 
     Handler handler = new Handler();
+
+    Map<File, Stats> old;
+
+    public static class Stats {
+        public long last;
+        public long size;
+
+        public Stats(File f) {
+            last = f.lastModified();
+            size = f.length();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            Stats n = (Stats) o;
+            return last == n.last && size == n.size;
+        }
+    }
 
     public Camera(final Context context, final File targetDir) {
         this.context = context;
@@ -123,7 +138,7 @@ public class Camera {
         return dirs;
     }
 
-    public ArrayList<File> readDirs() {
+    public ArrayList<File> generateDirs() {
         ArrayList<File> dirs = readDcim();
 
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
@@ -132,9 +147,44 @@ public class Camera {
         return dirs;
     }
 
+    // return done
     public void sync() {
-        watchingFolders = readDirs();
-        moveDirs();
+        if (!fsync()) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sync();
+                }
+            }, 3 * 1000);
+        }
+    }
+
+    public boolean fsync() {
+        watchingFolders = generateDirs();
+        Map<File, Stats> list = generateFiles();
+
+        if (list.isEmpty())
+            return true;
+
+        if (old == null) {
+            old = list;
+            return false;
+        }
+
+        for (File fold : old.keySet()) {
+            for (File fnew : list.keySet()) {
+                if (fold.equals(fnew)) {
+                    Stats sold = old.get(fold);
+                    Stats snew = list.get(fnew);
+                    if (sold.equals(snew)) {
+                        moveFile(fold);
+                    }
+                }
+            }
+        }
+
+        old = list;
+        return false;
     }
 
     public void watch() {
@@ -192,18 +242,28 @@ public class Camera {
         return fo;
     }
 
-    void moveDirs() {
+    Map<File, Stats> generateFiles() {
+        Map<File, Stats> ff = new HashMap<>();
+
         for (File f : watchingFolders) {
-            moveDirs(f);
+            for (File fd : generateFiles(f)) {
+                ff.put(fd, new Stats(fd));
+            }
         }
+
+        return ff;
     }
 
-    void moveDirs(File ff) {
+    List<File> generateFiles(File ff) {
+        ArrayList<File> list = new ArrayList<>();
+
         for (File f : ff.listFiles()) {
             if (f.isDirectory() || f.isHidden())
                 continue;
-            moveFile(f);
+            list.add(f);
         }
+
+        return list;
     }
 
     static boolean isSame(File f, File t) {
