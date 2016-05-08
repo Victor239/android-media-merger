@@ -16,8 +16,11 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.text.SimpleDateFormat;
@@ -137,6 +140,7 @@ public class Camera {
         return Arrays.asList(dcimPath, picturesPath);
     }
 
+    // scan DCIM folder for sub folders
     public ArrayList<File> generateDcim() {
         ArrayList<File> dirs = new ArrayList<>();
 
@@ -152,6 +156,7 @@ public class Camera {
         return dirs;
     }
 
+    // load current sync dirrectories
     public ArrayList<File> generateDirs() {
         ArrayList<File> dirs = generateDcim();
 
@@ -173,6 +178,11 @@ public class Camera {
                 }
             };
             handler.postDelayed(sync, REFRESH_TIME);
+        } else {
+            if (sync != null)
+                handler.removeCallbacks(sync);
+
+            sync = null;
         }
     }
 
@@ -270,6 +280,7 @@ public class Camera {
         return fo;
     }
 
+    // generate file list based on current folders ('watchingFolders')
     Map<File, Stats> generateFiles() {
         Map<File, Stats> ff = new HashMap<>();
 
@@ -282,10 +293,11 @@ public class Camera {
         return ff;
     }
 
-    List<File> generateFiles(File ff) {
+    // load file list from dir
+    List<File> generateFiles(File dir) {
         ArrayList<File> list = new ArrayList<>();
 
-        for (File f : ff.listFiles()) {
+        for (File f : dir.listFiles()) {
             if (f.isDirectory() || f.isHidden())
                 continue;
             list.add(f);
@@ -351,7 +363,7 @@ public class Camera {
         final String log = "MOVE [" + f + " to " + to + "]";
         Log.d(TAG, log);
 
-        f.renameTo(to);
+        move(f, to);
 
         Uri contentUri = Uri.fromFile(to);
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
@@ -365,6 +377,27 @@ public class Camera {
                 Toast.makeText(context, "MOVE [" + t + "]", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void move(File f, File to) {
+        if(f.renameTo(to))
+            return;
+
+        try {
+            InputStream in = new FileInputStream(f);
+            OutputStream out = new FileOutputStream(to);
+
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+            f.delete();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void monitorContentObserver() {
