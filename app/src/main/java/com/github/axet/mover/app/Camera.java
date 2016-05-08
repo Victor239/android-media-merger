@@ -37,12 +37,18 @@ public class Camera {
 
     private static final String TAG = "Camera";
 
-    protected Context context;
-    protected File targetDir;
-
     final static String SCREENSHOTS = "Screenshots";
 
-    TreeMap<File, FileObserver> organizes = new TreeMap<>();
+    // minimum refresh time, camera file flash recording video set to 10 seconds.
+    // do not refresh more often, otherwise we may not detect current recording file video last write time change.
+    public static final int REFRESH_TIME = 10 * 1000;
+
+    protected Context context;
+
+    protected Handler handler = new Handler();
+
+    // where to put result files
+    protected File targetDir;
 
     // /sdcard/DCIM/
     public final File dcimPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
@@ -51,22 +57,20 @@ public class Camera {
     // /sdcard/Pictures/Screenshots/
     public final File screenshotsPath = new File(picturesPath, SCREENSHOTS);
 
+    // current sync() folders list
     ArrayList<File> watchingFolders = new ArrayList<>();
 
-    ContentObserver mediaObserver;
-
-    Handler handler = new Handler();
-
+    // previous sync() file list
     Map<File, Stats> old;
 
-    // last scan time
+    // last sync() time
     long last;
 
+    // sync runnable
     Runnable sync;
 
-    // minimum refresh time, camera file flash recording video set to 10 seconds.
-    // do not refresh more often, otherwise we may not detect current recording file video last write time change.
-    public static final int REFRESH_TIME = 10 * 1000;
+    ContentObserver mediaObserver;
+    TreeMap<File, FileObserver> organizes = new TreeMap<>();
 
     public static class Stats {
         public long last;
@@ -159,7 +163,7 @@ public class Camera {
 
     public void sync() {
         if (!fsync()) {
-            if (sync == null)
+            if (sync != null)
                 handler.removeCallbacks(sync);
 
             sync = new Runnable() {
