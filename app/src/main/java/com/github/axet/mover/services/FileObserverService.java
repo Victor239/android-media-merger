@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
@@ -15,7 +14,6 @@ import com.github.axet.mover.app.MoverApplication;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
 
 public class FileObserverService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -76,10 +74,10 @@ public class FileObserverService extends Service implements SharedPreferences.On
         }
 
         @Override
-        public ArrayList<File> readDirs() {
+        public ArrayList<File> generateDirs() {
             final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
-            ArrayList<File> dirs = super.readDirs();
+            ArrayList<File> dirs = super.generateDirs();
 
             // remove all disabled path's
             int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
