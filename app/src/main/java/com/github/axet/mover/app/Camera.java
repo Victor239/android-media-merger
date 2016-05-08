@@ -137,6 +137,7 @@ public class Camera {
         return Arrays.asList(dcimPath, picturesPath);
     }
 
+    // scan DCIM folder for sub folders
     public ArrayList<File> generateDcim() {
         ArrayList<File> dirs = new ArrayList<>();
 
@@ -152,6 +153,7 @@ public class Camera {
         return dirs;
     }
 
+    // load current sync dirrectories
     public ArrayList<File> generateDirs() {
         ArrayList<File> dirs = generateDcim();
 
@@ -270,6 +272,7 @@ public class Camera {
         return fo;
     }
 
+    // generate file list based on current folders ('watchingFolders')
     Map<File, Stats> generateFiles() {
         Map<File, Stats> ff = new HashMap<>();
 
@@ -282,10 +285,11 @@ public class Camera {
         return ff;
     }
 
-    List<File> generateFiles(File ff) {
+    // load file list from dir
+    List<File> generateFiles(File dir) {
         ArrayList<File> list = new ArrayList<>();
 
-        for (File f : ff.listFiles()) {
+        for (File f : dir.listFiles()) {
             if (f.isDirectory() || f.isHidden())
                 continue;
             list.add(f);
