@@ -59,6 +59,15 @@ public class Camera {
 
     Map<File, Stats> old;
 
+    // last scan time
+    long last;
+
+    Runnable sync;
+
+    // minimum refresh time, camera file flash recording video set to 10 seconds.
+    // do not refresh more often, otherwise we may not detect current recording file video last write time change.
+    public static final int REFRESH_TIME = 10 * 1000;
+
     public static class Stats {
         public long last;
         public long size;
@@ -148,19 +157,26 @@ public class Camera {
         return dirs;
     }
 
-    // return done
     public void sync() {
         if (!fsync()) {
-            handler.postDelayed(new Runnable() {
+            sync = new Runnable() {
                 @Override
                 public void run() {
                     sync();
                 }
-            }, 3 * 1000);
+            };
+            handler.postDelayed(sync, 3 * 1000);
         }
     }
 
+    // return done - true
     public boolean fsync() {
+        long cur = System.currentTimeMillis();
+        if (last + REFRESH_TIME > cur) {
+            return false;
+        }
+
+        last = cur;
         watchingFolders = generateDirs();
         Map<File, Stats> list = generateFiles();
 
