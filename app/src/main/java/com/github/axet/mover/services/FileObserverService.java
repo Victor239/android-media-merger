@@ -36,7 +36,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
             // read dir's from sdcard
             {
-                ArrayList<File> dirs = readDcim();
+                ArrayList<File> dirs = generateDcim();
                 dirs.add(screenshotsPath);
                 for (File f : dirs) {
                     map.put(f.toString(), true);
