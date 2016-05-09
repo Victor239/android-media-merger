@@ -297,10 +297,13 @@ public class Camera {
     List<File> generateFiles(File dir) {
         ArrayList<File> list = new ArrayList<>();
 
-        for (File f : dir.listFiles()) {
-            if (f.isDirectory() || f.isHidden())
-                continue;
-            list.add(f);
+        File[] ff = dir.listFiles();
+        if (ff != null) {
+            for (File f : ff) {
+                if (f.isDirectory() || f.isHidden())
+                    continue;
+                list.add(f);
+            }
         }
 
         return list;
@@ -380,7 +383,7 @@ public class Camera {
     }
 
     public void move(File f, File to) {
-        if(f.renameTo(to))
+        if (f.renameTo(to))
             return;
 
         try {
