@@ -346,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                         String fileName = ff.getPath();
                         if (!ff.isDirectory())
                             fileName = ff.getParent();
-                        SharedPreferences.Editor edit =  sharedPref.edit();
+                        SharedPreferences.Editor edit = sharedPref.edit();
                         edit.putString(MoverApplication.STORAGE, fileName);
                         edit.commit();
                     }
@@ -487,6 +487,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.onDestroy();
 
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+
+        if (reciver != null) {
+            unregisterReciver(reciver);
+            reciver = null;
+        }
     }
 
     @Override

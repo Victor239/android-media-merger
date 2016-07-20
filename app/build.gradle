@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "com.github.axet.mover"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 25
-        versionName "1.2.11"
+        versionCode 26
+        versionName "1.2.12"
     }
 
     signingConfigs {
@@ -26,6 +26,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def file = output.packageApplication.outputFile
+            def fileName = org.apache.commons.io.FilenameUtils.getExtension(android.defaultConfig.applicationId) + "-" + android.defaultConfig.versionName + "-" + variant.buildType.name + ".apk"
+            output.packageApplication.outputFile = new File(file.parent, fileName)
         }
     }
 }
