@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
 
         if (reciver != null) {
-            unregisterReciver(reciver);
+            unregisterReceiver(reciver);
             reciver = null;
         }
     }
