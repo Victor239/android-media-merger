@@ -309,9 +309,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         list = (ListView) findViewById(R.id.list);
 
-        adapter = new FoldersAdapter();
-        list.setAdapter(adapter);
-
         list.setHeaderDividersEnabled(false);
         list.setFooterDividersEnabled(false);
 
@@ -320,6 +317,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         footer = LayoutInflater.from(this).inflate(R.layout.footer, list, false);
         list.addFooterView(footer);
+
+        adapter = new FoldersAdapter();
+        list.setAdapter(adapter);
 
         View browse = footer.findViewById(R.id.browse);
 
