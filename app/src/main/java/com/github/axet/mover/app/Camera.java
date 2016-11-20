@@ -97,18 +97,19 @@ public class Camera {
     }
 
     public void create() {
-//        Android 6.0 has a bug preventing FileObserver to work with screenshots folder.
-//        is simply do not fire on Screenshot file creation.
-//
-//        if (dcimPath.exists()) {
-//            watchDirectory(dcimPath, null);
-//        }
-//        if (picturesPath.exists()) {
-//            watchDirectory(picturesPath, SCREENSHOTS);
-//        }
-
         monitorContentObserver();
         sync();
+
+        // Android 6.0 has a bug preventing FileObserver to work with screenshots folder.
+        // is simply do not fire on Screenshot file creation.
+        for (File d : watchingFolders) {
+            String p = d.getPath();
+            if (p.startsWith(dcimPath.getPath()))
+                continue;
+            if (p.startsWith(picturesPath.getPath()))
+                continue;
+            watchFiles(d);
+        }
     }
 
     public void close() {
@@ -244,14 +245,16 @@ public class Camera {
         fo = new FileObserver(path.getPath(), FileObserver.CREATE | FileObserver.DELETE) {
             @Override
             public void onEvent(int event, String file) {
-                if (!filter.equals(file)) {
+                if (filter != null && !filter.equals(file)) {
                     return;
                 }
 
-                File ff = new File(path, file);
+                File ff = path;
+                if (file != null)
+                    ff = new File(path, file);
 
                 if (event == FileObserver.CREATE && ff.isDirectory() && !ff.isHidden()) {
-                    organizes.put(ff, watchFiles(ff));
+                    watchFiles(ff);
                 }
 
                 if (event == FileObserver.DELETE) {
@@ -268,15 +271,23 @@ public class Camera {
     }
 
     public FileObserver watchFiles(final File path) {
-        FileObserver fo = new FileObserver(path.getPath(), FileObserver.CREATE) {
+        FileObserver fo = organizes.get(path);
+        if (fo != null) {
+            fo.stopWatching();
+            organizes.remove(path);
+        }
+
+        fo = new FileObserver(path.getPath(), FileObserver.CREATE) {
             @Override
             public void onEvent(int event, String file) {
+                if (file == null)
+                    return;
                 File ff = new File(path, file);
-
                 moveFile(ff);
             }
         };
         fo.startWatching();
+        organizes.put(path, fo);
         return fo;
     }
 
