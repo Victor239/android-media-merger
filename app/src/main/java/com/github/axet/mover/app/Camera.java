@@ -64,7 +64,7 @@ public class Camera {
     ArrayList<File> watchingFolders = new ArrayList<>();
 
     // previous sync() file list
-    Map<File, Stats> old;
+    Map<File, Stats> old = new HashMap<>();
 
     ArrayList<File> open = new ArrayList<>();
 
@@ -197,11 +197,6 @@ public class Camera {
         if (list.isEmpty())
             return true;
 
-        if (old == null) {
-            old = list;
-            return false;
-        }
-
         for (File f : new TreeSet<>(list.keySet())) {
             if (old.containsKey(f) && !open.contains(f)) {
                 Stats sold = old.get(f);
@@ -215,10 +210,11 @@ public class Camera {
             }
         }
 
+        old = list;
+
         if (list.isEmpty())
             return true;
 
-        old = list;
         return false;
     }
 
@@ -265,6 +261,15 @@ public class Camera {
         organizes.put(path, fo);
     }
 
+    void openClose(File ff) {
+        for (File f : open) {
+            if (f.equals(ff)) {
+                open.remove(f);
+                return; // remove one
+            }
+        }
+    }
+
     public FileObserver watchFiles(final File path) {
         FileObserver fo = organizes.get(path);
         if (fo != null) {
@@ -277,6 +282,7 @@ public class Camera {
                 if (file == null)
                     return;
                 File ff = new File(path, file);
+                Log.d(TAG, event + " " + ff.toString());
                 switch (event) {
                     case FileObserver.CREATE:
                     case FileObserver.OPEN:
@@ -285,16 +291,17 @@ public class Camera {
                             old.remove(ff);
                         break;
                     case FileObserver.MODIFY:
+                    case FileObserver.ACCESS:
                         if (old != null)
                             old.remove(ff);
                         break;
                     case FileObserver.DELETE:
                     case FileObserver.MOVED_FROM:
-                        open.remove(ff);
+                        openClose(ff);
                         break;
                     case FileObserver.CLOSE_NOWRITE:
                     case FileObserver.CLOSE_WRITE:
-                        open.remove(ff);
+                        openClose(ff);
                         // no break
                     case FileObserver.MOVED_TO:
                         sync(); //moveFile(ff);
