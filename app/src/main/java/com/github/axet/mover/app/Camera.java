@@ -66,6 +66,8 @@ public class Camera {
     // previous sync() file list
     Map<File, Stats> old;
 
+    ArrayList<File> open = new ArrayList<>();
+
     // last sync() time
     long last;
 
@@ -118,7 +120,7 @@ public class Camera {
             fo.stopWatching();
         }
         organizes.clear();
-
+        open.clear();
         if (mediaObserver != null) {
             context.getContentResolver().unregisterContentObserver(mediaObserver);
         }
@@ -144,7 +146,6 @@ public class Camera {
     // scan DCIM folder for sub folders
     public ArrayList<File> generateDcim() {
         ArrayList<File> dirs = new ArrayList<>();
-
         File[] ff = dcimPath.listFiles();
         if (ff != null) {
             for (File f : ff) {
@@ -153,17 +154,14 @@ public class Camera {
                 }
             }
         }
-
         return dirs;
     }
 
     // load current sync dirrectories
     public ArrayList<File> generateDirs() {
         ArrayList<File> dirs = generateDcim();
-
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
             dirs.add(screenshotsPath);
-
         return dirs;
     }
 
@@ -171,7 +169,6 @@ public class Camera {
         if (!fsync()) {
             if (sync != null)
                 handler.removeCallbacks(sync);
-
             sync = new Runnable() {
                 @Override
                 public void run() {
@@ -182,7 +179,6 @@ public class Camera {
         } else {
             if (sync != null)
                 handler.removeCallbacks(sync);
-
             sync = null;
         }
     }
@@ -207,7 +203,7 @@ public class Camera {
         }
 
         for (File f : new TreeSet<>(list.keySet())) {
-            if (old.containsKey(f)) {
+            if (old.containsKey(f) && !open.contains(f)) {
                 Stats sold = old.get(f);
                 Stats snew = list.get(f);
                 if (sold.equals(snew)) {
@@ -241,8 +237,7 @@ public class Camera {
             fo.stopWatching();
             organizes.remove(path);
         }
-
-        fo = new FileObserver(path.getPath(), FileObserver.CREATE | FileObserver.DELETE) {
+        fo = new FileObserver(path.getPath()) {
             @Override
             public void onEvent(int event, String file) {
                 if (filter != null && !filter.equals(file)) {
@@ -276,14 +271,35 @@ public class Camera {
             fo.stopWatching();
             organizes.remove(path);
         }
-
-        fo = new FileObserver(path.getPath(), FileObserver.CREATE) {
+        fo = new FileObserver(path.getPath()) {
             @Override
             public void onEvent(int event, String file) {
                 if (file == null)
                     return;
                 File ff = new File(path, file);
-                moveFile(ff);
+                switch (event) {
+                    case FileObserver.CREATE:
+                    case FileObserver.OPEN:
+                        open.add(ff);
+                        if (old != null)
+                            old.remove(ff);
+                        break;
+                    case FileObserver.MODIFY:
+                        if (old != null)
+                            old.remove(ff);
+                        break;
+                    case FileObserver.DELETE:
+                    case FileObserver.MOVED_FROM:
+                        open.remove(ff);
+                        break;
+                    case FileObserver.CLOSE_NOWRITE:
+                    case FileObserver.CLOSE_WRITE:
+                        open.remove(ff);
+                        // no break
+                    case FileObserver.MOVED_TO:
+                        sync(); //moveFile(ff);
+                        break;
+                }
             }
         };
         fo.startWatching();
@@ -294,20 +310,17 @@ public class Camera {
     // generate file list based on current folders ('watchingFolders')
     Map<File, Stats> generateFiles() {
         Map<File, Stats> ff = new HashMap<>();
-
         for (File f : watchingFolders) {
             for (File fd : generateFiles(f)) {
                 ff.put(fd, new Stats(fd));
             }
         }
-
         return ff;
     }
 
     // load file list from dir
     List<File> generateFiles(File dir) {
         ArrayList<File> list = new ArrayList<>();
-
         File[] ff = dir.listFiles();
         if (ff != null) {
             for (File f : ff) {
@@ -316,7 +329,6 @@ public class Camera {
                 list.add(f);
             }
         }
-
         return list;
     }
 
@@ -396,7 +408,6 @@ public class Camera {
     public void move(File f, File to) {
         if (f.renameTo(to))
             return;
-
         try {
             InputStream in = new FileInputStream(f);
             OutputStream out = new FileOutputStream(to);
