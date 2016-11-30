@@ -287,14 +287,12 @@ public class Camera {
                 if (file == null)
                     return;
                 File f = new File(path, file);
-                Log.d(TAG, event + " " + f.toString());
                 switch (event) {
                     case FileObserver.CREATE:
                         old.remove(f);
                         break;
                     case FileObserver.OPEN:
                         open.add(f);
-                        Log.d(TAG, "open size:" + open.size());
                         old.remove(f);
                         break;
                     case FileObserver.MODIFY:
@@ -304,12 +302,10 @@ public class Camera {
                     case FileObserver.DELETE:
                     case FileObserver.MOVED_FROM:
                         openClose(f);
-                        Log.d(TAG, "open size:" + open.size());
                         break;
                     case FileObserver.CLOSE_NOWRITE:
                     case FileObserver.CLOSE_WRITE:
                         openClose(f);
-                        Log.d(TAG, "open size:" + open.size());
                         // no break
                     case FileObserver.MOVED_TO:
                         sync(); //moveFile(ff);
