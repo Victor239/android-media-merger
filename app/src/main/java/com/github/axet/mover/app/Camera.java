@@ -262,10 +262,15 @@ public class Camera {
     }
 
     void openClose(File ff) {
-        for (File f : open) {
-            if (f.equals(ff)) {
-                open.remove(f);
-                return; // remove one
+        for (int i = 0; i < open.size(); i++) {
+            File f = open.get(i);
+            try {
+                if (f.getCanonicalPath().equals(ff.getCanonicalPath())) {
+                    open.remove(i);
+                    return; // remove one
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -281,27 +286,26 @@ public class Camera {
             public void onEvent(int event, String file) {
                 if (file == null)
                     return;
-                File ff = new File(path, file);
-                Log.d(TAG, event + " " + ff.toString());
+                File f = new File(path, file);
                 switch (event) {
                     case FileObserver.CREATE:
+                        old.remove(f);
+                        break;
                     case FileObserver.OPEN:
-                        open.add(ff);
-                        if (old != null)
-                            old.remove(ff);
+                        open.add(f);
+                        old.remove(f);
                         break;
                     case FileObserver.MODIFY:
                     case FileObserver.ACCESS:
-                        if (old != null)
-                            old.remove(ff);
+                        old.remove(f);
                         break;
                     case FileObserver.DELETE:
                     case FileObserver.MOVED_FROM:
-                        openClose(ff);
+                        openClose(f);
                         break;
                     case FileObserver.CLOSE_NOWRITE:
                     case FileObserver.CLOSE_WRITE:
-                        openClose(ff);
+                        openClose(f);
                         // no break
                     case FileObserver.MOVED_TO:
                         sync(); //moveFile(ff);
