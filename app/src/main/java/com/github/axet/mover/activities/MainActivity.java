@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     auto.put(s, b);
                 }
             }
+            changed();
         }
 
         @Override
@@ -129,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 convertView = i.inflate(R.layout.item, parent, false);
             }
 
-            final Switch enabled = (Switch) convertView.findViewById(R.id.enabled);
+            final SwitchCompat enabled = (SwitchCompat) convertView.findViewById(R.id.enabled);
             final TextView path = (TextView) convertView.findViewById(R.id.path);
             View trash = convertView.findViewById(R.id.trash);
 

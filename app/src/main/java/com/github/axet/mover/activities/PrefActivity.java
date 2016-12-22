@@ -1,6 +1,8 @@
 package com.github.axet.mover.activities;
 
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.EditTextPreference;
@@ -16,8 +18,9 @@ import com.github.axet.mover.services.FileObserverService;
 
 import java.io.File;
 
-public class PrefActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PrefActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    @TargetApi(11)
     public static class PrefFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -72,9 +75,13 @@ public class PrefActivity extends PreferenceActivity implements SharedPreference
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new PrefFragment())
-                .commit();
+        if (Build.VERSION.SDK_INT < 11) {
+            addPreferencesFromResource(R.xml.prefs);
+        } else {
+            getFragmentManager().beginTransaction()
+                    .replace(android.R.id.content, new PrefFragment())
+                    .commit();
+        }
     }
 
     @Override

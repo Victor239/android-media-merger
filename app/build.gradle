@@ -6,10 +6,10 @@ android {
 
     defaultConfig {
         applicationId "com.github.axet.mover"
-        minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 34
-        versionName "1.2.20"
+        minSdkVersion 9
+        targetSdkVersion 24
+        versionCode 35
+        versionName "1.2.21"
     }
 
     signingConfigs {
@@ -40,9 +40,9 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:design:25.0.1'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:design:25.1.0'
     compile 'com.google.android.gms:play-services-appindexing:9.8.0'
     compile 'commons-io:commons-io:2.4'
-    compile 'com.github.axet:android-library:1.6.5' // project(':android-library')
+    compile 'com.github.axet:android-library:1.6.9' // compile project(':android-library')
 }
