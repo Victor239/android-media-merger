@@ -105,11 +105,6 @@ public class Camera {
         // Android 6.0 has a bug preventing FileObserver to work with screenshots folder.
         // is simply do not fire on Screenshot file creation.
         for (File d : watchingFolders) {
-            String p = d.getPath();
-            if (p.startsWith(dcimPath.getPath()))
-                continue;
-            if (p.startsWith(picturesPath.getPath()))
-                continue;
             watchFiles(d);
         }
     }
