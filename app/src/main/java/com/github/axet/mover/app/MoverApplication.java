@@ -21,7 +21,6 @@ public class MoverApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         FileObserverService.start(this);
     }
 }

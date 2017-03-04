@@ -105,6 +105,12 @@ public class FileObserverService extends Service implements SharedPreferences.On
         context.startService(myIntent);
     }
 
+    public static void update(Context context) {
+        Intent myIntent = new Intent(context, FileObserverService.class);
+        myIntent.setAction(UPDATE);
+        context.startService(myIntent);
+    }
+
     public FileObserverService() {
     }
 
@@ -141,7 +147,26 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (start()) {
+        if (intent == null) {
+            if (camera == null) {
+                stopSelf();
+                return START_NOT_STICKY;
+            } else {
+                return super.onStartCommand(intent, flags, startId);
+            }
+        }
+
+        String a = intent.getAction();
+        if (a == null) {
+            if (camera == null) {
+                stopSelf();
+                return START_NOT_STICKY;
+            } else {
+                return super.onStartCommand(intent, flags, startId);
+            }
+        }
+
+        if (a.equals(UPDATE)) {
             return super.onStartCommand(intent, flags, startId);
         } else {
             stopSelf();
@@ -150,12 +175,14 @@ public class FileObserverService extends Service implements SharedPreferences.On
     }
 
     boolean start() {
+        if (camera != null) {
+            camera.close();
+            camera = null;
+        }
+
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
         if (storage != null) {
-            if (camera != null)
-                camera.close();
-
             camera = new CameraMan(this, new File(storage));
             camera.create();
 
@@ -175,6 +202,8 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        start();
+        if (!start()) {
+            stopSelf();
+        }
     }
 }
