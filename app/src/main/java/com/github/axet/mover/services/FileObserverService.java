@@ -128,12 +128,13 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
+
+        start();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
     }
@@ -141,17 +142,9 @@ public class FileObserverService extends Service implements SharedPreferences.On
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (start()) {
-            Intent i = new Intent(UPDATE);
-            sendBroadcast(i);
             return super.onStartCommand(intent, flags, startId);
         } else {
-            CameraMan man = new CameraMan(this, null);
-            man.updatePrefs();
-            man.close();
-
             stopSelf();
-            Intent i = new Intent(STOP);
-            sendBroadcast(i);
             return START_NOT_STICKY;
         }
     }
@@ -159,16 +152,25 @@ public class FileObserverService extends Service implements SharedPreferences.On
     boolean start() {
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
-
         if (storage != null) {
             if (camera != null)
                 camera.close();
 
             camera = new CameraMan(this, new File(storage));
             camera.create();
+
+            Intent i = new Intent(UPDATE);
+            sendBroadcast(i);
             return true;
+        } else {
+            CameraMan man = new CameraMan(this, null);
+            man.updatePrefs();
+            man.close();
+
+            Intent i = new Intent(STOP);
+            sendBroadcast(i);
+            return false;
         }
-        return false;
     }
 
     @Override
