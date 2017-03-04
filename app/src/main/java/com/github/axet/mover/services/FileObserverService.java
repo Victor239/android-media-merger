@@ -167,11 +167,16 @@ public class FileObserverService extends Service implements SharedPreferences.On
         }
 
         if (a.equals(UPDATE)) {
-            return super.onStartCommand(intent, flags, startId);
-        } else {
-            stopSelf();
-            return START_NOT_STICKY;
+            if (start()) {
+                return super.onStartCommand(intent, flags, startId);
+            } else {
+                stopSelf();
+                return START_NOT_STICKY;
+            }
         }
+
+        stopSelf();
+        return START_NOT_STICKY;
     }
 
     boolean start() {
