@@ -339,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     path = ff.getPath();
                 }
 
+                f.setSelectFiles(false);
                 f.setCurrentPath(new File(path));
                 f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
