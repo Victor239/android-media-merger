@@ -86,7 +86,7 @@ public class PrefActivity extends AppCompatPreferenceActivity implements SharedP
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        FileObserverService.start(this);
+        FileObserverService.update(this);
     }
 
     @Override

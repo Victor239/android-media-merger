@@ -276,10 +276,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         switch (requestCode) {
             case 1:
-                FileObserverService.start(this);
+                FileObserverService.update(this);
         }
     }
 
@@ -358,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         });
 
         if (permitted()) {
-            FileObserverService.start(this);
+            FileObserverService.update(this);
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -480,8 +479,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     @Override
     protected void onResume() {
         super.onResume();
-
-        FileObserverService.start(this);
+        FileObserverService.update(this);
     }
 
     @Override
