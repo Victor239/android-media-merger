@@ -44,5 +44,5 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile 'com.google.android.gms:play-services-appindexing:9.8.0'
     compile 'commons-io:commons-io:2.4'
-    compile 'com.github.axet:android-library:1.10.11' // compile project(':android-library')
+    compile 'com.github.axet:android-library:1.10.12' // compile project(':android-library')
 }
