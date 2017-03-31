@@ -16,10 +16,7 @@
         android:theme="@style/AppTheme">
         <service android:name=".services.FileObserverService" />
 
-        <receiver
-            android:name=".services.OnBootReceiver"
-            android:enabled="true"
-            android:exported="false">
+        <receiver android:name=".services.OnBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />

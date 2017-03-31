@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 path.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_FIALOG);
+                        final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
                         f.setCurrentPath(new File(p));
                         f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_FIALOG);
+                final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
 
                 final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                 String path = sharedPref.getString(MoverApplication.STORAGE, null);
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_FIALOG);
+                final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
                 f.setCurrentPath(Environment.getExternalStorageDirectory());
                 f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
