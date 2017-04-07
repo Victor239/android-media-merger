@@ -9,6 +9,8 @@ public class MoverApplication extends Application {
 
     public static final String STORAGE = "storage";
 
+    public static final String PREFERENCE_OPTIMIZATION = "optimization";
+
     public static final String AUTO_COUNT = "AUTO_COUNT";
     public static final String AUTO_PREFIX = "AUTO_";
     public static final String AUTO_ENABLED = "_ENABLED";
