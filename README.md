@@ -12,11 +12,7 @@ Main app logic is here:
 
 Android friendly. Application waits for event from ContentObserver, then scan for new files.
 
-# Install
-
-[![ Google Play](docs/google-play-badge.png)](https://play.google.com/store/apps/details?id=com.github.axet.mover) 
-
-Manual install
+# Manual install
 
     gradle installDebug
 
