@@ -2,7 +2,9 @@ package com.github.axet.mover.app;
 
 import android.app.Application;
 import android.content.Intent;
+import android.support.v7.preference.PreferenceManager;
 
+import com.github.axet.mover.R;
 import com.github.axet.mover.services.FileObserverService;
 
 public class MoverApplication extends Application {
@@ -23,6 +25,7 @@ public class MoverApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
         FileObserverService.start(this);
     }
 }
