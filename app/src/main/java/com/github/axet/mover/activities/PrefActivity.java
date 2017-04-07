@@ -2,31 +2,29 @@ package com.github.axet.mover.activities;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.provider.Settings;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.EditTextPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceGroup;
+import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceScreen;
 
-import com.github.axet.mover.app.MoverApplication;
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
+import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.FileObserverService;
 
 import java.io.File;
 
-public class PrefActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PrefActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     static void initSummary(Preference p) {
         if (p instanceof PreferenceGroup) {
@@ -53,28 +51,8 @@ public class PrefActivity extends AppCompatPreferenceActivity implements SharedP
         final Context context = screen.getContext();
         final PowerManager pm = (PowerManager) context.getSystemService(POWER_SERVICE);
         final String n = context.getPackageName();
-        Preference optimization = manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-        if (Build.VERSION.SDK_INT < 23) {
-            screen.removePreference(optimization);
-        } else {
-            SwitchPreference p = (SwitchPreference) optimization;
-            p.setChecked(pm.isIgnoringBatteryOptimizations(n));
-            p.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                @TargetApi(23)
-                public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (pm.isIgnoringBatteryOptimizations(n)) {
-                        Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                        context.startActivity(intent);
-                    } else {
-                        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                        intent.setData(Uri.parse("package:" + n));
-                        context.startActivity(intent);
-                    }
-                    return false;
-                }
-            });
-        }
+        OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
+        optimization.onResume();
 
         initSummary(screen);
 
@@ -83,18 +61,16 @@ public class PrefActivity extends AppCompatPreferenceActivity implements SharedP
             p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    p.getEditText().setText(new File(Environment.getExternalStorageDirectory(), "/private/mobile").getPath());
+                    p.setText(new File(Environment.getExternalStorageDirectory(), "/private/mobile").getPath());
                     return true;
                 }
             });
         }
     }
 
-    @TargetApi(11)
-    public static class PrefFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static class PrefFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             addPreferencesFromResource(R.xml.prefs);
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
             initPrefs(getPreferenceManager(), getPreferenceScreen());
@@ -114,29 +90,17 @@ public class PrefActivity extends AppCompatPreferenceActivity implements SharedP
         @Override
         public void onResume() {
             super.onResume();
-            final PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
-            final String n =getActivity().getPackageName();
-            if (Build.VERSION.SDK_INT >= 23) {
-                SwitchPreference optimization = (SwitchPreference) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-                if (optimization != null) {
-                    optimization.setChecked(pm.isIgnoringBatteryOptimizations(n));
-                }
-            }
+            OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
+            optimization.onResume();
         }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT < 11) {
-            addPreferencesFromResource(R.xml.prefs);
-            initPrefs(getPreferenceManager(), getPreferenceScreen());
-        } else {
-            getFragmentManager().beginTransaction()
-                    .replace(android.R.id.content, new PrefFragment())
-                    .commit();
-        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new PrefFragment())
+                .commit();
     }
 
     @Override
@@ -149,14 +113,6 @@ public class PrefActivity extends AppCompatPreferenceActivity implements SharedP
         super.onResume();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
-        final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        final String n = getPackageName();
-        if (Build.VERSION.SDK_INT >= 23) {
-            SwitchPreference optimization = (SwitchPreference) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-            if (optimization != null) {
-                optimization.setChecked(pm.isIgnoringBatteryOptimizations(n));
-            }
-        }
     }
 
     @Override
