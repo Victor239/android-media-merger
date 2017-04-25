@@ -1,14 +1,21 @@
 package com.github.axet.mover.activities;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.Preference;
@@ -17,6 +24,7 @@ import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 
+import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
@@ -25,6 +33,8 @@ import com.github.axet.mover.services.FileObserverService;
 import java.io.File;
 
 public class PrefActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     static void initSummary(Preference p) {
         if (p instanceof PreferenceGroup) {
@@ -48,12 +58,6 @@ public class PrefActivity extends AppCompatActivity implements SharedPreferences
     }
 
     static void initPrefs(final PreferenceManager manager, PreferenceScreen screen) {
-        final Context context = screen.getContext();
-        final PowerManager pm = (PowerManager) context.getSystemService(POWER_SERVICE);
-        final String n = context.getPackageName();
-        OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-        optimization.onResume();
-
         initSummary(screen);
 
         final EditTextPreference p = (EditTextPreference) manager.findPreference("storage");
@@ -74,6 +78,7 @@ public class PrefActivity extends AppCompatActivity implements SharedPreferences
             addPreferencesFromResource(R.xml.prefs);
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
             initPrefs(getPreferenceManager(), getPreferenceScreen());
+            Storage.permitted(this, PERMISSION, 1);
         }
 
         @Override
@@ -93,6 +98,38 @@ public class PrefActivity extends AppCompatActivity implements SharedPreferences
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
             optimization.onResume();
         }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            switch (requestCode) {
+                case 1:
+                    if (!Storage.permitted(getContext(), PERMISSION)) {
+                        warninig(getContext());
+                    }
+                    FileObserverService.update(getContext());
+                    break;
+            }
+        }
+
+    }
+
+    static void warninig(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Storage Permission");
+        builder.setMessage("Storage Permission has to be enabled manually");
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Storage.showPermissions(context);
+            }
+        });
+        builder.show();
     }
 
     @Override

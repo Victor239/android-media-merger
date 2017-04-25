@@ -8,8 +8,8 @@ android {
         applicationId "com.github.axet.mover"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 51
-        versionName "1.2.37"
+        versionCode 52
+        versionName "1.2.38"
     }
 
     signingConfigs {
@@ -42,7 +42,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
-    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
     compile 'commons-io:commons-io:2.4'
-    compile 'com.github.axet:android-library:1.11.4' // compile project(':android-library')
+    compile 'com.github.axet:android-library:1.11.11' // compile project(':android-library')
 }
