@@ -30,13 +30,12 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.FileObserverService;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,16 +44,11 @@ import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
-
     ListView list;
     FoldersAdapter adapter;
     View footer;
     View header;
+    boolean browse = false;
 
     CameraReceiver reciver = new CameraReceiver();
 
@@ -282,17 +276,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    // check if we have to ask for permission, then do not start service yet
-    boolean permitted() {
-        String[] ss = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        for (String s : ss) {
-            if (ContextCompat.checkSelfPermission(this, s) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, ss, 1);
-                return false;
-            }
-        }
-        return true;
-    }
+    String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -325,38 +309,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
-
-                final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                String path = sharedPref.getString(MoverApplication.STORAGE, null);
-
-                if (path == null) {
-                    File ff = new File(Environment.getExternalStorageDirectory(), "/private/mobile");
-                    if (!ff.exists())
-                        ff = Environment.getExternalStorageDirectory();
-                    path = ff.getPath();
+                if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) {
+                    MainActivity.this.browse = true;
+                    return;
                 }
-
-                f.setCurrentPath(new File(path));
-                f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        File ff = f.getCurrentPath();
-                        String fileName = ff.getPath();
-                        if (!ff.isDirectory())
-                            fileName = ff.getParent();
-                        SharedPreferences.Editor edit = sharedPref.edit();
-                        edit.putString(MoverApplication.STORAGE, fileName);
-                        edit.commit();
-                    }
-                });
-                f.show();
+                browse();
             }
         });
-
-        if (permitted()) {
-            FileObserverService.update(this);
-        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -382,11 +341,43 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 //        Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+
+        if (OptimizationPreferenceCompat.needWarning(this))
+            OptimizationPreferenceCompat.showWarning(this);
+
+        if (Storage.permitted(this, PERMISSION)) {
+            FileObserverService.update(this);
+        }
+    }
+
+    void browse() {
+        final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
+
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        String path = sharedPref.getString(MoverApplication.STORAGE, null);
+
+        if (path == null) {
+            File ff = new File(Environment.getExternalStorageDirectory(), "/private/mobile");
+            if (!ff.exists())
+                ff = Environment.getExternalStorageDirectory();
+            path = ff.getPath();
+        }
+
+        f.setCurrentPath(new File(path));
+        f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                File ff = f.getCurrentPath();
+                String fileName = ff.getPath();
+                if (!ff.isDirectory())
+                    fileName = ff.getParent();
+                SharedPreferences.Editor edit = sharedPref.edit();
+                edit.putString(MoverApplication.STORAGE, fileName);
+                edit.commit();
+            }
+        });
+        f.show();
     }
 
     void updateDirs() {
@@ -435,49 +426,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.github.axet.mover/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.github.axet.mover/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         FileObserverService.update(this);
+        if (browse) {
+            browse = false;
+            browse();
+        }
     }
 
     @Override
