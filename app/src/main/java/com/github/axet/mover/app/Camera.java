@@ -2,6 +2,7 @@ package com.github.axet.mover.app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Environment;
@@ -9,9 +10,12 @@ import android.os.FileObserver;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.github.axet.androidlibrary.app.Storage;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -338,14 +342,6 @@ public class Camera {
         return list;
     }
 
-    static boolean isSame(File f, File t) {
-        try {
-            return f.getCanonicalPath().equals(t.getCanonicalPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // check if file save to move (it is not open by another apps)
     //
     // seems like android allow to write currently writting file. so. this function does not work.
@@ -368,34 +364,32 @@ public class Camera {
     }
 
     void moveFile(File f) {
+        File parent = f.getParentFile();
+        if (Storage.isSame(parent, targetDir))
+            return;
+
         targetDir.mkdirs();
+
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
         Date date = new Date(f.lastModified());
         String dateString = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(date);
         String ext = FilenameUtils.getExtension(f.getName());
-        File to;
 
-        if (ext.isEmpty())
-            to = new File(targetDir, dateString);
-        else
-            to = new File(targetDir, String.format("%s.%s", dateString, ext));
+        s = s.replaceAll("%f", Storage.getNameNoExt(f));
+        s = s.replaceAll("%t", "" + System.currentTimeMillis());
+        s = s.replaceAll("%d", dateString);
 
-        if (isSame(f, to))
-            return;
+        File to = Storage.getNextFile(targetDir, s, ext);
 
-        int count = 0;
-        while (to.exists()) {
-            count++;
-            to = new File(targetDir, String.format("%s %d.%s", dateString, count, ext));
-        }
-
-        if (isSame(f, to))
+        if (Storage.isSame(f, to))
             return;
 
         final String log = "MOVE [" + f + " to " + to + "]";
         Log.d(TAG, log);
 
-        move(f, to);
+        Storage.move(f, to);
 
         Uri contentUri = Uri.fromFile(to);
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
@@ -409,26 +403,6 @@ public class Camera {
                 Toast.makeText(context, "MOVE [" + t + "]", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    public void move(File f, File to) {
-        if (f.renameTo(to))
-            return;
-        try {
-            InputStream in = new FileInputStream(f);
-            OutputStream out = new FileOutputStream(to);
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            in.close();
-            out.close();
-            f.delete();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     void monitorContentObserver() {
