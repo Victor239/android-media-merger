@@ -377,7 +377,7 @@ public class Camera {
         String dateString = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(date);
         String ext = FilenameUtils.getExtension(f.getName());
 
-        s = s.replaceAll("%f", Storage.getNameNoExt(f));
+        s = s.replaceAll("%f", Storage.filterDups(Storage.getNameNoExt(f)));
         s = s.replaceAll("%t", "" + System.currentTimeMillis());
         s = s.replaceAll("%d", dateString);
 
