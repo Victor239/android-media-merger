@@ -6,6 +6,14 @@
         android:summary="set where to storage merged media"
         android:title="Storage Path" />
 
+    <ListPreference
+        android:defaultValue="%f"
+        android:entries="@array/name_text"
+        android:entryValues="@array/name_values"
+        android:key="name"
+        android:summary="name format"
+        android:title="Name Format" />
+
     <com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat
         android:defaultValue="false"
         android:key="optimization"
