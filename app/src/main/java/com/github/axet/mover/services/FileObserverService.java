@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
 
@@ -23,6 +24,8 @@ public class FileObserverService extends Service implements SharedPreferences.On
     public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
 
     CameraMan camera;
+
+    OptimizationPreferenceCompat.ServiceReceiver optimization;
 
     public class CameraMan extends Camera {
         public CameraMan(Context context, File target) {
@@ -69,7 +72,6 @@ public class FileObserverService extends Service implements SharedPreferences.On
         @Override
         public void sync() {
             super.sync();
-
             updatePrefs();
         }
 
@@ -120,7 +122,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
         return null;
     }
 
-    String[] toArray(List<File> list) {
+    public static String[] toArray(List<File> list) {
         List<String> l = new ArrayList<>();
         for (File f : list) {
             l.add(f.toString());
@@ -131,6 +133,8 @@ public class FileObserverService extends Service implements SharedPreferences.On
     @Override
     public void onCreate() {
         super.onCreate();
+
+        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass());
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
@@ -143,16 +147,25 @@ public class FileObserverService extends Service implements SharedPreferences.On
         super.onDestroy();
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
+        if (optimization != null) {
+            optimization.close();
+            optimization = null;
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) {
+        if (optimization.onStartCommand(intent, flags, startId)) {
             if (camera == null) {
                 stopSelf();
                 return START_NOT_STICKY;
             } else {
-                return super.onStartCommand(intent, flags, startId);
+                if (start()) {
+                    return super.onStartCommand(intent, flags, startId);
+                } else {
+                    stopSelf();
+                    return START_NOT_STICKY;
+                }
             }
         }
 
