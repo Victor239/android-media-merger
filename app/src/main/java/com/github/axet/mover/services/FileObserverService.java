@@ -134,7 +134,11 @@ public class FileObserverService extends Service implements SharedPreferences.On
     public void onCreate() {
         super.onCreate();
 
-        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass());
+        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass()) {
+            @Override
+            public void check() { // disable application ping (here is no application)
+            }
+        };
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
@@ -223,5 +227,11 @@ public class FileObserverService extends Service implements SharedPreferences.On
         if (!start()) {
             stopSelf();
         }
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        optimization.onTaskRemoved(rootIntent);
     }
 }
