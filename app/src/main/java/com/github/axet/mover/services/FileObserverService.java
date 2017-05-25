@@ -136,7 +136,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass()) {
             @Override
-            public void check() {
+            public void check() { // disable application ping (here is no application)
             }
         };
 
