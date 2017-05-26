@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.app.Camera;
@@ -22,6 +23,14 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
     public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
+
+    public static String[] toArray(List<File> list) {
+        List<String> l = new ArrayList<>();
+        for (File f : list) {
+            l.add(f.toString());
+        }
+        return l.toArray(new String[]{});
+    }
 
     CameraMan camera;
 
@@ -122,21 +131,13 @@ public class FileObserverService extends Service implements SharedPreferences.On
         return null;
     }
 
-    public static String[] toArray(List<File> list) {
-        List<String> l = new ArrayList<>();
-        for (File f : list) {
-            l.add(f.toString());
-        }
-        return l.toArray(new String[]{});
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
 
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass()) {
             @Override
-            public void check() { // disable application ping (here is no application)
+            public void check() { // disable application chek (here is no application)
             }
         };
 
@@ -155,35 +156,36 @@ public class FileObserverService extends Service implements SharedPreferences.On
             optimization.close();
             optimization = null;
         }
+        if (camera != null) {
+            camera.close();
+            camera = null;
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand " + intent);
         if (optimization.onStartCommand(intent, flags, startId)) {
-            if (camera == null) {
-                stopSelf();
-                return START_NOT_STICKY;
-            } else {
-                if (start()) {
-                    return super.onStartCommand(intent, flags, startId);
-                } else {
-                    stopSelf();
-                    return START_NOT_STICKY;
-                }
-            }
+            return startCamera(intent, flags, startId);
         }
 
         String a = intent.getAction();
         if (a == null) {
-            if (camera == null) {
-                stopSelf();
-                return START_NOT_STICKY;
-            } else {
-                return super.onStartCommand(intent, flags, startId);
-            }
+            return startCamera(intent, flags, startId);
         }
 
         if (a.equals(UPDATE)) {
+            return startCamera(intent, flags, startId);
+        }
+
+        return startCamera(intent, flags, startId);
+    }
+
+    int startCamera(Intent intent, int flags, int startId) {
+        if (camera == null) {
+            stopSelf();
+            return START_NOT_STICKY;
+        } else {
             if (start()) {
                 return super.onStartCommand(intent, flags, startId);
             } else {
@@ -191,9 +193,6 @@ public class FileObserverService extends Service implements SharedPreferences.On
                 return START_NOT_STICKY;
             }
         }
-
-        stopSelf();
-        return START_NOT_STICKY;
     }
 
     boolean start() {
@@ -201,7 +200,6 @@ public class FileObserverService extends Service implements SharedPreferences.On
             camera.close();
             camera = null;
         }
-
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
         if (storage != null) {
