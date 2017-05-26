@@ -76,7 +76,17 @@ public class Camera {
     long last;
 
     // sync runnable
-    Runnable sync;
+    Runnable sync = new Runnable() {
+        @Override
+        public void run() {
+            if (!fsync()) {
+                handler.removeCallbacks(sync);
+                handler.postDelayed(sync, REFRESH_TIME);
+            } else {
+                handler.removeCallbacks(sync);
+            }
+        }
+    };
 
     ContentObserver mediaObserver;
     TreeMap<File, FileObserver> organizes = new TreeMap<>();
@@ -105,7 +115,6 @@ public class Camera {
     public void create() {
         monitorContentObserver();
         sync();
-
         // Android 6.0 has a bug preventing FileObserver to work with screenshots folder.
         // is simply do not fire on Screenshot file creation.
         for (File d : watchingFolders) {
@@ -124,6 +133,7 @@ public class Camera {
             context.getContentResolver().unregisterContentObserver(mediaObserver);
         }
         mediaObserver = null;
+        handler.removeCallbacks(sync);
     }
 
     public List<File> getFolders() {
@@ -165,21 +175,8 @@ public class Camera {
     }
 
     public void sync() {
-        if (!fsync()) {
-            if (sync != null)
-                handler.removeCallbacks(sync);
-            sync = new Runnable() {
-                @Override
-                public void run() {
-                    sync();
-                }
-            };
-            handler.postDelayed(sync, REFRESH_TIME);
-        } else {
-            if (sync != null)
-                handler.removeCallbacks(sync);
-            sync = null;
-        }
+        handler.removeCallbacks(sync);
+        handler.post(sync);
     }
 
     // return done - true
@@ -423,7 +420,6 @@ public class Camera {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
                 super.onChange(selfChange, uri);
-
                 if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
                     sync();
                 }
