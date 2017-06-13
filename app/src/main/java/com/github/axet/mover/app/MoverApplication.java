@@ -10,6 +10,7 @@ import com.github.axet.mover.services.FileObserverService;
 public class MoverApplication extends Application {
 
     public static final String STORAGE = "storage";
+    public static final String ENABLED = "enabled";
 
     public static final String PREFERENCE_OPTIMIZATION = "optimization";
 
@@ -28,6 +29,6 @@ public class MoverApplication extends Application {
     public void onCreate() {
         super.onCreate();
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
-        FileObserverService.start(this);
+        FileObserverService.startIfEnabled(this);
     }
 }

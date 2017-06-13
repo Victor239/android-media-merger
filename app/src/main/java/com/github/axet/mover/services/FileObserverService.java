@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
@@ -111,7 +111,10 @@ public class FileObserverService extends Service implements SharedPreferences.On
         }
     }
 
-    public static void start(Context context) {
+    public static void startIfEnabled(Context context) {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!sharedPref.getBoolean(MoverApplication.ENABLED, true))
+            return;
         Intent myIntent = new Intent(context, FileObserverService.class);
         context.startService(myIntent);
     }
@@ -134,6 +137,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate()");
 
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass()) {
             @Override
@@ -150,6 +154,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestory()");
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
         if (optimization != null) {
@@ -201,8 +206,9 @@ public class FileObserverService extends Service implements SharedPreferences.On
             camera = null;
         }
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
-        if (storage != null) {
+        if (enabled && storage != null) {
             camera = new CameraMan(this, new File(storage));
             camera.create();
 

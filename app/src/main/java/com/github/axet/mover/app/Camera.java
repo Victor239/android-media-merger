@@ -41,8 +41,10 @@ import java.util.TreeSet;
  * Organize DCIM/Camera && Pictures/Screenshots folders
  */
 public class Camera {
-
     private static final String TAG = "Camera";
+
+    public static final SimpleDateFormat SIMPLE = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+    public static final SimpleDateFormat ISO8601 = new SimpleDateFormat("yyyyMMdd\'T\'HHmmss");
 
     final static String SCREENSHOTS = "Screenshots";
 
@@ -371,12 +373,12 @@ public class Camera {
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
         Date date = new Date(f.lastModified());
-        String dateString = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(date);
         String ext = FilenameUtils.getExtension(f.getName());
 
         s = s.replaceAll("%f", Storage.filterDups(Storage.getNameNoExt(f)));
         s = s.replaceAll("%t", "" + System.currentTimeMillis());
-        s = s.replaceAll("%d", dateString);
+        s = s.replaceAll("%d", SIMPLE.format(date));
+        s = s.replaceAll("%i", ISO8601.format(date));
 
         File to = Storage.getNextFile(targetDir, s, ext);
 

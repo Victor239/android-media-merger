@@ -10,6 +10,6 @@ public class OnBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        FileObserverService.start(context);
+        FileObserverService.startIfEnabled(context);
     }
 }
