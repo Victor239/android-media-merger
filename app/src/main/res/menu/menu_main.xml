@@ -7,4 +7,11 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_enable"
+        android:checkable="true"
+        android:orderInCategory="200"
+        android:title="@string/enable"
+        app:showAsAction="never" />
+    />
 </menu>

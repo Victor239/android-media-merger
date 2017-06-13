@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.github.axet.androidlibrary.app.MainApplication;
 import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
@@ -181,9 +182,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     @Override
                     public void onClick(View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle("Delete folder");
-                        builder.setMessage(p + "\n\nAre you sure?");
-                        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        builder.setTitle(R.string.delete_folder);
+                        builder.setMessage(p + getString(R.string.are_you_sure));
+                        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 manual.remove(pos);
@@ -191,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                                 save();
                             }
                         });
-                        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                             }
@@ -389,13 +390,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         TextView path = (TextView) footer.findViewById(R.id.path);
 
         if (to == null) {
-            to = "(not selected)";
+            to = getString(R.string.not_selected);
 
             TextView text = (TextView) header.findViewById(R.id.path);
-            text.setText("Not Synching!\n\nPlease select 'storage_path' with 'Browse' button");
+            text.setText(R.string.not_syncing);
         } else {
             TextView text = (TextView) header.findViewById(R.id.path);
-            text.setText("Synching...");
+            text.setText(R.string.sycing);
         }
 
         path.setText(to);
@@ -405,6 +406,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem e = menu.findItem(R.id.action_enable);
+        final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        boolean en = sharedPref.getBoolean(MoverApplication.ENABLED, true);
+        e.setChecked(en);
         return true;
     }
 
@@ -419,6 +424,19 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (id == R.id.action_settings) {
             Intent i = new Intent(this, PrefActivity.class);
             startActivity(i);
+            return true;
+        }
+
+        if (id == R.id.action_enable) {
+            boolean b = !item.isChecked();
+            item.setChecked(b);
+            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean(MoverApplication.ENABLED, b);
+            editor.commit();
+            if (b) {
+                FileObserverService.startIfEnabled(this);
+            }
             return true;
         }
 

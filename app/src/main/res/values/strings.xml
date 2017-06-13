@@ -1,14 +1,24 @@
 <resources>
     <string name="app_name">Media Merger</string>
     <string name="action_settings">Settings</string>
+    <string name="delete_folder">Delete folder</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="not_syncing">Not Synching!  Please select \'storage_path\' with \'Browse\' button</string>
+    <string name="sycing">Synching...</string>
+    <string name="not_selected">(not selected)</string>
+    <string name="enable">Enable</string>
     <string-array name="name_values" formatted="false">
         <item formatted="false">%f</item>
         <item formatted="false">%d</item>
         <item formatted="false">%t</item>
+        <item formatted="false">%i</item>
     </string-array>
     <string-array name="name_text">
         <item>Original Name</item>
         <item>2017.03.14 14.22.ext</item>
         <item>1493561080.ext</item>
+        <item>20170314T142211.ext</item>
     </string-array>
 </resources>

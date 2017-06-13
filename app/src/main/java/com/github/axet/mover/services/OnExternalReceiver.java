@@ -27,6 +27,6 @@ public class OnExternalReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (!isExternal(context))
             return;
-        FileObserverService.start(context);
+        FileObserverService.startIfEnabled(context);
     }
 }
