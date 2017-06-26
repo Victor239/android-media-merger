@@ -440,8 +440,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         MenuItem menuEnable = menu.findItem(R.id.action_enable);
         final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
         boolean en = sharedPref.getBoolean(MoverApplication.ENABLED, true);
-        if (!Storage.permitted(this, PERMISSION))
-            en = false;
+        if (Build.VERSION.SDK_INT < 21) {
+            if (!Storage.permitted(this, PERMISSION))
+                en = false;
+        }
         menuEnable.setChecked(en);
         return true;
     }
