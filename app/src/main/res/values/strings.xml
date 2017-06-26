@@ -5,7 +5,7 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="not_syncing">Not Synching!  Please select \'storage_path\' with \'Browse\' button</string>
+    <string name="not_syncing">Not Synching!\nPlease select \'storage_path\' with \'Browse\' button\n And check \'Enable\' checkbox</string>
     <string name="sycing">Synching...</string>
     <string name="not_selected">(not selected)</string>
     <string name="enable">Enable</string>
