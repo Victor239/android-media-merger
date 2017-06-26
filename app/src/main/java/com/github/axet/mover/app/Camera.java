@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.app.Storage;
+import com.github.axet.androidlibrary.app.SuperUser;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -388,8 +389,18 @@ public class Camera {
         final String log = "MOVE [" + f + " to " + to + "]";
         Log.d(TAG, log);
 
-        Storage.move(f, to);
-
+        try {
+            Storage.move(f, to);
+        } catch (RuntimeException e) {
+            try {
+                if (SuperUser.isRooted()) {
+                    if (!SuperUser.mv(f, to))
+                        throw e;
+                }
+            } catch (RuntimeException ee) {
+                throw ee;
+            }
+        }
         Uri contentUri = Uri.fromFile(to);
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
         mediaScanIntent.setData(contentUri);

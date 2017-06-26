@@ -19,13 +19,14 @@ import android.support.v7.preference.PreferenceScreen;
 
 import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.FileObserverService;
 
 import java.io.File;
 
-public class PrefActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
@@ -96,33 +97,35 @@ public class PrefActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    static void initPrefs(final PreferenceManager manager, PreferenceScreen screen) {
-        initSummary(screen);
+    public static class PrefFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+        void initPrefs(final PreferenceManager manager, PreferenceScreen screen) {
+            initSummary(screen);
 
-        final EditTextPreference p = (EditTextPreference) manager.findPreference("storage");
-        if (p.getText() == null) {
-            p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    p.setText(new File(Environment.getExternalStorageDirectory(), "/private/mobile").getPath());
-                    return true;
-                }
-            });
+            final EditTextPreference p = (EditTextPreference) manager.findPreference("storage");
+            if (p.getText() == null) {
+                p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        p.setText(new File(Environment.getExternalStorageDirectory(), "/private/mobile").getPath());
+                        return true;
+                    }
+                });
+            }
+
+            bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
+
+            StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
+            c.setPermissionsDialog(this, PERMISSION, 1);
+
+            OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
+            optimization.enable(FileObserverService.class);
         }
 
-        bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
-
-        OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-        optimization.enable(FileObserverService.class);
-    }
-
-    public static class PrefFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             addPreferencesFromResource(R.xml.prefs);
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
             initPrefs(getPreferenceManager(), getPreferenceScreen());
-            Storage.permitted(this, PERMISSION, 1);
         }
 
         @Override
@@ -146,10 +149,15 @@ public class PrefActivity extends AppCompatActivity implements SharedPreferences
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+            StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
+
             switch (requestCode) {
                 case 1:
                     if (!Storage.permitted(getContext(), PERMISSION)) {
                         warninig(getContext());
+                    } else {
+                        c.onRequestPermissionsResult();
                     }
                     FileObserverService.update(getContext());
                     break;
