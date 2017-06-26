@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <com.github.axet.mover.widgets.StoragePathPreferenceCompat
+    <com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat
         android:defaultValue="Media Merger"
         android:key="storage"
         android:summary="set where to storage merged media"

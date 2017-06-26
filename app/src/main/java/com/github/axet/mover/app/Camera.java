@@ -1,24 +1,30 @@
 package com.github.axet.mover.app;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.app.SuperUser;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,7 +64,7 @@ public class Camera {
     protected Handler handler = new Handler();
 
     // where to put result files
-    protected File targetDir;
+    protected String targetDir;
 
     // /sdcard/DCIM/
     public final File dcimPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
@@ -110,7 +116,7 @@ public class Camera {
         }
     }
 
-    public Camera(final Context context, final File targetDir) {
+    public Camera(final Context context, final String targetDir) {
         this.context = context;
         this.targetDir = targetDir;
     }
@@ -143,11 +149,11 @@ public class Camera {
         return watchingFolders;
     }
 
-    public File getTargetDir() {
+    public String getTargetDir() {
         return targetDir;
     }
 
-    public void setTargetDir(File s) {
+    public void setTargetDir(String s) {
         targetDir = s;
     }
 
@@ -365,10 +371,6 @@ public class Camera {
 
     void moveFile(File f) {
         File parent = f.getParentFile();
-        if (Storage.isSame(parent, targetDir))
-            return;
-
-        targetDir.mkdirs();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
@@ -381,32 +383,60 @@ public class Camera {
         s = s.replaceAll("%d", SIMPLE.format(date));
         s = s.replaceAll("%i", ISO8601.format(date));
 
-        File to = Storage.getNextFile(targetDir, s, ext);
 
-        if (Storage.isSame(f, to))
-            return;
+        final String t;
+        final Uri contentUri;
 
-        final String log = "MOVE [" + f + " to " + to + "]";
-        Log.d(TAG, log);
+        if (Build.VERSION.SDK_INT >= 21 && targetDir.startsWith(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver contentResolver = context.getContentResolver();
+            Uri uri = Uri.parse(targetDir);
+            Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+            String to = Storage.getNextFile(context, childrenUri, s, ext);
 
-        try {
-            Storage.move(f, to);
-        } catch (RuntimeException e) {
+            Log.d(TAG, "MOVE [" + f + " to " + to + "]");
+
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FilenameUtils.getExtension(to));
+
+            Uri docUri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+            Uri toUri = DocumentsContract.createDocument(contentResolver, docUri, mime, to);
             try {
-                if (SuperUser.isRooted()) {
-                    if (!SuperUser.mv(f, to))
-                        throw e;
-                }
-            } catch (RuntimeException ee) {
-                throw ee;
+                InputStream is = new FileInputStream(f);
+                OutputStream os = contentResolver.openOutputStream(toUri);
+                IOUtils.copy(is, os);
+                is.close();
+                os.close();
+                f.delete();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+
+            contentUri = toUri;
+            t = "saf://" + to;
+        } else {
+            File td = new File(targetDir);
+
+            if (Storage.isSame(parent, td))
+                return;
+
+            td.mkdirs();
+
+            File to = Storage.getNextFile(td, s, ext);
+
+            if (Storage.isSame(f, to))
+                return;
+
+            Log.d(TAG, "MOVE [" + f + " to " + to + "]");
+
+            Storage.move(f, to);
+
+            contentUri = Uri.fromFile(to);
+            t = to.toString();
         }
-        Uri contentUri = Uri.fromFile(to);
+
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
 
-        final File t = to;
         handler.post(new Runnable() {
             @Override
             public void run() {

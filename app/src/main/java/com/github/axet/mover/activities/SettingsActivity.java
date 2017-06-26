@@ -3,6 +3,7 @@ package com.github.axet.mover.activities;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -76,31 +77,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                         .getString(preference.getKey(), ""));
     }
 
-    static void initSummary(Preference p) {
-        if (p instanceof PreferenceGroup) {
-            PreferenceGroup pGrp = (PreferenceGroup) p;
-            for (int i = 0; i < pGrp.getPreferenceCount(); i++) {
-                initSummary(pGrp.getPreference(i));
-            }
-        } else {
-            updatePrefSummary(p);
-        }
-    }
-
-    static void updatePrefSummary(Preference pref) {
-        if (pref instanceof EditTextPreference) {
-            EditTextPreference listPref = (EditTextPreference) pref;
-            String s = listPref.getText();
-            if (s == null || s.isEmpty())
-                s = "(not set)";
-            pref.setSummary(s);
-        }
-    }
-
     public static class PrefFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
         void initPrefs(final PreferenceManager manager, PreferenceScreen screen) {
-            initSummary(screen);
-
             final EditTextPreference p = (EditTextPreference) manager.findPreference("storage");
             if (p.getText() == null) {
                 p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -115,7 +93,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
 
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
-            c.setPermissionsDialog(this, PERMISSION, 1);
+//            c.setPermissionsDialog(this, PERMISSION, 1);
+            c.setStorageAccessFramework(this, 2);
 
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
             optimization.enable(FileObserverService.class);
@@ -130,7 +109,6 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            updatePrefSummary(findPreference(key));
         }
 
         @Override
@@ -160,6 +138,20 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                         c.onRequestPermissionsResult();
                     }
                     FileObserverService.update(getContext());
+                    break;
+            }
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
+
+            switch (requestCode) {
+                case 2:
+                    if (resultCode == RESULT_OK)
+                        c.onActivityResult(data.getData());
                     break;
             }
         }

@@ -37,7 +37,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
     OptimizationPreferenceCompat.ServiceReceiver optimization;
 
     public class CameraMan extends Camera {
-        public CameraMan(Context context, File target) {
+        public CameraMan(Context context, String target) {
             super(context, target);
         }
 
@@ -209,7 +209,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
         Boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
         if (enabled && storage != null) {
-            camera = new CameraMan(this, new File(storage));
+            camera = new CameraMan(this, storage);
             camera.create();
 
             Intent i = new Intent(UPDATE);
