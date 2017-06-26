@@ -2,12 +2,14 @@ package com.github.axet.mover.activities;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.FileObserverService;
@@ -317,8 +320,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) {
-                    return;
+                if (Build.VERSION.SDK_INT < 21) {
+                    if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) {
+                        return;
+                    }
                 }
                 browse();
             }
@@ -359,8 +364,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     void browse() {
-        final OpenFileDialog f = new OpenFileDialogSuperUser(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
-
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String path = sharedPref.getString(MoverApplication.STORAGE, null);
 
@@ -371,20 +374,26 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             path = ff.getPath();
         }
 
-        f.setCurrentPath(new File(path));
-        f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                File ff = f.getCurrentPath();
-                String fileName = ff.getPath();
-                if (!ff.isDirectory())
-                    fileName = ff.getParent();
-                SharedPreferences.Editor edit = sharedPref.edit();
-                edit.putString(MoverApplication.STORAGE, fileName);
-                edit.commit();
-            }
-        });
-        f.show();
+        if (Build.VERSION.SDK_INT >= 21) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            startActivityForResult(intent, 2);
+        } else {
+            final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
+            f.setCurrentPath(new File(path));
+            f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    File ff = f.getCurrentPath();
+                    String fileName = ff.getPath();
+                    if (!ff.isDirectory())
+                        fileName = ff.getParent();
+                    SharedPreferences.Editor edit = sharedPref.edit();
+                    edit.putString(MoverApplication.STORAGE, fileName);
+                    edit.commit();
+                }
+            });
+            f.show();
+        }
     }
 
     void updateDirs() {
@@ -393,8 +402,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String to = shared.getString(MoverApplication.STORAGE, null);
 
-        if (!Storage.permitted(this, Storage.PERMISSIONS))
-            to = null;
+        if (Build.VERSION.SDK_INT < 21) {
+            if (!Storage.permitted(this, Storage.PERMISSIONS))
+                to = null;
+        }
 
         final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
         boolean en = sharedPref.getBoolean(MoverApplication.ENABLED, true);
@@ -411,6 +422,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         } else {
             TextView text = (TextView) header.findViewById(R.id.path);
             text.setText(R.string.sycing);
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                if (to.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                    to = StoragePathPreferenceCompat.getName(this, to);
+                }
+            }
         }
 
         path.setText(to);
@@ -445,8 +462,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         if (id == R.id.action_enable) {
             boolean b = !item.isChecked();
-            if (!Storage.permitted(this, PERMISSION, 2))
-                b = false;
+            if (Build.VERSION.SDK_INT < 21) {
+                if (!Storage.permitted(this, PERMISSION, 2))
+                    b = false;
+            }
             item.setChecked(b);
             final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = sharedPref.edit();
@@ -466,6 +485,23 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     protected void onResume() {
         super.onResume();
         FileObserverService.update(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        switch (requestCode) {
+            case 2:
+                if (resultCode == RESULT_OK) {
+                    SharedPreferences.Editor edit = sharedPref.edit();
+                    edit.putString(MoverApplication.STORAGE, data.getData().toString());
+                    edit.commit();
+                }
+                break;
+        }
     }
 
     @Override
