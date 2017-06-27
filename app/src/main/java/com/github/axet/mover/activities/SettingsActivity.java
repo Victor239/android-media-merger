@@ -150,8 +150,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
             switch (requestCode) {
                 case 2:
-                    if (resultCode == RESULT_OK)
-                        c.onActivityResult(data.getData());
+                    c.onActivityResult(resultCode, data);
                     break;
             }
         }
