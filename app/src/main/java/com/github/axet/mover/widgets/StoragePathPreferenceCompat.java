@@ -1,5 +1,7 @@
 package com.github.axet.mover.widgets;
 
+import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -19,9 +21,12 @@ public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.
 
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        defaultValue = restoreValue ? getPersistedString(getText()) : (String) defaultValue;
-        setText((String) defaultValue);
-        setSummary((String) defaultValue);
+        String v = restoreValue ? getPersistedString(getText()) : (String) defaultValue;
+        setText(v);
+        if (v.startsWith(ContentResolver.SCHEME_CONTENT))
+            setSummary(getName(getContext(), v));
+        else
+            setSummary(v);
     }
 
     @Override

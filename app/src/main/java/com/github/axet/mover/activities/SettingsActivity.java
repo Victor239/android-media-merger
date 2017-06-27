@@ -93,7 +93,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
 
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
-//            c.setPermissionsDialog(this, PERMISSION, 1);
+            c.setPermissionsDialog(this, PERMISSION, 1);
             c.setStorageAccessFramework(this, 2);
 
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
