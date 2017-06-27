@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -430,7 +431,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
             if (Build.VERSION.SDK_INT >= 21) {
                 if (to.startsWith(ContentResolver.SCHEME_CONTENT)) {
-                    to = StoragePathPreferenceCompat.getName(this, to);
+                    Storage storage = new Storage(this);
+                    Uri uri = Uri.parse(to);
+                    to = storage.getTargetName(uri);
                 }
             }
         }
