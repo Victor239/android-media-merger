@@ -320,10 +320,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT < 21) {
-                    if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) {
-                        return;
-                    }
+                if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) { // we need for Camera folders
+                    return;
                 }
                 browse();
             }
@@ -333,6 +331,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) { // we need permissions for custom paths, even with SAF
+                    return;
+                }
                 final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
                 f.setCurrentPath(Environment.getExternalStorageDirectory());
                 f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
