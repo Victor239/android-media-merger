@@ -370,72 +370,45 @@ public class Camera {
     }
 
     void moveFile(File f) {
-        File parent = f.getParentFile();
-
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
         Date date = new Date(f.lastModified());
-        String ext = FilenameUtils.getExtension(f.getName());
 
         s = s.replaceAll("%f", Storage.filterDups(Storage.getNameNoExt(f)));
-        s = s.replaceAll("%t", "" + System.currentTimeMillis());
+        s = s.replaceAll("%t", "" + date.getTime());
         s = s.replaceAll("%d", SIMPLE.format(date));
         s = s.replaceAll("%i", ISO8601.format(date));
 
+        Storage storage = new Storage(context);
 
         final String t;
         final Uri contentUri;
 
         if (Build.VERSION.SDK_INT >= 21 && targetDir.startsWith(ContentResolver.SCHEME_CONTENT)) {
-            ContentResolver contentResolver = context.getContentResolver();
-            Uri uri = Uri.parse(targetDir);
-            Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
-            String to = Storage.getNextFile(context, childrenUri, s, ext);
-
-            Log.d(TAG, "MOVE [" + f + " to " + to + "]");
-
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FilenameUtils.getExtension(to));
-
-            Uri docUri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
-            Uri toUri = DocumentsContract.createDocument(contentResolver, docUri, mime, to);
-            try {
-                InputStream is = new FileInputStream(f);
-                OutputStream os = contentResolver.openOutputStream(toUri);
-                IOUtils.copy(is, os);
-                is.close();
-                os.close();
-                f.delete();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            contentUri = toUri;
-            t = "saf://" + to;
+            contentUri = Uri.parse(targetDir);
         } else {
-            File td = new File(targetDir);
-
-            if (Storage.isSame(parent, td))
-                return;
-
-            td.mkdirs();
-
-            File to = Storage.getNextFile(td, s, ext);
-
-            if (Storage.isSame(f, to))
-                return;
-
-            Log.d(TAG, "MOVE [" + f + " to " + to + "]");
-
-            Storage.move(f, to);
-
-            contentUri = Uri.fromFile(to);
-            t = to.toString();
+            contentUri = Uri.fromFile(new File(targetDir));
         }
 
+        String n = f.getName();
+        String ext = FilenameUtils.getExtension(n);
+
+        Uri to = storage.getNextFile(contentUri, s, ext);
+
+        to = storage.move(f, to);
+
+        Log.d(TAG, "MOVE [" + f + " to " + storage.getTargetName(to) + "]");
+
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-        mediaScanIntent.setData(contentUri);
+        mediaScanIntent.setData(to);
         context.sendBroadcast(mediaScanIntent);
+
+        String c = contentUri.getScheme();
+        if (c.startsWith(ContentResolver.SCHEME_CONTENT))
+            t = storage.getTargetName(to);
+        else
+            t = storage.getTargetName(to);
 
         handler.post(new Runnable() {
             @Override
