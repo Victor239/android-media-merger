@@ -375,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             path = ff.getPath();
         }
 
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21 && StoragePathPreferenceCompat.showStorageAccessFramework(this, path)) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             startActivityForResult(intent, 2);
         } else {
