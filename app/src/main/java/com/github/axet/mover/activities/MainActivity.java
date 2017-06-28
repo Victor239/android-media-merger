@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
@@ -31,11 +32,11 @@ import android.widget.TextView;
 import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.FileObserverService;
 import com.github.axet.mover.widgets.OpenFileDialogSuperUser;
+import com.github.axet.mover.widgets.StoragePathPreferenceCompat;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -366,40 +367,21 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     void browse() {
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        String path = sharedPref.getString(MoverApplication.STORAGE, null);
-
-        if (path == null) {
-            File ff = new File(Environment.getExternalStorageDirectory(), "/private/mobile");
-            if (!ff.exists())
-                ff = Environment.getExternalStorageDirectory();
-            path = ff.getPath();
-        }
-
-        if (Build.VERSION.SDK_INT >= 21 && StoragePathPreferenceCompat.showStorageAccessFramework(this, path)) {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-            startActivityForResult(intent, 2);
-        } else {
-            final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
-            f.setCurrentPath(new File(path));
-            f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    File ff = f.getCurrentPath();
-                    String fileName = ff.getPath();
-                    if (!ff.isDirectory())
-                        fileName = ff.getParent();
-                    SharedPreferences.Editor edit = sharedPref.edit();
-                    edit.putString(MoverApplication.STORAGE, fileName);
-                    edit.commit();
-                }
-            });
-            f.show();
-        }
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        StoragePathPreferenceCompat c = new StoragePathPreferenceCompat(this);
+        c.setPermissionsDialog(this, PERMISSION, 1);
+        c.setStorageAccessFramework(this, 2);
+        c.onSetInitialValue(false, shared.getString(MoverApplication.STORAGE, null));
+        c.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                SharedPreferences.Editor edit = shared.edit();
+                edit.putString(MoverApplication.STORAGE, (String) newValue);
+                edit.commit();
+                return false;
+            }
+        });
+        c.onClick();
     }
 
     void updateDirs() {
