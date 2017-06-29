@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.axet.androidlibrary.app.Storage;
+import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
@@ -449,6 +450,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (id == R.id.action_settings) {
             Intent i = new Intent(this, SettingsActivity.class);
             startActivity(i);
+            return true;
+        }
+
+        if (id == R.id.action_about) {
+            AboutPreferenceCompat.showDialog(this, R.raw.about);
             return true;
         }
 
