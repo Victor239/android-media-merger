@@ -26,10 +26,10 @@ public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.
     }
 
     @Override
-    public void onSetInitialValue(boolean restoreValue, Object defaultValue) {
+    public void onSetInitialValue(boolean restoreValue, Object defaultValue) { // allow to show null
         String v = restoreValue ? getPersistedString(getText()) : (String) defaultValue;
         setText(v);
-        if (v.startsWith(ContentResolver.SCHEME_CONTENT)) {
+        if (v != null && v.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri uri = Uri.parse(v);
             setSummary(storage.getTargetName(uri));
         } else {

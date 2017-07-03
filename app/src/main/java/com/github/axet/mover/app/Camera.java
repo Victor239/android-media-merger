@@ -397,6 +397,8 @@ public class Camera {
         Uri to = storage.getNextFile(contentUri, s, ext);
 
         to = storage.move(f, to);
+        if (to == null)
+            return; // unable to move
 
         Log.d(TAG, "MOVE [" + f + " to " + storage.getTargetName(to) + "]");
 
