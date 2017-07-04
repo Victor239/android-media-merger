@@ -391,34 +391,30 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String to = shared.getString(MoverApplication.STORAGE, null);
 
+        final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
+
         if (Build.VERSION.SDK_INT < 21) {
             if (!Storage.permitted(this, Storage.PERMISSIONS))
-                to = null;
+                enabled = false;
         }
-
-        final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        boolean en = sharedPref.getBoolean(MoverApplication.ENABLED, true);
-        if (!en)
-            to = null;
 
         TextView path = (TextView) footer.findViewById(R.id.path);
 
-        if (to == null) {
-            to = getString(R.string.not_selected);
-
-            TextView text = (TextView) header.findViewById(R.id.path);
-            text.setText(R.string.not_syncing);
-        } else {
+        if (enabled) {
             TextView text = (TextView) header.findViewById(R.id.path);
             text.setText(R.string.sycing);
+        } else {
+            TextView text = (TextView) header.findViewById(R.id.path);
+            text.setText(R.string.not_syncing);
+        }
 
-            if (Build.VERSION.SDK_INT >= 21) {
-                if (to.startsWith(ContentResolver.SCHEME_CONTENT)) {
-                    Storage storage = new Storage(this);
-                    Uri uri = Uri.parse(to);
-                    to = storage.getTargetName(uri);
-                }
-            }
+        if (to == null) {
+            to = getString(R.string.not_selected);
+        } else if (Build.VERSION.SDK_INT >= 21 && to.startsWith(ContentResolver.SCHEME_CONTENT)) {
+            Storage storage = new Storage(this);
+            Uri uri = Uri.parse(to);
+            to = storage.getTargetName(uri);
         }
 
         path.setText(to);
