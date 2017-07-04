@@ -431,10 +431,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         MenuItem menuEnable = menu.findItem(R.id.action_enable);
         final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
         boolean en = sharedPref.getBoolean(MoverApplication.ENABLED, true);
-        if (Build.VERSION.SDK_INT < 21) {
-            if (!Storage.permitted(this, PERMISSION))
-                en = false;
-        }
+        if (!Storage.permitted(this, PERMISSION))
+            en = false;
         menuEnable.setChecked(en);
         return true;
     }
@@ -460,10 +458,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         if (id == R.id.action_enable) {
             boolean b = !item.isChecked();
-            if (Build.VERSION.SDK_INT < 21) {
-                if (!Storage.permitted(this, PERMISSION, 2))
-                    b = false;
-            }
+            if (!Storage.permitted(this, PERMISSION, 2))
+                b = false;
             item.setChecked(b);
             final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = sharedPref.edit();
