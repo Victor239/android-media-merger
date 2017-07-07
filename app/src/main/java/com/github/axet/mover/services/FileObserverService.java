@@ -12,10 +12,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
-import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
+import com.github.axet.mover.app.Storage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
     OptimizationPreferenceCompat.ServiceReceiver optimization;
 
     public class CameraMan extends Camera {
-        public CameraMan(Context context, String target) {
+        public CameraMan(Context context, Uri target) {
             super(context, target);
         }
 
@@ -228,8 +228,10 @@ public class FileObserverService extends Service implements SharedPreferences.On
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         Boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
-        if (enabled && storage != null) {
-            camera = new CameraMan(this, storage);
+        Storage s = new Storage(this);
+        Uri u = s.getStoragePath(storage);
+        if (enabled && u != null) {
+            camera = new CameraMan(this, u);
             camera.create();
 
             Intent i = new Intent(UPDATE);
