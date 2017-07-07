@@ -64,7 +64,7 @@ public class Camera {
     protected Handler handler = new Handler();
 
     // where to put result files
-    protected String targetDir;
+    protected Uri targetDir;
 
     // /sdcard/DCIM/
     public final File dcimPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
@@ -116,7 +116,7 @@ public class Camera {
         }
     }
 
-    public Camera(final Context context, final String targetDir) {
+    public Camera(final Context context, final Uri targetDir) {
         this.context = context;
         this.targetDir = targetDir;
     }
@@ -147,14 +147,6 @@ public class Camera {
 
     public List<File> getFolders() {
         return watchingFolders;
-    }
-
-    public String getTargetDir() {
-        return targetDir;
-    }
-
-    public void setTargetDir(String s) {
-        targetDir = s;
     }
 
     public List<File> getMainFolders() {
@@ -383,13 +375,7 @@ public class Camera {
         Storage storage = new Storage(context);
 
         final String t;
-        final Uri contentUri;
-
-        if (Build.VERSION.SDK_INT >= 21 && targetDir.startsWith(ContentResolver.SCHEME_CONTENT)) {
-            contentUri = Uri.parse(targetDir);
-        } else {
-            contentUri = Uri.fromFile(new File(targetDir));
-        }
+        final Uri contentUri = targetDir;
 
         String n = f.getName();
         String ext = FilenameUtils.getExtension(n);
