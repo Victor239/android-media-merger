@@ -1,14 +1,18 @@
 package com.github.axet.mover.services;
 
+import android.Manifest;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
+import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
@@ -20,6 +24,8 @@ import java.util.TreeMap;
 
 public class FileObserverService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = FileObserverService.class.getSimpleName();
+
+    public static String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
@@ -111,9 +117,23 @@ public class FileObserverService extends Service implements SharedPreferences.On
         }
     }
 
-    public static void startIfEnabled(Context context) {
+    public static boolean isEnabled(Context context) {
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         if (!sharedPref.getBoolean(MoverApplication.ENABLED, true))
+            return false;
+        if (!Storage.permitted(context, PERMISSIONS))
+            return false;
+        Storage storage = new Storage(context);
+        String path = sharedPref.getString(MoverApplication.STORAGE, null);
+        Uri u = storage.getStoragePath(path);
+        if (u == null) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void startIfEnabled(Context context) {
+        if (!isEnabled(context))
             return;
         Intent myIntent = new Intent(context, FileObserverService.class);
         context.startService(myIntent);

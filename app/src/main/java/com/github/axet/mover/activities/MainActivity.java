@@ -29,12 +29,12 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
+import com.github.axet.mover.app.Storage;
 import com.github.axet.mover.services.FileObserverService;
 import com.github.axet.mover.widgets.OpenFileDialogSuperUser;
 import com.github.axet.mover.widgets.StoragePathPreferenceCompat;
@@ -44,8 +44,6 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
-
-    public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     ListView list;
     FoldersAdapter adapter;
@@ -281,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 FileObserverService.update(this);
                 break;
             case 2:
-                if (Storage.permitted(this, PERMISSION)) {
+                if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
                     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putBoolean(MoverApplication.ENABLED, true);
@@ -323,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) { // we need for Camera folders
+                if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS, 1)) { // we need for Camera folders
                     return;
                 }
                 browse();
@@ -334,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!Storage.permitted(MainActivity.this, PERMISSION, 1)) { // we need permissions for custom paths, even with SAF
+                if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS, 1)) { // we need permissions for custom paths, even with SAF
                     return;
                 }
                 final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
@@ -362,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         if (OptimizationPreferenceCompat.needWarning(this))
             OptimizationPreferenceCompat.showWarning(this);
 
-        if (Storage.permitted(this, PERMISSION)) {
+        if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
             FileObserverService.update(this);
         }
     }
@@ -370,7 +368,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     void browse() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         StoragePathPreferenceCompat c = new StoragePathPreferenceCompat(this);
-        c.setPermissionsDialog(this, PERMISSION, 1);
+        c.setStorage(new Storage(this));
+        c.setPermissionsDialog(this, FileObserverService.PERMISSIONS, 1);
         c.setStorageAccessFramework(this, 2);
         c.onSetInitialValue(false, shared.getString(MoverApplication.STORAGE, null));
         c.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -388,40 +387,33 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     void updateDirs() {
         adapter.load();
 
+        Storage storage = new Storage(this);
+
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String to = shared.getString(MoverApplication.STORAGE, null);
 
-        if (Build.VERSION.SDK_INT < 21) {
-            if (!Storage.permitted(this, Storage.PERMISSIONS))
-                to = null;
-        }
+        Uri u = storage.getStoragePath(to);
 
-        final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        boolean en = sharedPref.getBoolean(MoverApplication.ENABLED, true);
-        if (!en)
-            to = null;
+        boolean enabled = FileObserverService.isEnabled(this);
 
         TextView path = (TextView) footer.findViewById(R.id.path);
 
-        if (to == null) {
-            to = getString(R.string.not_selected);
-
-            TextView text = (TextView) header.findViewById(R.id.path);
-            text.setText(R.string.not_syncing);
-        } else {
+        if (enabled) {
             TextView text = (TextView) header.findViewById(R.id.path);
             text.setText(R.string.sycing);
-
-            if (Build.VERSION.SDK_INT >= 21) {
-                if (to.startsWith(ContentResolver.SCHEME_CONTENT)) {
-                    Storage storage = new Storage(this);
-                    Uri uri = Uri.parse(to);
-                    to = storage.getTargetName(uri);
-                }
-            }
+        } else {
+            TextView text = (TextView) header.findViewById(R.id.path);
+            text.setText(R.string.not_syncing);
         }
 
-        path.setText(to);
+        String text;
+        if (u == null) {
+            text = getString(R.string.not_selected);
+        } else {
+            text = storage.getTargetName(u);
+        }
+
+        path.setText(text);
     }
 
     @Override
@@ -429,11 +421,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem menuEnable = menu.findItem(R.id.action_enable);
-        final SharedPreferences sharedPref = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        boolean en = sharedPref.getBoolean(MoverApplication.ENABLED, true);
-        if (!Storage.permitted(this, PERMISSION))
-            en = false;
-        menuEnable.setChecked(en);
+        menuEnable.setChecked(FileObserverService.isEnabled(this));
         return true;
     }
 
@@ -458,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         if (id == R.id.action_enable) {
             boolean b = !item.isChecked();
-            if (!Storage.permitted(this, PERMISSION, 2))
+            if (!Storage.permitted(this, FileObserverService.PERMISSIONS, 2))
                 b = false;
             item.setChecked(b);
             final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
