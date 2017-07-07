@@ -15,25 +15,20 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
 
     @Override
     public File getStoragePath(File file) {
-        File parent = file.getParentFile();
-        while (!parent.exists())
-            parent = file.getParentFile();
-        if ((file.canWrite() || parent.canWrite())) {
-            return file;
-        } else {
+        if (ejected(file) || !file.canWrite())
             return null;
-        }
+        return file;
     }
 
     @Override
     public Uri getStoragePath(String path) {
-        if(path == null)
+        if (path == null)
             return null;
         if (Build.VERSION.SDK_INT >= 21 && path.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri u = Uri.parse(path);
-            if (permitted(u))
-                return u;
-            return null;
+            if (ejected(u))
+                return null;
+            return u;
         }
         File f;
         if (path.startsWith(ContentResolver.SCHEME_FILE)) {
@@ -44,7 +39,10 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         if (!permitted(context, PERMISSIONS)) {
             return null;
         } else {
-            return Uri.fromFile(getStoragePath(f));
+            f = getStoragePath(f);
+            if (f == null)
+                return null;
+            return Uri.fromFile(f);
         }
     }
 
