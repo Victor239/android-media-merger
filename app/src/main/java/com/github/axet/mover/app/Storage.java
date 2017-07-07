@@ -2,6 +2,7 @@ package com.github.axet.mover.app;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 
@@ -27,6 +28,8 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         if (Build.VERSION.SDK_INT >= 21 && path.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri u = Uri.parse(path);
             if (ejected(u))
+                return null;
+            if (!permitted(u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
                 return null;
             return u;
         }
