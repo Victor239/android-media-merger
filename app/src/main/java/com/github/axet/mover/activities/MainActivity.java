@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
                     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
                     SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putBoolean(MoverApplication.ENABLED, true);
+                    editor.putBoolean(MoverApplication.ENABLED, FileObserverService.isEnabled(this, true));
                     editor.commit();
                     invalidateOptionsMenu();
                     FileObserverService.startIfEnabled(this);
@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             boolean b = !item.isChecked();
             if (!Storage.permitted(this, FileObserverService.PERMISSIONS, 2))
                 b = false;
-            if (!FileObserverService.isEnabled(this))
+            if (!FileObserverService.isEnabled(this, b))
                 b = false;
             item.setChecked(b);
             final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);

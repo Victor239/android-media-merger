@@ -119,7 +119,13 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
     public static boolean isEnabled(Context context) {
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!sharedPref.getBoolean(MoverApplication.ENABLED, true))
+        boolean b = sharedPref.getBoolean(MoverApplication.ENABLED, true);
+        return isEnabled(context, b);
+    }
+
+    public static boolean isEnabled(Context context, boolean b) {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!b)
             return false;
         if (!Storage.permitted(context, PERMISSIONS))
             return false;
