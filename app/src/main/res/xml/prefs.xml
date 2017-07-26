@@ -7,7 +7,7 @@
         android:title="Storage Path" />
 
     <ListPreference
-        android:defaultValue="%f"
+        android:defaultValue="%d"
         android:entries="@array/name_text"
         android:entryValues="@array/name_values"
         android:key="name"
