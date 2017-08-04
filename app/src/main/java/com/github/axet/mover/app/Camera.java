@@ -382,7 +382,12 @@ public class Camera {
 
         Uri to = storage.getNextFile(contentUri, s, ext);
 
-        to = storage.move(f, to);
+        try {
+            to = storage.move(f, to);
+        } catch (IllegalArgumentException | SecurityException e) {
+            Toast.makeText(context, "Unable to MOVE " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (to == null)
             return; // unable to move
 
