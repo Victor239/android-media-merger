@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -384,8 +385,11 @@ public class Camera {
 
         try {
             to = storage.move(f, to);
-        } catch (IllegalArgumentException | SecurityException e) {
-            Toast.makeText(context, "Unable to MOVE " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (RuntimeException e) {
+            Throwable th = e;
+            while (th.getCause() != null)
+                th = th.getCause();
+            Toast.makeText(context, "Unable to MOVE " + th.getMessage(), Toast.LENGTH_SHORT).show();
             return;
         }
         if (to == null)
@@ -403,12 +407,7 @@ public class Camera {
         else
             t = storage.getTargetName(to);
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, "MOVE [" + t + "]", Toast.LENGTH_SHORT).show();
-            }
-        });
+        Toast.makeText(context, "MOVE [" + t + "]", Toast.LENGTH_SHORT).show();
     }
 
     void monitorContentObserver() {
