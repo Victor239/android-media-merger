@@ -17,27 +17,15 @@ import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.github.axet.androidlibrary.app.Storage;
-import com.github.axet.androidlibrary.app.SuperUser;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +42,7 @@ public class Camera {
     public static final SimpleDateFormat SIMPLE = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
     public static final SimpleDateFormat ISO8601 = new SimpleDateFormat("yyyyMMdd\'T\'HHmmss");
 
-    final static String SCREENSHOTS = "Screenshots";
+    public final static String SCREENSHOTS = "Screenshots";
 
     // minimum refresh time, camera file flash recording video set to 10 seconds.
     // do not refresh more often, otherwise we may not detect current recording file video last write time change.
@@ -75,12 +63,14 @@ public class Camera {
     public final File screenshotsPath = new File(picturesPath, SCREENSHOTS);
 
     // current sync() folders list
-    ArrayList<File> watchingFolders = new ArrayList<>();
+    ArrayList<Uri> watchingFolders = new ArrayList<>();
 
     // previous sync() file list
-    Map<File, Stats> old = new HashMap<>();
+    Map<Uri, Stats> old = new HashMap<>();
 
-    ArrayList<File> open = new ArrayList<>();
+    ArrayList<Uri> open = new ArrayList<>();
+
+    Storage storage;
 
     // last sync() time
     long last;
@@ -101,13 +91,18 @@ public class Camera {
     ContentObserver mediaObserver;
     TreeMap<File, FileObserver> organizes = new TreeMap<>();
 
-    public static class Stats {
+    public class Stats {
         public long last;
         public long size;
 
         public Stats(File f) {
             last = f.lastModified();
             size = f.length();
+        }
+
+        public Stats(Uri u) {
+            last = storage.getLastModified(u);
+            size = storage.getLength(u);
         }
 
         @Override
@@ -120,6 +115,7 @@ public class Camera {
     public Camera(final Context context, final Uri targetDir) {
         this.context = context;
         this.targetDir = targetDir;
+        storage = new Storage(context);
     }
 
     public void create() {
@@ -127,9 +123,7 @@ public class Camera {
         sync();
         // Android 6.0 has a bug preventing FileObserver to work with screenshots folder.
         // is simply do not fire on Screenshot file creation.
-        for (File d : watchingFolders) {
-            watchFiles(d);
-        }
+        watch();
     }
 
     public void close() {
@@ -144,14 +138,6 @@ public class Camera {
         }
         mediaObserver = null;
         handler.removeCallbacks(sync);
-    }
-
-    public List<File> getFolders() {
-        return watchingFolders;
-    }
-
-    public List<File> getMainFolders() {
-        return Arrays.asList(dcimPath, picturesPath);
     }
 
     // scan DCIM folder for sub folders
@@ -169,11 +155,15 @@ public class Camera {
     }
 
     // load current sync dirrectories
-    public ArrayList<File> generateDirs() {
+    public ArrayList<Uri> generateDirs() {
+        ArrayList<Uri> dd = new ArrayList<>();
         ArrayList<File> dirs = generateDcim();
+        for (File f : dirs) {
+            dd.add(Uri.fromFile(f));
+        }
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
-            dirs.add(screenshotsPath);
-        return dirs;
+            dd.add(Uri.fromFile(screenshotsPath));
+        return dd;
     }
 
     public void sync() {
@@ -190,12 +180,12 @@ public class Camera {
 
         last = cur;
         watchingFolders = generateDirs();
-        Map<File, Stats> list = generateFiles();
+        Map<Uri, Stats> list = generateFiles();
 
         if (list.isEmpty())
             return true;
 
-        for (File f : new TreeSet<>(list.keySet())) {
+        for (Uri f : new TreeSet<>(list.keySet())) {
             if (old.containsKey(f) && !open.contains(f)) {
                 Stats sold = old.get(f);
                 Stats snew = list.get(f);
@@ -217,8 +207,12 @@ public class Camera {
     }
 
     public void watch() {
-        for (File f : watchingFolders) {
-            watchFiles(f);
+        for (Uri d : watchingFolders) {
+            String s = d.getScheme();
+            if (s.equals(ContentResolver.SCHEME_FILE)) {
+                File f = new File(d.getPath());
+                watchFiles(f);
+            }
         }
     }
 
@@ -259,16 +253,12 @@ public class Camera {
         organizes.put(path, fo);
     }
 
-    void openClose(File ff) {
+    void removeOpen(Uri ff) {
         for (int i = 0; i < open.size(); i++) {
-            File f = open.get(i);
-            try {
-                if (f.getCanonicalPath().equals(ff.getCanonicalPath())) {
-                    open.remove(i);
-                    return; // remove one
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            Uri f = open.get(i);
+            if (f.equals(ff)) {
+                open.remove(i);
+                return; // remove one
             }
         }
     }
@@ -290,7 +280,7 @@ public class Camera {
                         old.remove(f);
                         break;
                     case FileObserver.OPEN:
-                        open.add(f);
+                        open.add(Uri.fromFile(f));
                         old.remove(f);
                         break;
                     case FileObserver.MODIFY:
@@ -299,11 +289,11 @@ public class Camera {
                         break;
                     case FileObserver.DELETE:
                     case FileObserver.MOVED_FROM:
-                        openClose(f);
+                        removeOpen(Uri.fromFile(f));
                         break;
                     case FileObserver.CLOSE_NOWRITE:
                     case FileObserver.CLOSE_WRITE:
-                        openClose(f);
+                        removeOpen(Uri.fromFile(f));
                         // no break
                     case FileObserver.MOVED_TO:
                         sync(); //moveFile(ff);
@@ -317,26 +307,57 @@ public class Camera {
     }
 
     // generate file list based on current folders ('watchingFolders')
-    Map<File, Stats> generateFiles() {
-        Map<File, Stats> ff = new HashMap<>();
-        for (File f : watchingFolders) {
-            for (File fd : generateFiles(f)) {
-                ff.put(fd, new Stats(fd));
+    Map<Uri, Stats> generateFiles() {
+        Map<Uri, Stats> ff = new HashMap<>();
+        for (Uri f : watchingFolders) {
+            try {
+                for (Uri fd : generateFiles(f)) {
+                    ff.put(fd, new Stats(fd));
+                }
+            } catch (SecurityException e) {
+                Log.d(TAG, "unable to scan", e);
             }
         }
         return ff;
     }
 
     // load file list from dir
-    List<File> generateFiles(File dir) {
-        ArrayList<File> list = new ArrayList<>();
-        File[] ff = dir.listFiles();
-        if (ff != null) {
-            for (File f : ff) {
-                if (f.isDirectory() || f.isHidden())
-                    continue;
-                list.add(f);
+    List<Uri> generateFiles(Uri dir) {
+        ArrayList<Uri> list = new ArrayList<>();
+        String s = dir.getScheme();
+        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
+            Cursor childCursor = null;
+            try {
+                ContentResolver resolver = context.getContentResolver();
+                resolver.takePersistableUriPermission(dir, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                Uri f = DocumentsContract.buildChildDocumentsUriUsingTree(dir, DocumentsContract.getTreeDocumentId(dir));
+                childCursor = resolver.query(f, null, null, null, null);
+                if (childCursor != null) {
+                    while (childCursor.moveToNext()) {
+                        String mime = childCursor.getString(childCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                        if (mime.equals(DocumentsContract.Document.MIME_TYPE_DIR))
+                            continue;
+                        String id = childCursor.getString(childCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                        Uri doc = DocumentsContract.buildDocumentUriUsingTree(dir, id);
+                        list.add(doc);
+                    }
+                }
+            } finally {
+                if (childCursor != null)
+                    childCursor.close();
             }
+        } else if (s.equals(ContentResolver.SCHEME_FILE)) {
+            File d = new File(dir.getPath());
+            File[] ff = d.listFiles();
+            if (ff != null) {
+                for (File f : ff) {
+                    if (f.isDirectory() || f.isHidden())
+                        continue;
+                    list.add(Uri.fromFile(f));
+                }
+            }
+        } else {
+            throw new RuntimeException("unknwon scheme");
         }
         return list;
     }
@@ -362,30 +383,34 @@ public class Camera {
         }
     }
 
-    void moveFile(File f) {
+    void moveFile(Uri f) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
-        Date date = new Date(f.lastModified());
+        Date date = new Date(storage.getLastModified(f));
 
-        s = s.replaceAll("%f", Storage.filterDups(Storage.getNameNoExt(f)));
+        s = s.replaceAll("%f", Storage.filterDups(storage.getNameNoExt(f)));
         s = s.replaceAll("%t", "" + date.getTime());
         s = s.replaceAll("%d", SIMPLE.format(date));
         s = s.replaceAll("%i", ISO8601.format(date));
 
-        Storage storage = new Storage(context);
-
-        final String t;
         final Uri contentUri = targetDir;
+        String q = contentUri.getScheme();
 
-        String n = f.getName();
-        String ext = FilenameUtils.getExtension(n);
+        if (Build.VERSION.SDK_INT >= 21 && q.equals(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver resolver = context.getContentResolver();
+            resolver.takePersistableUriPermission(contentUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
+
+        String n = storage.getName(f);
+        String ext = Storage.getExt(n);
 
         Uri to = storage.getNextFile(contentUri, s, ext);
 
         try {
             to = storage.move(f, to);
         } catch (RuntimeException e) {
+            Log.d(TAG, "move failed", e);
             Throwable th = e;
             while (th.getCause() != null)
                 th = th.getCause();
@@ -395,19 +420,13 @@ public class Camera {
         if (to == null)
             return; // unable to move
 
-        Log.d(TAG, "MOVE [" + f + " to " + storage.getTargetName(to) + "]");
+        Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
 
-        Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         mediaScanIntent.setData(to);
         context.sendBroadcast(mediaScanIntent);
 
-        String c = contentUri.getScheme();
-        if (c.startsWith(ContentResolver.SCHEME_CONTENT))
-            t = storage.getTargetName(to);
-        else
-            t = storage.getTargetName(to);
-
-        Toast.makeText(context, "MOVE [" + t + "]", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "MOVE [" + storage.getDisplayName(to) + "]", Toast.LENGTH_SHORT).show();
     }
 
     void monitorContentObserver() {

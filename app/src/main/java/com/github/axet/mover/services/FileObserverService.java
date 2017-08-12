@@ -91,10 +91,10 @@ public class FileObserverService extends Service implements SharedPreferences.On
         }
 
         @Override
-        public ArrayList<File> generateDirs() {
+        public ArrayList<Uri> generateDirs() {
             final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
-            ArrayList<File> dirs = super.generateDirs();
+            ArrayList<Uri> dirs = super.generateDirs();
 
             // remove all disabled path's
             int c = sharedPref.getInt(MoverApplication.AUTO_COUNT, 0);
@@ -102,7 +102,8 @@ public class FileObserverService extends Service implements SharedPreferences.On
                 boolean b = sharedPref.getBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, true);
                 String s = sharedPref.getString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, "");
                 if (!b) {
-                    dirs.remove(new File(s));
+                    File f = new File(s);
+                    dirs.remove(Uri.fromFile(f));
                 }
             }
 
@@ -110,7 +111,15 @@ public class FileObserverService extends Service implements SharedPreferences.On
             c = sharedPref.getInt(MoverApplication.MANUAL_COUNT, 0);
             for (int i = 0; i < c; i++) {
                 String s = sharedPref.getString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, "");
-                dirs.add(new File(s));
+                Uri u;
+                if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                    u = Uri.parse(s);
+                } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
+                    u = Uri.parse(s);
+                } else {
+                    u = Uri.fromFile(new File(s));
+                }
+                dirs.add(u);
             }
 
             return dirs;
@@ -119,7 +128,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
     public static boolean isEnabled(Context context) {
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean b = sharedPref.getBoolean(MoverApplication.ENABLED, true);
+        boolean b = sharedPref.getBoolean(MoverApplication.ENABLED, false);
         return isEnabled(context, b);
     }
 
@@ -168,6 +177,8 @@ public class FileObserverService extends Service implements SharedPreferences.On
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass()) {
             @Override
             public void check() { // disable application chek (here is no application)
+                if (camera != null)
+                    camera.sync();
             }
         };
 
