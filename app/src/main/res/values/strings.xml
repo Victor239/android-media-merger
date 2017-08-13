@@ -6,7 +6,7 @@
     <string name="not_syncing">Not Synching!\nPlease select \'storage_path\' with \'Browse\' button\n And check \'Enable\' checkbox</string>
     <string name="sycing">Synching...</string>
     <string name="not_selected">(not selected)</string>
-    <string name="enable">Enable</string>
+    <string name="enable">Enable Sync</string>
     <string-array name="name_values" formatted="false">
         <item formatted="false">%f</item>
         <item formatted="false">%d</item>
