@@ -3,7 +3,7 @@
     <string name="delete_folder">Delete folder</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="not_syncing">Not Synching!\nPlease select \'storage_path\' with \'Browse\' button\n And check \'Enable\' checkbox</string>
+    <string name="not_syncing">Not Synching!\nPlease select \'Storage Path\' with \'Browse\' button\n And check \'Enable\' checkbox</string>
     <string name="sycing">Synching...</string>
     <string name="not_selected">(not selected)</string>
     <string name="enable">Enable Sync</string>

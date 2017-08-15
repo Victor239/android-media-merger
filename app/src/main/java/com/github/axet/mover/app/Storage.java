@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class Storage extends com.github.axet.androidlibrary.app.Storage {
 
@@ -29,6 +30,11 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
     public String getStoragePath() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         return shared.getString(MoverApplication.STORAGE, null);
+    }
+
+    public static boolean isTreeUri(Uri uri) {
+        final List<String> paths = uri.getPathSegments();
+        return (paths.size() >= 2 && PATH_TREE.equals(paths.get(0)));
     }
 
     @Override

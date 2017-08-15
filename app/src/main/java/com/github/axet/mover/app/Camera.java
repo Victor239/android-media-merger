@@ -42,6 +42,8 @@ public class Camera {
     public static final SimpleDateFormat SIMPLE = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
     public static final SimpleDateFormat ISO8601 = new SimpleDateFormat("yyyyMMdd\'T\'HHmmss");
 
+    public final static String PRIMARY = "primary";
+
     public final static String SCREENSHOTS = "Screenshots";
 
     // minimum refresh time, camera file flash recording video set to 10 seconds.
@@ -115,7 +117,7 @@ public class Camera {
     public Camera(final Context context, final Uri targetDir) {
         this.context = context;
         this.targetDir = targetDir;
-        storage = new Storage(context);
+        this.storage = new Storage(context);
     }
 
     public void create() {
@@ -126,12 +128,16 @@ public class Camera {
         watch();
     }
 
-    public void close() {
+    public void closeOrganizes() {
         for (File f : organizes.keySet()) {
             FileObserver fo = organizes.get(f);
             fo.stopWatching();
         }
         organizes.clear();
+    }
+
+    public void close() {
+        closeOrganizes();
         open.clear();
         if (mediaObserver != null) {
             context.getContentResolver().unregisterContentObserver(mediaObserver);
@@ -180,6 +186,10 @@ public class Camera {
 
         last = cur;
         watchingFolders = generateDirs();
+
+        closeOrganizes();
+        watch();
+
         Map<Uri, Stats> list = generateFiles();
 
         if (list.isEmpty())
@@ -208,6 +218,14 @@ public class Camera {
 
     public void watch() {
         for (Uri d : watchingFolders) {
+            if (Build.VERSION.SDK_INT >= 21 && Storage.isTreeUri(d)) { // create monitor for internal storage
+                String id = DocumentsContract.getTreeDocumentId(d);
+                String[] ss = id.split(":");
+                if (ss[0].equals(PRIMARY)) {
+                    File f = new File(Environment.getExternalStorageDirectory(), ss[1]);
+                    d = Uri.fromFile(f);
+                }
+            }
             String s = d.getScheme();
             if (s.equals(ContentResolver.SCHEME_FILE)) {
                 File f = new File(d.getPath());
