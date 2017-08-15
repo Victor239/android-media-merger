@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -184,12 +183,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     public void onClick(View v) {
                         String pp = storage.getStoragePath();
                         if (Build.VERSION.SDK_INT >= 21 && StoragePathPreferenceCompat.showStorageAccessFramework(MainActivity.this, pp, FileObserverService.PERMISSIONS)) {
-                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                            startActivityForResult(intent, RESULT_BROWSE_SET);
+                            showBrowseFolder(RESULT_BROWSE_SET);
                             browseSetPos = pos;
                             browseSetPath = path;
                         } else {
@@ -307,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         switch (requestCode) {
             case RESULT_PERMS:
                 if (Storage.permitted(this, Storage.PERMISSIONS))
-                    browse();
+                    showBrowseStorage();
                 else
                     SettingsActivity.warninig(this);
                 FileObserverService.update(this);
@@ -361,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS)) { // we need for Camera folders
                     return;
                 }
-                browse();
+                showBrowseStorage();
             }
         });
 
@@ -371,12 +365,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             public void onClick(View view) {
                 String path = storage.getStoragePath();
                 if (Build.VERSION.SDK_INT >= 21 && StoragePathPreferenceCompat.showStorageAccessFramework(MainActivity.this, path, FileObserverService.PERMISSIONS)) {
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                            | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                            | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                    startActivityForResult(intent, RESULT_BROWSE);
+                    showBrowseFolder(RESULT_BROWSE);
                 } else {
                     if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS)) { // we need permissions for custom paths, even with SAF
                         return;
@@ -409,7 +398,16 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    void browse() {
+    void showBrowseFolder(int i) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+        startActivityForResult(intent, i);
+    }
+
+    void showBrowseStorage() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         StoragePathPreferenceCompat c = new StoragePathPreferenceCompat(this);
         c.setStorage(storage);
