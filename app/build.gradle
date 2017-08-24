@@ -43,5 +43,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'commons-io:commons-io:2.4'
-    compile 'com.github.axet:android-library:1.14.38' // compile project(':android-library')
+    compile 'com.github.axet:android-library:1.14.39' // compile project(':android-library')
 }
