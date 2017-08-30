@@ -110,7 +110,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         String s = t.getScheme();
         if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri root = getDocumentTreeUri(t);
-            return move(f, root, getDocumentPath(t));
+            return move(f, root, getDocumentName(t));
         } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
             String ext = getExt(t);
             String n = getNameNoExt(t);
