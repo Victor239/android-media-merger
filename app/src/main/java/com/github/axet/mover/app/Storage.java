@@ -52,7 +52,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
             Uri u = Uri.parse(path);
             if (ejected(u))
                 return null;
-            if (!permitted(u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+            if (ejected(u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
                 return null;
             return u;
         }
@@ -64,7 +64,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         }
         if (!permitted(context, PERMISSIONS)) {
             return null;
-        } else {
+        } else {    
             f = getStoragePath(f);
             if (f == null)
                 return null;

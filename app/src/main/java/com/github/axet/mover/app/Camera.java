@@ -42,8 +42,6 @@ public class Camera {
     public static final SimpleDateFormat SIMPLE = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
     public static final SimpleDateFormat ISO8601 = new SimpleDateFormat("yyyyMMdd\'T\'HHmmss");
 
-    public final static String PRIMARY = "primary";
-
     public final static String SCREENSHOTS = "Screenshots";
 
     // minimum refresh time, camera file flash recording video set to 10 seconds.
@@ -221,7 +219,7 @@ public class Camera {
             if (Build.VERSION.SDK_INT >= 21 && Storage.isTreeUri(d)) { // create monitor for internal storage
                 String id = DocumentsContract.getTreeDocumentId(d);
                 String[] ss = id.split(":");
-                if (ss[0].equals(PRIMARY)) {
+                if (ss[0].equals(Storage.STORAGE_PRIMARY)) {
                     File f = new File(Environment.getExternalStorageDirectory(), ss[1]);
                     d = Uri.fromFile(f);
                 }
