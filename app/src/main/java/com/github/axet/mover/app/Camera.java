@@ -419,6 +419,8 @@ public class Camera {
         }
 
         String n = storage.getName(f);
+        if (n == null)
+            return; // unable to get name, broken or missing file
         String ext = Storage.getExt(n);
 
         Uri to = storage.getNextFile(contentUri, s, ext);

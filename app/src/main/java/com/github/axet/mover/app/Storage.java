@@ -110,7 +110,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         String s = t.getScheme();
         if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri root = getDocumentTreeUri(t);
-            return move(f, root, getDocumentName(t));
+            return move(f, root, getDocumentChildPath(t));
         } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
             String ext = getExt(t);
             String n = getNameNoExt(t);
@@ -121,7 +121,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
             if (!td.exists() && !td.mkdirs())
                 throw new RuntimeException("unable to create: " + td);
 
-            File to = com.github.axet.androidlibrary.app.Storage.getNextFile(td, n, ext);
+            File to = Storage.getNextFile(td, n, ext);
 
             return Uri.fromFile(move(f, to));
         } else {
