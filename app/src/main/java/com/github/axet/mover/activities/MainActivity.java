@@ -413,7 +413,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         c.setStorage(storage);
         c.setPermissionsDialog(this, FileObserverService.PERMISSIONS, RESULT_PERMS);
         c.setStorageAccessFramework(this, RESULT_STORAGE);
-        c.onSetInitialValue(false, shared.getString(MoverApplication.STORAGE, null));
+        String path = shared.getString(MoverApplication.STORAGE, null);
+        c.onSetInitialValue(false, path);
+        c.setText(path);
         c.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
