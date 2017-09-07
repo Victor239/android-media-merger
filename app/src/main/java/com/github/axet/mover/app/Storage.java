@@ -39,7 +39,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
 
     @Override
     public File getStoragePath(File file) {
-        if (ejected(file) || !file.canWrite())
+        if (ejected(file))
             return null;
         return file;
     }
@@ -64,7 +64,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         }
         if (!permitted(context, PERMISSIONS)) {
             return null;
-        } else {    
+        } else {
             f = getStoragePath(f);
             if (f == null)
                 return null;
