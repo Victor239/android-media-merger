@@ -48,6 +48,11 @@ public class Camera {
     // do not refresh more often, otherwise we may not detect current recording file video last write time change.
     public static final int REFRESH_TIME = 10 * 1000;
 
+    public static boolean mask(int i, int mask) {
+        return (i & mask) == mask;
+
+    }
+
     protected Context context;
 
     protected Handler handler = new Handler();
@@ -291,29 +296,22 @@ public class Camera {
                 if (file == null)
                     return;
                 File f = new File(path, file);
-                switch (event) {
-                    case FileObserver.CREATE:
-                        old.remove(f);
-                        break;
-                    case FileObserver.OPEN:
-                        open.add(Uri.fromFile(f));
-                        old.remove(f);
-                        break;
-                    case FileObserver.MODIFY:
-                    case FileObserver.ACCESS:
-                        old.remove(f);
-                        break;
-                    case FileObserver.DELETE:
-                    case FileObserver.MOVED_FROM:
-                        removeOpen(Uri.fromFile(f));
-                        break;
-                    case FileObserver.CLOSE_NOWRITE:
-                    case FileObserver.CLOSE_WRITE:
-                        removeOpen(Uri.fromFile(f));
-                        // no break
-                    case FileObserver.MOVED_TO:
-                        sync(); //moveFile(ff);
-                        break;
+                if (mask(event, FileObserver.CREATE)) {
+                    old.remove(f);
+                }
+                if (mask(event, FileObserver.OPEN)) {
+                    open.add(Uri.fromFile(f));
+                    old.remove(f);
+                }
+                if (mask(event, FileObserver.MODIFY) || mask(event, FileObserver.ACCESS)) {
+                    old.remove(f);
+                }
+                if (mask(event, FileObserver.DELETE) || mask(event, FileObserver.MOVED_FROM)) {
+                    removeOpen(Uri.fromFile(f));
+                }
+                if (mask(event, FileObserver.CLOSE_NOWRITE) || mask(event, FileObserver.CLOSE_WRITE) || mask(event, FileObserver.MOVED_TO)) {
+                    removeOpen(Uri.fromFile(f));
+                    sync(); //moveFile(ff);
                 }
             }
         };
