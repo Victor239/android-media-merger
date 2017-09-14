@@ -19,9 +19,3 @@ Android friendly. Application waits for event from ContentObserver, then scan fo
 # Screenshots
 
 ![shot](/docs/shot1.png)
-
-# Donations
-
-  * [PayPal EUR](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=axet@me.com&amount=&currency_code=EUR&return=&item_name=media-merger)
-  * [PayPal USD](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=axet@me.com&amount=&currency_code=USD&return=&item_name=media-merger)
-  * [PayPal RUB](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=axet@me.com&amount=&currency_code=RUB&return=&item_name=media-merger)
