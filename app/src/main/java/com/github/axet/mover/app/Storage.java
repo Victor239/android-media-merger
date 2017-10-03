@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.v7.preference.PreferenceManager;
 
 import com.github.axet.mover.activities.MainActivity;
@@ -110,7 +111,9 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         String s = t.getScheme();
         if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri root = getDocumentTreeUri(t);
-            return move(f, root, getDocumentChildPath(t));
+            Uri to = move(f, root, getDocumentChildPath(t));
+            deleteDatabase(f);
+            return to;
         } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
             String ext = getExt(t);
             String n = getNameNoExt(t);
@@ -122,11 +125,19 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
                 throw new RuntimeException("unable to create: " + td);
 
             File to = Storage.getNextFile(td, n, ext);
-
-            return Uri.fromFile(move(f, to));
+            Uri r = Uri.fromFile(move(f, to));
+            deleteDatabase(f);
+            return r;
         } else {
             throw new RuntimeException("unknown uri");
         }
     }
 
+    void deleteDatabase(Uri f) {
+        String s = f.getScheme();
+        if (s.equals(ContentResolver.SCHEME_FILE)) {
+            Uri e = MediaStore.Images.Media.getContentUri("external");
+            resolver.delete(e, MediaStore.Images.ImageColumns.DATA + " LIKE ?", new String[]{f.getPath()});
+        }
+    }
 }
