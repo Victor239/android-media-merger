@@ -390,8 +390,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        if (OptimizationPreferenceCompat.needWarning(this))
-            OptimizationPreferenceCompat.showWarning(this);
+//        if (OptimizationPreferenceCompat.needWarning(this))
+//            OptimizationPreferenceCompat.showWarning(this);
 
         if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
             FileObserverService.update(this);
