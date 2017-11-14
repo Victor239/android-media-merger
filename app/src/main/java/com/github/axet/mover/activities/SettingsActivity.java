@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -29,7 +30,10 @@ import java.io.File;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    public static final int RESULT_PERMS = 1;
+    public static final int RESULT_BROWSE = 2;
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -93,8 +97,9 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
 
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
-            c.setPermissionsDialog(this, PERMISSION, 1);
-            c.setStorageAccessFramework(this, 2);
+            c.setPermissionsDialog(this, PERMISSION, RESULT_PERMS);
+            if (Build.VERSION.SDK_INT >= 21)
+                c.setStorageAccessFramework(this, RESULT_BROWSE);
 
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
             optimization.enable(FileObserverService.class);
@@ -131,7 +136,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
 
             switch (requestCode) {
-                case 1:
+                case RESULT_PERMS:
                     if (!Storage.permitted(getContext(), PERMISSION)) {
                         warninig(getContext());
                     } else {
@@ -149,7 +154,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
 
             switch (requestCode) {
-                case 2:
+                case RESULT_BROWSE:
                     c.onActivityResult(resultCode, data);
                     break;
             }
