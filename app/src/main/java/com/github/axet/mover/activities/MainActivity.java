@@ -491,13 +491,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         if (id == R.id.action_enable) {
             boolean b = !item.isChecked();
-            if (!Storage.permitted(this, FileObserverService.PERMISSIONS)) {
+            if (!Storage.permitted(this, FileObserverService.PERMISSIONS)) { // do not show perms dialog, since we need to auto checkbox if user succefely selected folder
                 Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
                 return true;
             }
             if (!FileObserverService.isEnabled(this, b)) {
-                // showBrowseStorage(); // do not show folder dialog, since we need to auto checkbox if user succefely selected folder
-                if (b) {
+                if (b) { // showBrowseStorage(); // do not show folder dialog, since we need to auto checkbox if user succefely selected folder
                     Toast.makeText(this, R.string.not_selected_text, Toast.LENGTH_SHORT).show();
                     return true;
                 }
