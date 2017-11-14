@@ -3,10 +3,16 @@
     <string name="delete_folder">Delete folder</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="not_syncing">Not Synching!\nPlease select \'Storage Path\' with \'Browse\' button\n And check \'Enable\' checkbox</string>
-    <string name="sycing">Synching...</string>
+    <string name="not_syncing">Not Synching!\nPlease select \'Storage Path\' with \'Browse\' button\nAnd check \'Enable\' checkbox</string>
     <string name="not_selected">(not selected)</string>
     <string name="enable">Enable Sync</string>
+    <string name="not_permitted">Not permitted</string>
+    <string name="permission_title">Storage Permission</string>
+    <string name="permission_message">Storage Permission has to be enabled manually</string>
+    <string name="not_selected_text">Please set \'Storage Path\' in Settings</string>
+    <string name="syncing">Syncing...</string>
+    <string name="browse">Browse</string>
+    <string name="syncing_to">to:</string>
     <string-array name="name_values" formatted="false">
         <item formatted="false">%f</item>
         <item formatted="false">%d</item>

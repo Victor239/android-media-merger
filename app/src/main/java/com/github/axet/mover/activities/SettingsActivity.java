@@ -7,15 +7,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 
@@ -25,8 +22,6 @@ import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.FileObserverService;
-
-import java.io.File;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -83,17 +78,6 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
     public static class PrefFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
         void initPrefs(final PreferenceManager manager, PreferenceScreen screen) {
-            final EditTextPreference p = (EditTextPreference) manager.findPreference("storage");
-            if (p.getText() == null) {
-                p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        p.setText(new File(Environment.getExternalStorageDirectory(), "/private/mobile").getPath());
-                        return true;
-                    }
-                });
-            }
-
             bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
 
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
@@ -163,8 +147,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
     static void warninig(final Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Storage Permission");
-        builder.setMessage("Storage Permission has to be enabled manually");
+        builder.setTitle(R.string.permission_title);
+        builder.setMessage(R.string.permission_message);
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

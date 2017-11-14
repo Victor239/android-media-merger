@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:text="to:" />
+        android:text="@string/syncing_to" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,18 +18,18 @@
 
         <TextView
             android:id="@+id/path"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="(not selected)" />
+            android:text="@string/not_selected" />
 
         <Button
             android:id="@+id/browse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Browse" />
+            android:text="@string/browse" />
 
     </LinearLayout>
 
