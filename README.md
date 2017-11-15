@@ -16,6 +16,17 @@ Android friendly. Application waits for event from ContentObserver, then scan fo
 
     gradle installDebug
 
+# Translate
+
+If you want to translate 'Media Merger' to your language please read this:
+
+  * [HOWTO-Translate.md](/docs/HOWTO-Translate.md)
+
 # Screenshots
 
 ![shot](/docs/shot1.png)
+
+
+# Contributors
+
+  * german translation thanks to @DJCrashdummy
