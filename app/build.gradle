@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '27.0.1'
 
     defaultConfig {
         applicationId "com.github.axet.mover"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 96
-        versionName "1.2.83"
+        versionCode 97
+        versionName "1.2.84"
     }
 
     signingConfigs {
@@ -31,9 +31,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
-            def file = output.packageApplication.outputFile
-            def fileName = org.apache.commons.io.FilenameUtils.getExtension(android.defaultConfig.applicationId) + "-" + android.defaultConfig.versionName + "-" + variant.buildType.name + ".apk"
-            output.packageApplication.outputFile = new File(file.parent, fileName)
+            output.outputFileName = org.apache.commons.io.FilenameUtils.getExtension(android.defaultConfig.applicationId) + "-" + android.defaultConfig.versionName + "-" + variant.buildType.name + ".apk"
         }
     }
 }
@@ -41,8 +39,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'commons-io:commons-io:2.4'
-    compile 'com.github.axet:android-library:1.14.49' // compile project(':android-library')
+    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support:design:25.4.0'
+    compile 'commons-io:commons-io:2.5'
+    compile 'com.github.axet:android-library:1.14.61' // compile project(':android-library')
 }

@@ -3,21 +3,21 @@
     <com.github.axet.mover.widgets.StoragePathPreferenceCompat
         android:defaultValue="Media Merger"
         android:key="storage"
-        android:summary="set where to storage merged media"
-        android:title="Storage Path" />
+        android:summary="@string/pref_storage_summary"
+        android:title="@string/pref_storage_title" />
 
     <ListPreference
         android:defaultValue="%d"
         android:entries="@array/name_text"
         android:entryValues="@array/name_values"
         android:key="name"
-        android:summary="name format"
-        android:title="Name Format" />
+        android:summary=""
+        android:title="@string/pref_nameformat_title" />
 
     <com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat
         android:defaultValue="false"
         android:key="optimization"
         android:persistent="false"
-        android:summary="Prevent app to be removed from memory"
-        android:title="Disable Battery Optimization" />
+        android:summary="@string/pref_optimization_summary"
+        android:title="@string/pref_optimization_title" />
 </PreferenceScreen>

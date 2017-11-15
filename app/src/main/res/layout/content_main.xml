@@ -23,6 +23,6 @@
         android:id="@+id/empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Please set 'Storage Path' in Settings"
+        android:text="@string/not_selected_text"
         android:visibility="gone" />
 </RelativeLayout>
