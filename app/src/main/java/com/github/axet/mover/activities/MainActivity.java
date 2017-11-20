@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
     }
 
-    CameraReceiver reciver = new CameraReceiver();
+    CameraReceiver receiver = new CameraReceiver();
 
     public class FoldersAdapter implements ListAdapter {
         DataSetObserver listener;
@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         IntentFilter filter = new IntentFilter();
         filter.addAction(FileObserverService.STOP);
         filter.addAction(FileObserverService.UPDATE);
-        registerReceiver(reciver, filter);
+        registerReceiver(receiver, filter);
 
         list = (ListView) findViewById(R.id.list);
 
@@ -414,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     void showBrowseStorage() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         StoragePathPreferenceCompat c = new StoragePathPreferenceCompat(this);
+        c.def = getString(R.string.folder_name);
         c.setStorage(storage);
         c.setPermissionsDialog(this, FileObserverService.PERMISSIONS, RESULT_PERMS);
         if (Build.VERSION.SDK_INT >= 21)
@@ -574,9 +575,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
 
-        if (reciver != null) {
-            unregisterReceiver(reciver);
-            reciver = null;
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+            receiver = null;
         }
     }
 

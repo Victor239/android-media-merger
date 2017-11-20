@@ -189,4 +189,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
     }
+
+    public void onStart() {
+        super.onStart();
+    }
 }

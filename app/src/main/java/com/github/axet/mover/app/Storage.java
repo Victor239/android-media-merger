@@ -133,7 +133,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         }
     }
 
-    void deleteDatabase(Uri f) {
+    public void deleteDatabase(Uri f) {
         String s = f.getScheme();
         if (s.equals(ContentResolver.SCHEME_FILE)) {
             Uri e = MediaStore.Images.Media.getContentUri("external");
