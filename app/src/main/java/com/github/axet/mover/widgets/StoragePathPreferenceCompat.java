@@ -7,6 +7,10 @@ import android.content.res.TypedArray;
 import android.net.Uri;
 import android.util.AttributeSet;
 
+import com.github.axet.androidlibrary.widgets.StoragePathPreference;
+
+import java.io.File;
+
 public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat {
     public StoragePathPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -35,7 +39,8 @@ public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.
     }
 
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    public Object onGetDefaultValue(TypedArray a, int index) {
+        super.onGetDefaultValue(a, index);
         return null; // no default for storage merger
     }
 }
