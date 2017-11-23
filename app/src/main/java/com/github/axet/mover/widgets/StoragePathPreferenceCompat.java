@@ -34,6 +34,7 @@ public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.
         String v = restoreValue ? getPersistedString(getText()) : (String) defaultValue;
         Uri u = storage.getStoragePath(v);
         if (u != null) {
+            setText(u.toString());
             setSummary(storage.getDisplayName(u));
         }
     }

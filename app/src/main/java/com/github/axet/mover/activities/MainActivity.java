@@ -11,14 +11,15 @@ import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.OpenChoicer;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
+import com.github.axet.androidlibrary.widgets.OpenStorageChoicer;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.app.Storage;
@@ -43,27 +46,21 @@ import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final int RESULT_PERMS = 1;
-    public static final int RESULT_STORAGE = 2;
-    public static final int RESULT_BROWSE = 3;
-    public static final int RESULT_BROWSE_SET = 4;
+    public static final int RESULT_PERMS_ADD = 1; // perms add folder
+    public static final int RESULT_PERMS_STORAGE = 2; // perms set storage
+    public static final int RESULT_ADD_FOLDER = 3; // browse intent add folder
+    public static final int RESULT_SET_FOLDER = 4; // browse intent set folder
+    public static final int RESULT_STORAGE = 5; // browse intent set storage
+    public static final int RESULT_PERMS_ENABLE = 6; // perms enable sync
+    public static final int RESULT_PERMS_SET = 7; // perms add folder
+    public static final int RESULT_ENABLE = 8; // browse intent set storage
 
     ListView list;
     FoldersAdapter adapter;
     View footer;
     View header;
     Storage storage;
-    int browseSetPos;
-    TextView browseSetPath;
-    Intent browseIntent;
-
-    {
-        browseIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        browseIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-    }
+    OpenChoicer choicer;
 
     CameraReceiver receiver = new CameraReceiver();
 
@@ -190,25 +187,24 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 path.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String pp = storage.getStoragePath();
-                        if (Build.VERSION.SDK_INT >= 21 && StoragePathPreferenceCompat.showStorageAccessFramework(MainActivity.this, pp, FileObserverService.PERMISSIONS, browseIntent)) {
-                            showBrowseFolder(RESULT_BROWSE_SET);
-                            browseSetPos = pos;
-                            browseSetPath = path;
-                        } else {
-                            final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
-                            f.setCurrentPath(new File(p.getPath()));
-                            f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    File ff = f.getCurrentPath();
-                                    manual.set(pos, Uri.fromFile(ff));
-                                    path.setText(ff.getPath());
-                                    save();
+                        String p = storage.getStoragePath();
+                        Uri old = storage.getStoragePath(p);
+                        choicer = new OpenChoicer(OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false) {
+                            @Override
+                            public void onResult(Uri uri) {
+                                manual.set(pos, uri);
+                                String s = uri.getScheme();
+                                if (s.equals(ContentResolver.SCHEME_CONTENT)) {
+                                    path.setText(storage.getDisplayName(uri));
+                                } else {
+                                    path.setText(uri.getPath());
                                 }
-                            });
-                            f.show();
-                        }
+                                save();
+                            }
+                        };
+                        choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_SET);
+                        choicer.setStorageAccessFramework(MainActivity.this, RESULT_SET_FOLDER);
+                        choicer.show(old);
                     }
                 });
 
@@ -308,22 +304,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case RESULT_PERMS:
-                if (Storage.permitted(this, Storage.PERMISSIONS))
-                    showBrowseStorage();
-                else
-                    SettingsActivity.warninig(this);
-                FileObserverService.update(this);
-                break;
-            case RESULT_STORAGE:
-                if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
-                    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putBoolean(MoverApplication.ENABLED, FileObserverService.isEnabled(this, true));
-                    editor.commit();
-                    invalidateOptionsMenu();
-                    FileObserverService.startIfEnabled(this);
-                }
+            case RESULT_PERMS_ADD:
+            case RESULT_PERMS_SET:
+            case RESULT_PERMS_STORAGE:
+            case RESULT_PERMS_ENABLE:
+                choicer.onRequestPermissionsResult(permissions, grantResults);
                 break;
         }
     }
@@ -361,10 +346,35 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS)) { // we need for Camera folders
-                    return;
-                }
-                showBrowseStorage();
+                String p = storage.getStoragePath();
+                Uri old = storage.getStoragePath(p);
+                OpenStorageChoicer choicer = new OpenStorageChoicer(OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false) {
+                    @Override
+                    public void onResult(Uri uri) {
+                        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                        SharedPreferences.Editor edit = shared.edit();
+                        edit.putString(MoverApplication.STORAGE, uri.toString());
+                        edit.commit();
+                        invalidateOptionsMenu();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        SettingsActivity.warninig(MainActivity.this);
+                    }
+
+                    @Override
+                    public void onRequestPermissionsFailed() {
+                        SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                    }
+                };
+                MainActivity.this.choicer = choicer;
+                choicer.setTitle(getString(R.string.pref_storage_title));
+                choicer.def = getString(R.string.folder_name);
+                choicer.setStorage(storage);
+                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_STORAGE);
+                choicer.setStorageAccessFramework(MainActivity.this, RESULT_STORAGE);
+                choicer.show(old);
             }
         });
 
@@ -372,25 +382,19 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String path = storage.getStoragePath();
-                if (Build.VERSION.SDK_INT >= 21 && StoragePathPreferenceCompat.showStorageAccessFramework(MainActivity.this, path, FileObserverService.PERMISSIONS, browseIntent)) {
-                    showBrowseFolder(RESULT_BROWSE);
-                } else {
-                    if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS)) { // we need permissions for custom paths, even with SAF
-                        return;
+                String p = storage.getStoragePath();
+                Uri old = storage.getStoragePath(p);
+                choicer = new OpenChoicer(OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false) {
+                    @Override
+                    public void onResult(Uri uri) {
+                        adapter.add(uri);
+                        adapter.save();
+                        FileObserverService.update(MainActivity.this);
                     }
-                    final OpenFileDialog f = new OpenFileDialog(MainActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
-                    f.setCurrentPath(Environment.getExternalStorageDirectory());
-                    f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            File ff = f.getCurrentPath();
-                            adapter.add(Uri.fromFile(ff));
-                            adapter.save();
-                        }
-                    });
-                    f.show();
-                }
+                };
+                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_ADD);
+                choicer.setStorageAccessFramework(MainActivity.this, RESULT_ADD_FOLDER);
+                choicer.show(old);
             }
         });
 
@@ -399,39 +403,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-//        if (OptimizationPreferenceCompat.needWarning(this))
-//            OptimizationPreferenceCompat.showWarning(this);
-
         if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
             FileObserverService.update(this);
         }
-    }
-
-    void showBrowseFolder(int i) {
-        startActivityForResult(browseIntent, i);
-    }
-
-    void showBrowseStorage() {
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        StoragePathPreferenceCompat c = new StoragePathPreferenceCompat(this);
-        c.def = getString(R.string.folder_name);
-        c.setStorage(storage);
-        c.setPermissionsDialog(this, FileObserverService.PERMISSIONS, RESULT_PERMS);
-        if (Build.VERSION.SDK_INT >= 21)
-            c.setStorageAccessFramework(this, RESULT_STORAGE);
-        String path = shared.getString(MoverApplication.STORAGE, null);
-        c.onSetInitialValue(false, path);
-        c.setText(path);
-        c.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MoverApplication.STORAGE, (String) newValue);
-                edit.commit();
-                return false;
-            }
-        });
-        c.onClick();
     }
 
     void updateDirs() {
@@ -472,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -491,26 +465,52 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
 
         if (id == R.id.action_enable) {
-            boolean b = !item.isChecked();
-            if (!Storage.permitted(this, FileObserverService.PERMISSIONS)) { // do not show perms dialog, since we need to auto checkbox if user succefely selected folder
-                Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            if (!FileObserverService.isEnabled(this, b)) {
-                if (b) { // showBrowseStorage(); // do not show folder dialog, since we need to auto checkbox if user succefely selected folder
-                    Toast.makeText(this, R.string.not_selected_text, Toast.LENGTH_SHORT).show();
-                    return true;
+            final boolean b = !item.isChecked();
+
+            String p = storage.getStoragePath();
+            Uri old = storage.getStoragePath(p);
+            OpenStorageChoicer choicer = new OpenStorageChoicer(OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false) {
+                @Override
+                public void onResult(Uri uri) {
+                    final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                    SharedPreferences.Editor edit = shared.edit();
+                    edit.putString(MoverApplication.STORAGE, uri.toString());
+                    edit.commit();
+                    item.setChecked(b);
+                    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putBoolean(MoverApplication.ENABLED, b); // true
+                    editor.commit();
+                    invalidateOptionsMenu();
+                    FileObserverService.startIfEnabled(MainActivity.this);
+                    updateDirs();
                 }
+
+                @Override
+                public void onCancel() {
+                    SettingsActivity.warninig(MainActivity.this);
+                }
+
+                @Override
+                public void onRequestPermissionsFailed() {
+                    SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                }
+            };
+            MainActivity.this.choicer = choicer;
+            choicer.setTitle(getString(R.string.pref_storage_title));
+            choicer.def = getString(R.string.folder_name);
+            choicer.setStorage(storage);
+            choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_ENABLE);
+            choicer.setStorageAccessFramework(MainActivity.this, RESULT_ENABLE);
+            if (FileObserverService.isEnabled(this, true) || !b) {
+                final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean(MoverApplication.ENABLED, b);
+                editor.commit();
+                invalidateOptionsMenu();
+            } else {
+                choicer.show(old);
             }
-            item.setChecked(b);
-            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putBoolean(MoverApplication.ENABLED, b);
-            editor.commit();
-            if (b) {
-                FileObserverService.startIfEnabled(this);
-            }
-            updateDirs();
             return true;
         }
 
@@ -530,41 +530,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         switch (requestCode) {
-            case RESULT_BROWSE_SET:
-                if (resultCode == RESULT_OK) {
-                    Uri u = data.getData();
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        ContentResolver resolver = getContentResolver();
-                        resolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    }
-                    adapter.manual.set(browseSetPos, u);
-                    String s = u.getScheme();
-                    if (s.equals(ContentResolver.SCHEME_CONTENT)) {
-                        browseSetPath.setText(storage.getDisplayName(u));
-                    } else {
-                        browseSetPath.setText(u.getPath());
-                    }
-                    adapter.save();
-                }
-                break;
-            case RESULT_BROWSE:
-                if (resultCode == RESULT_OK) {
-                    Uri u = data.getData();
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        ContentResolver resolver = getContentResolver();
-                        resolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    }
-                    adapter.add(u);
-                    adapter.save();
-                }
-                break;
+            case RESULT_SET_FOLDER:
+            case RESULT_ADD_FOLDER:
+            case RESULT_ENABLE:
             case RESULT_STORAGE:
-                if (resultCode == RESULT_OK) {
-                    SharedPreferences.Editor edit = sharedPref.edit();
-                    edit.putString(MoverApplication.STORAGE, data.getData().toString());
-                    edit.commit();
-                    invalidateOptionsMenu();
-                }
+                choicer.onActivityResult(resultCode, data);
                 break;
         }
     }
