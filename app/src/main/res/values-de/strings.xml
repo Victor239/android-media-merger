@@ -19,7 +19,6 @@
     <string name="not_syncing">Momentan wird nichts überwacht!\nBitten den \'Speicherpfad\' via \'auswählen\' angeben\nund \'Überwachung aktiv\' anhaken.</string>
     <string name="not_selected">(nicht ausgewählt)</string>
     <string name="enable">Überwachung aktiv</string>
-    <string name="not_permitted">Nicht erlaubt</string>
     <string name="permission_title">Speicherzugriff</string>
     <string name="permission_message">Der Speicherzugriff muss manuell ermöglicht werden.</string>
     <string name="not_selected_text">Den \'Speicherpfad\' bitte in den Einstellungen angeben.</string>

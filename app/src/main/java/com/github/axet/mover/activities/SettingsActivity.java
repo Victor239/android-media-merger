@@ -124,7 +124,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                     if (!Storage.permitted(getContext(), PERMISSION)) {
                         warninig(getContext());
                     } else {
-                        c.onRequestPermissionsResult();
+                        c.onRequestPermissionsResult(permissions, grantResults);
                     }
                     FileObserverService.update(getContext());
                     break;
