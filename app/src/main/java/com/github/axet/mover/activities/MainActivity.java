@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             public void onClick(View v) {
                 String p = storage.getStoragePath();
                 Uri old = storage.getStoragePath(p);
-                OpenStorageChoicer choicer = new OpenStorageChoicer(OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false) {
+                choicer = new OpenStorageChoicer(storage, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false, getString(R.string.folder_name)) {
                     @Override
                     public void onResult(Uri uri) {
                         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
@@ -360,18 +360,18 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                     @Override
                     public void onCancel() {
-                        SettingsActivity.warninig(MainActivity.this);
+                        if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                            SettingsActivity.warninig(MainActivity.this);
                     }
 
                     @Override
                     public void onRequestPermissionsFailed() {
-                        SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                        if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                            SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
                     }
                 };
                 MainActivity.this.choicer = choicer;
                 choicer.setTitle(getString(R.string.pref_storage_title));
-                choicer.def = getString(R.string.folder_name);
-                choicer.setStorage(storage);
                 choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_STORAGE);
                 choicer.setStorageAccessFramework(MainActivity.this, RESULT_STORAGE);
                 choicer.show(old);
@@ -469,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
             String p = storage.getStoragePath();
             Uri old = storage.getStoragePath(p);
-            OpenStorageChoicer choicer = new OpenStorageChoicer(OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false) {
+            choicer = new OpenStorageChoicer(storage, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false, getString(R.string.folder_name)) {
                 @Override
                 public void onResult(Uri uri) {
                     final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
@@ -488,18 +488,17 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                 @Override
                 public void onCancel() {
-                    SettingsActivity.warninig(MainActivity.this);
+                    if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                        SettingsActivity.warninig(MainActivity.this);
                 }
 
                 @Override
                 public void onRequestPermissionsFailed() {
-                    SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                    if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                        SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
                 }
             };
-            MainActivity.this.choicer = choicer;
             choicer.setTitle(getString(R.string.pref_storage_title));
-            choicer.def = getString(R.string.folder_name);
-            choicer.setStorage(storage);
             choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_ENABLE);
             choicer.setStorageAccessFramework(MainActivity.this, RESULT_ENABLE);
             if (FileObserverService.isEnabled(this, true) || !b) {
