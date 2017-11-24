@@ -360,12 +360,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                     @Override
                     public void onCancel() {
-                        SettingsActivity.warninig(MainActivity.this);
+                        if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                            SettingsActivity.warninig(MainActivity.this);
                     }
 
                     @Override
                     public void onRequestPermissionsFailed() {
-                        SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                        if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                            SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
                     }
                 };
                 MainActivity.this.choicer = choicer;
@@ -486,12 +488,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                 @Override
                 public void onCancel() {
-                    SettingsActivity.warninig(MainActivity.this);
+                    if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                        SettingsActivity.warninig(MainActivity.this);
                 }
 
                 @Override
                 public void onRequestPermissionsFailed() {
-                    SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                    if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
+                        SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
                 }
             };
             choicer.setTitle(getString(R.string.pref_storage_title));
