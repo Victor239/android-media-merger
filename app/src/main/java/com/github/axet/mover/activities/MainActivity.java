@@ -46,14 +46,10 @@ import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final int RESULT_PERMS_ADD = 1; // perms add folder
-    public static final int RESULT_PERMS_STORAGE = 2; // perms set storage
-    public static final int RESULT_ADD_FOLDER = 3; // browse intent add folder
-    public static final int RESULT_SET_FOLDER = 4; // browse intent set folder
-    public static final int RESULT_STORAGE = 5; // browse intent set storage
-    public static final int RESULT_PERMS_ENABLE = 6; // perms enable sync
-    public static final int RESULT_PERMS_SET = 7; // perms add folder
-    public static final int RESULT_ENABLE = 8; // browse intent set storage
+    public static final int RESULT_ADD_FOLDER = 1;
+    public static final int RESULT_SET_FOLDER = 2;
+    public static final int RESULT_STORAGE = 3;
+    public static final int RESULT_ENABLE = 4;
 
     ListView list;
     FoldersAdapter adapter;
@@ -202,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                                 save();
                             }
                         };
-                        choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_SET);
+                        choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_SET_FOLDER);
                         choicer.setStorageAccessFramework(MainActivity.this, RESULT_SET_FOLDER);
                         choicer.show(old);
                     }
@@ -304,10 +300,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case RESULT_PERMS_ADD:
-            case RESULT_PERMS_SET:
-            case RESULT_PERMS_STORAGE:
-            case RESULT_PERMS_ENABLE:
+            case RESULT_ADD_FOLDER:
+            case RESULT_SET_FOLDER:
+            case RESULT_STORAGE:
+            case RESULT_ENABLE:
                 choicer.onRequestPermissionsResult(permissions, grantResults);
                 break;
         }
@@ -360,12 +356,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                     @Override
                     public void onRequestPermissionsFailed(String[] permissions) {
-                        if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
-                            SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                        SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
                     }
                 };
                 choicer.setTitle(getString(R.string.pref_storage_title));
-                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_STORAGE);
+                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_STORAGE);
                 choicer.setStorageAccessFramework(MainActivity.this, RESULT_STORAGE);
                 choicer.show(old);
             }
@@ -385,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                         FileObserverService.update(MainActivity.this);
                     }
                 };
-                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_ADD);
+                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_ADD_FOLDER);
                 choicer.setStorageAccessFramework(MainActivity.this, RESULT_ADD_FOLDER);
                 choicer.show(old);
             }
@@ -481,12 +476,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                 @Override
                 public void onRequestPermissionsFailed(String[] permissions) {
-                    if (!Storage.permitted(MainActivity.this, FileObserverService.PERMISSIONS))
-                        SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
+                    SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
                 }
             };
             choicer.setTitle(getString(R.string.pref_storage_title));
-            choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_PERMS_ENABLE);
+            choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_ENABLE);
             choicer.setStorageAccessFramework(MainActivity.this, RESULT_ENABLE);
             if (FileObserverService.isEnabled(this, true) || !b) {
                 final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
