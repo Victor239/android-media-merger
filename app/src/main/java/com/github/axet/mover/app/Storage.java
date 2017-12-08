@@ -63,7 +63,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         } else {
             f = new File(path);
         }
-        if (!permitted(context, PERMISSIONS)) {
+        if (!permitted(context, PERMISSIONS_RW)) {
             return null;
         } else {
             f = getStoragePath(f);

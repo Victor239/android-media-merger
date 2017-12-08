@@ -1,10 +1,4 @@
 <resources>
-    <string-array name="name_values" formatted="false">
-        <item formatted="false">%f</item>
-        <item formatted="false">%d</item>
-        <item formatted="false">%t</item>
-        <item formatted="false">%i</item>
-    </string-array>
     <string-array name="name_text">
         <item>ursprünglicher Name</item>
         <item>2017-03-14 14.22.11.ext</item>
@@ -16,7 +10,7 @@
     <string name="delete_folder">Ordner löschen</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
-    <string name="not_syncing">Momentan wird nichts überwacht!\nBitten den \'Speicherpfad\' via \'auswählen\' angeben\nund \'Überwachung aktiv\' anhaken.</string>
+    <string name="not_syncing">Momentan wird nichts überwacht!\nBitte den \'Speicherpfad\' via \'auswählen\' angeben\nund \'Überwachung aktiv\' anhaken.</string>
     <string name="not_selected">(nicht ausgewählt)</string>
     <string name="enable">Überwachung aktiv</string>
     <string name="permission_title">Speicherzugriff</string>

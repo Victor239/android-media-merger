@@ -96,6 +96,14 @@ public class Camera {
     ContentObserver mediaObserver;
     TreeMap<File, FileObserver> organizes = new TreeMap<>();
 
+    public static String getFormatted(String f, String ne, Date date) {
+        f = f.replaceAll("%f", Storage.filterDups(ne));
+        f = f.replaceAll("%t", "" + (date.getTime() / 1000));
+        f = f.replaceAll("%d", SIMPLE.format(date));
+        f = f.replaceAll("%i", ISO8601.format(date));
+        return f;
+    }
+
     public class Stats {
         public long last;
         public long size;
@@ -225,8 +233,10 @@ public class Camera {
                 String id = DocumentsContract.getTreeDocumentId(d);
                 String[] ss = id.split(":");
                 if (ss[0].equals(Storage.STORAGE_PRIMARY)) {
-                    File f = new File(Environment.getExternalStorageDirectory(), ss[1]);
-                    d = Uri.fromFile(f);
+                    File path = Environment.getExternalStorageDirectory();
+                    if (ss.length > 1) // len == 1 if root folder
+                        path = new File(path, ss[1]);
+                    d = Uri.fromFile(path);
                 }
             }
             String s = d.getScheme();
@@ -403,10 +413,7 @@ public class Camera {
 
         Date date = new Date(storage.getLastModified(f));
 
-        s = s.replaceAll("%f", Storage.filterDups(storage.getNameNoExt(f)));
-        s = s.replaceAll("%t", "" + date.getTime());
-        s = s.replaceAll("%d", SIMPLE.format(date));
-        s = s.replaceAll("%i", ISO8601.format(date));
+        s = getFormatted(s, storage.getNameNoExt(f), date);
 
         final Uri contentUri = targetDir;
         String q = contentUri.getScheme();
