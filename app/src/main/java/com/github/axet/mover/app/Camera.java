@@ -233,8 +233,10 @@ public class Camera {
                 String id = DocumentsContract.getTreeDocumentId(d);
                 String[] ss = id.split(":");
                 if (ss[0].equals(Storage.STORAGE_PRIMARY)) {
-                    File f = new File(Environment.getExternalStorageDirectory(), ss[1]);
-                    d = Uri.fromFile(f);
+                    File path = Environment.getExternalStorageDirectory();
+                    if (ss.length > 1) // len == 1 if root folder
+                        path = new File(path, ss[1]);
+                    d = Uri.fromFile(path);
                 }
             }
             String s = d.getScheme();
