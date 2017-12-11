@@ -236,28 +236,24 @@ public class Camera {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (Uri f : mm) {
-                    if (!FileObserverService.isEnabled(context))
-                        return;
-
-                    Uri to;
-
-                    try {
-                        to = moveFile(f);
-                    } catch (RuntimeException e) {
-                        Log.d(TAG, "MOVE FAILED", e);
-                        Throwable th = e;
-                        while (th.getCause() != null)
-                            th = th.getCause();
-                        Post(context.getString(R.string.move_failed, th.getMessage()));
-                        return;
+                try {
+                    for (Uri f : mm) {
+                        if (!FileObserverService.isEnabled(context))
+                            return;
+                        Uri to = moveFile(f);
+                        Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
+                        Post(context.getString(R.string.file_moved, storage.getDisplayName(to)));
                     }
-
-                    Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
-                    Post(context.getString(R.string.file_moved, storage.getDisplayName(to)));
-                }
-                synchronized (lock) {
-                    thread = null;
+                } catch (RuntimeException e) {
+                    Log.d(TAG, "MOVE FAILED", e);
+                    Throwable th = e;
+                    while (th.getCause() != null)
+                        th = th.getCause();
+                    Post(context.getString(R.string.move_failed, th.getMessage()));
+                } finally {
+                    synchronized (lock) {
+                        thread = null;
+                    }
                 }
             }
         }, "sync");
