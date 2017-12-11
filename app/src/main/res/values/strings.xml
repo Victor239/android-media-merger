@@ -34,4 +34,6 @@
     <string name="pref_optimization_summary">Prevent app to be removed from memory</string>
     <string name="pref_storage_title">Storage Path</string>
     <string name="pref_storage_summary">set where to storage merged media</string>
+    <string name="file_moved">MOVE [%s]</string>
+    <string name="move_failed">Unable to MOVE [%s]</string>
 </resources>

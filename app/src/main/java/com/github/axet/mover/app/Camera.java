@@ -19,6 +19,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.github.axet.mover.R;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -80,6 +82,8 @@ public class Camera {
     // last sync() time
     long last;
 
+    final Object lock = new Object();
+    Thread thread;
     // sync runnable
     Runnable sync = new Runnable() {
         @Override
@@ -206,12 +210,19 @@ public class Camera {
         if (list.isEmpty())
             return true;
 
+        synchronized (lock) {
+            if (thread != null)
+                return false;
+        }
+
+        final ArrayList<Uri> mm = new ArrayList<>();
+
         for (Uri f : new TreeSet<>(list.keySet())) {
             if (old.containsKey(f) && !open.contains(f)) {
                 Stats sold = old.get(f);
                 Stats snew = list.get(f);
                 if (sold.equals(snew)) {
-                    moveFile(f);
+                    mm.add(f);
                     list.remove(f);
                 } else {
                     Log.d(TAG, "Delaying: " + f);
@@ -221,10 +232,32 @@ public class Camera {
 
         old = list;
 
-        if (list.isEmpty())
-            return true;
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (Uri f : mm) {
+                    Uri to;
+                    try {
+                        to = moveFile(f);
+                    } catch (RuntimeException e) {
+                        Log.d(TAG, "MOVE FAILED", e);
+                        Throwable th = e;
+                        while (th.getCause() != null)
+                            th = th.getCause();
+                        Post(context.getString(R.string.move_failed, th.getMessage()));
+                        return;
+                    }
+                    Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
+                    Post(context.getString(R.string.file_moved, storage.getDisplayName(to)));
+                }
+                synchronized (lock) {
+                    thread = null;
+                }
+            }
+        }, "sync");
+        thread.start();
 
-        return false;
+        return false; // rescan again, moveFile can be slow, more files appear
     }
 
     public void watch() {
@@ -407,7 +440,7 @@ public class Camera {
         }
     }
 
-    void moveFile(Uri f) {
+    Uri moveFile(Uri f) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
@@ -425,31 +458,29 @@ public class Camera {
 
         String n = storage.getName(f);
         if (n == null)
-            return; // unable to get name, broken or missing file
+            return null; // unable to get name, broken or missing file
         String ext = Storage.getExt(n);
 
         Uri to = storage.getNextFile(contentUri, s, ext);
 
-        try {
-            to = storage.move(f, to);
-        } catch (RuntimeException e) {
-            Log.d(TAG, "move failed", e);
-            Throwable th = e;
-            while (th.getCause() != null)
-                th = th.getCause();
-            Toast.makeText(context, "Unable to MOVE " + th.getMessage(), Toast.LENGTH_SHORT).show();
-            return;
-        }
+        to = storage.move(f, to);
         if (to == null)
-            return; // unable to move
-
-        Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
+            return null; // unable to move
 
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         mediaScanIntent.setData(to);
         context.sendBroadcast(mediaScanIntent);
 
-        Toast.makeText(context, "MOVE [" + storage.getDisplayName(to) + "]", Toast.LENGTH_SHORT).show();
+        return to;
+    }
+
+    void Post(final String msg) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     void monitorContentObserver() {
