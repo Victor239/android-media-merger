@@ -25,4 +25,6 @@
     <string name="pref_optimization_summary">App davor schützen aus dem Speicher entfernt zu werden.</string>
     <string name="pref_storage_title">Speicherpfad</string>
     <string name="pref_storage_summary">Wo werden die zusammengeführten Dateien gespeichert?</string>
+    <string name="file_moved">MOVE [%s]</string>
+    <string name="move_failed">Unable to MOVE [%s]</string>
 </resources>
