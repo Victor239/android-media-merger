@@ -20,6 +20,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.mover.R;
+import com.github.axet.mover.services.FileObserverService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -236,7 +237,11 @@ public class Camera {
             @Override
             public void run() {
                 for (Uri f : mm) {
+                    if (!FileObserverService.isEnabled(context))
+                        return;
+
                     Uri to;
+
                     try {
                         to = moveFile(f);
                     } catch (RuntimeException e) {
@@ -247,6 +252,7 @@ public class Camera {
                         Post(context.getString(R.string.move_failed, th.getMessage()));
                         return;
                     }
+
                     Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
                     Post(context.getString(R.string.file_moved, storage.getDisplayName(to)));
                 }
