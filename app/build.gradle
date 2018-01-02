@@ -8,8 +8,8 @@ android {
         applicationId "com.github.axet.mover"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 108
-        versionName "1.2.94"
+        versionCode 109
+        versionName "1.2.95"
     }
 
     signingConfigs {
