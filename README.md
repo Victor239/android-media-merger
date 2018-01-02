@@ -28,7 +28,10 @@ If you want to translate 'Media Merger' to your language please read this:
 
 ![shot](/docs/shot1.png)
 
-
 # Contributors
 
   * german translation thanks to @DJCrashdummy
+
+# Links
+
+  * https://syncthing.net
