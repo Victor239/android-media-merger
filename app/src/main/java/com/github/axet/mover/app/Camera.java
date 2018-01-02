@@ -106,7 +106,7 @@ public class Camera {
     public static String getFormatted(Storage storage, String f, Uri targetUri, Date date) {
         String ne = storage.getNameNoExt(targetUri);
 
-        String p = ""; // root
+        String p = "."; // root
 
         String s = targetUri.getScheme();
         if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
