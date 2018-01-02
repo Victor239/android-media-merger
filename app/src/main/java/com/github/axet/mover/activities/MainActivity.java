@@ -456,7 +456,23 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             final boolean b = !item.isChecked();
 
             String p = storage.getStoragePath();
-            Uri old = storage.getStoragePath(p);
+            final Uri old = storage.getStoragePath(p);
+
+            final Runnable enabled = new Runnable() {
+                @Override
+                public void run() {
+                    if (FileObserverService.isEnabled(MainActivity.this, true) || !b) {
+                        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putBoolean(MoverApplication.ENABLED, b);
+                        editor.commit();
+                        invalidateOptionsMenu();
+                    } else {
+                        choicer.show(old);
+                    }
+                }
+            };
+
             choicer = new OpenStorageChoicer(storage, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG, false, getString(R.string.folder_name)) {
                 @Override
                 public void onResult(Uri uri) {
@@ -475,6 +491,29 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 }
 
                 @Override
+                public void show(Uri old) {
+                    // force show permissions dialog
+                    if (a != null) {
+                        if (!Storage.permitted(a, perms, permsresult))
+                            return; // perms shown
+                    }
+                    if (f != null) {
+                        if (!Storage.permitted(f, perms, permsresult))
+                            return; // perms shown
+                    }
+                    super.show(old);
+                }
+
+                @Override
+                public void onRequestPermissionsResult(String[] permissions, int[] grantResults) {
+                    if (Storage.permitted(context, permissions)) {
+                        enabled.run();
+                    } else {
+                        onRequestPermissionsFailed(permissions);
+                    }
+                }
+
+                @Override
                 public void onRequestPermissionsFailed(String[] permissions) {
                     SettingsActivity.warninig(MainActivity.this); // mandatory permissions, show warning
                 }
@@ -482,15 +521,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             choicer.setTitle(getString(R.string.pref_storage_title));
             choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_ENABLE);
             choicer.setStorageAccessFramework(MainActivity.this, RESULT_ENABLE);
-            if (FileObserverService.isEnabled(this, true) || !b) {
-                final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putBoolean(MoverApplication.ENABLED, b);
-                editor.commit();
-                invalidateOptionsMenu();
-            } else {
-                choicer.show(old);
-            }
+            enabled.run();
             return true;
         }
 

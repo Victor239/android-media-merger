@@ -42,6 +42,8 @@ import java.util.TreeSet;
 public class Camera {
     private static final String TAG = "Camera";
 
+    public static final SimpleDateFormat DATE = new SimpleDateFormat("yyyy-MM-dd");
+    public static final SimpleDateFormat TIME = new SimpleDateFormat("HH.mm.ss");
     public static final SimpleDateFormat SIMPLE = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
     public static final SimpleDateFormat ISO8601 = new SimpleDateFormat("yyyyMMdd\'T\'HHmmss");
 
@@ -101,11 +103,34 @@ public class Camera {
     ContentObserver mediaObserver;
     TreeMap<File, FileObserver> organizes = new TreeMap<>();
 
-    public static String getFormatted(String f, String ne, Date date) {
+    public static String getFormatted(Storage storage, String f, Uri targetUri, Date date) {
+        String ne = storage.getNameNoExt(targetUri);
+
+        String p = ""; // root
+
+        String s = targetUri.getScheme();
+        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
+            String id = DocumentsContract.getTreeDocumentId(targetUri);
+            String[] ss = id.split(":");
+            if (ss.length > 1) {
+                p = ss[1];
+            }
+        } else if (s.equals(ContentResolver.SCHEME_FILE)) {
+            File a = Storage.getFile(targetUri);
+            a = a.getParentFile();
+            if (a != null)
+                p = a.getName();
+        } else {
+            throw new RuntimeException("unknown uri");
+        }
+
         f = f.replaceAll("%f", Storage.filterDups(ne));
         f = f.replaceAll("%t", "" + (date.getTime() / 1000));
         f = f.replaceAll("%d", SIMPLE.format(date));
         f = f.replaceAll("%i", ISO8601.format(date));
+        f = f.replaceAll("%p", p);
+        f = f.replaceAll("%D", DATE.format(date));
+        f = f.replaceAll("%T", TIME.format(date));
         return f;
     }
 
@@ -448,7 +473,7 @@ public class Camera {
 
         Date date = new Date(storage.getLastModified(f));
 
-        s = getFormatted(s, storage.getNameNoExt(f), date);
+        s = getFormatted(storage, s, f, date);
 
         final Uri contentUri = targetDir;
         String q = contentUri.getScheme();
