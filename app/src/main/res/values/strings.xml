@@ -6,6 +6,7 @@
         <item formatted="false">%d</item>
         <item formatted="false">%t</item>
         <item formatted="false">%i</item>
+        <item formatted="false">%p/%D %T</item>
     </string-array>
 
     <string-array name="name_text">
@@ -13,6 +14,7 @@
         <item>2017-03-14 14.22.11.ext</item>
         <item>1493561080.ext</item>
         <item>20170314T142211.ext</item>
+        <item>Parent/2017-03-14 14.22.11.ext</item>
     </string-array>
 
     <string name="app_name">Media Merger</string>
