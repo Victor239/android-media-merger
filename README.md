@@ -2,7 +2,7 @@
 
 Android OS does not allow you to create symbolic links on /sdcard. It does not allow you to change Camera or Screenshots folder. The only way to put all content created by phone into one place, is to create application which helps combine all folders in one.
 
-Use Syncthing to sync / backup files produced by your phone to your computer to manually delete / arrange files .
+Use this app in conjuction with Syncthing to sync / backup files produced by your phone to your computer to manually delete / arrange files .
 
   * This utitily moves all files from `[/sdcard/DCIM/*/*]` and `[/sdcard/Pictures/Screenshots/*]` to user specified folder.
   * Using two pass scan algorithm (prevent's move during file changes)
