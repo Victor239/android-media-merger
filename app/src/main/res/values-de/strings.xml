@@ -1,4 +1,9 @@
 <resources>
+    <string-array name="theme_text">
+        <item>Theme Light</item>
+        <item>Theme Dark</item>
+    </string-array>
+
     <string-array name="name_text">
         <item>ursprünglicher Name</item>
         <item>2017-03-14 14.22.11.ext</item>

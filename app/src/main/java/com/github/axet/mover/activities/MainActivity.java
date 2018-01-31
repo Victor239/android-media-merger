@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.OpenChoicer;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OpenStorageChoicer;
@@ -38,7 +39,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatThemeActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final int RESULT_ADD_FOLDER = 1;
     public static final int RESULT_SET_FOLDER = 2;
@@ -301,6 +302,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 choicer.onRequestPermissionsResult(permissions, grantResults);
                 break;
         }
+    }
+
+    @Override
+    public int getAppTheme() {
+        return MoverApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar);
     }
 
     @Override

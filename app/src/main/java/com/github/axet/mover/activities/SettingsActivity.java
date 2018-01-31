@@ -17,6 +17,7 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 
 import com.github.axet.androidlibrary.app.Storage;
+import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
@@ -24,7 +25,7 @@ import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.FileObserverService;
 import com.github.axet.mover.widgets.NameFormatPreferenceCompat;
 
-public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
+public class SettingsActivity extends AppCompatSettingsThemeActivity implements PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
@@ -88,9 +89,10 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         return false;
     }
 
-    public static class PrefFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static class PrefFragment extends PreferenceFragmentCompat {
         void initPrefs(final PreferenceManager manager, PreferenceScreen screen) {
             bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
+            bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_THEME));
 
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
             c.setPermissionsDialog(this, PERMISSION, RESULT_PERMS);
@@ -104,18 +106,12 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             addPreferencesFromResource(R.xml.prefs);
-            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
             initPrefs(getPreferenceManager(), getPreferenceScreen());
-        }
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         }
 
         @Override
         public void onDestroy() {
             super.onDestroy();
-            getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         }
 
         @Override
@@ -176,6 +172,16 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     }
 
     @Override
+    public int getAppTheme() {
+        return MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark);
+    }
+
+    @Override
+    public String getAppThemeKey() {
+        return MoverApplication.PREFERENCE_THEME;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportFragmentManager().beginTransaction()
@@ -185,21 +191,18 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        super.onSharedPreferenceChanged(sharedPreferences, key);
         FileObserverService.update(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPref.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     public void onStart() {
