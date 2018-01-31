@@ -20,4 +20,13 @@
         android:persistent="false"
         android:summary="@string/pref_optimization_summary"
         android:title="@string/pref_optimization_title" />
+
+    <ListPreference
+        android:defaultValue="@string/Theme_Light"
+        android:entries="@array/theme_text"
+        android:entryValues="@array/theme_value"
+        android:key="theme"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="Theme" />
 </PreferenceScreen>

@@ -1,6 +1,16 @@
 <resources>
     <string name="folder_name" translatable="false">Media Merger</string>
 
+    <string-array name="theme_text">
+        <item>Theme Light</item>
+        <item>Theme Dark</item>
+    </string-array>
+
+    <string-array name="theme_value" translatable="false">
+        <item>@string/Theme_Light</item>
+        <item>@string/Theme_Dark</item>
+    </string-array>
+
     <string-array name="name_values" translatable="false">
         <item formatted="false">%f</item>
         <item formatted="false">%d</item>
