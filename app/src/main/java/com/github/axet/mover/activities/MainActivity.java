@@ -537,9 +537,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
         switch (requestCode) {
             case RESULT_SET_FOLDER:
             case RESULT_ADD_FOLDER:
