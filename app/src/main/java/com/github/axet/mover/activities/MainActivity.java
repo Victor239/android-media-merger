@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
     CameraReceiver receiver = new CameraReceiver();
 
+    public static void startActivity(Context context) {
+        context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
+    }
+
     public class FoldersAdapter implements ListAdapter {
         DataSetObserver listener;
 

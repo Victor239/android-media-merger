@@ -15,6 +15,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
+import android.view.MenuItem;
 
 import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
@@ -94,6 +95,8 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_NAME));
             bindPreferenceSummaryToValue(manager.findPreference(MoverApplication.PREFERENCE_THEME));
 
+            setHasOptionsMenu(true);
+
             StoragePathPreferenceCompat c = (StoragePathPreferenceCompat) findPreference(MoverApplication.STORAGE);
             c.setPermissionsDialog(this, PERMISSION, RESULT_PERMS);
             if (Build.VERSION.SDK_INT >= 21)
@@ -119,6 +122,16 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             super.onResume();
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
             optimization.onResume();
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            if (item.getItemId() == android.R.id.home) {
+                getActivity().finish();
+                MainActivity.startActivity(getContext());
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
         }
 
         @Override
@@ -184,6 +197,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new PrefFragment())
                 .commit();
