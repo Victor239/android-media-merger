@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
     CameraReceiver receiver = new CameraReceiver();
 
+    public static void startActivity(Context context) {
+        context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
+    }
+
     public class FoldersAdapter implements ListAdapter {
         DataSetObserver listener;
 
@@ -537,9 +541,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
         switch (requestCode) {
             case RESULT_SET_FOLDER:
             case RESULT_ADD_FOLDER:
