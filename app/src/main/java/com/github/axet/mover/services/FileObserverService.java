@@ -174,7 +174,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
         super.onCreate();
         Log.d(TAG, "onCreate()");
 
-        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass()) {
+        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass(), MoverApplication.PREFERENCE_OPTIMIZATION) {
             @Override
             public void check() { // disable application chek (here is no application)
                 if (camera != null)

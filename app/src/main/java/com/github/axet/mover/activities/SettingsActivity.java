@@ -121,7 +121,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         public void onResume() {
             super.onResume();
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-            optimization.onResume();
+            optimization.onResume(MoverApplication.PREFERENCE_OPTIMIZATION_WARNING);
         }
 
         @Override

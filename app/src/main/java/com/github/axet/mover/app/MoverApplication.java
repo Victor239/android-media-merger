@@ -15,6 +15,7 @@ public class MoverApplication extends Application {
 
     public static final String PREFERENCE_THEME = "theme";
     public static final String PREFERENCE_OPTIMIZATION = "optimization";
+    public static final String PREFERENCE_OPTIMIZATION_WARNING = "optimization_warning";
 
     public static final String PREFERENCE_NAME = "name";
 
