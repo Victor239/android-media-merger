@@ -180,6 +180,12 @@ public class FileObserverService extends Service implements SharedPreferences.On
                 if (camera != null)
                     camera.sync();
             }
+
+            @Override
+            public void register() {
+                super.register();
+                OptimizationPreferenceCompat.setKillCheck(context, next, MoverApplication.PREFERENCE_LAST);
+            }
         };
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
