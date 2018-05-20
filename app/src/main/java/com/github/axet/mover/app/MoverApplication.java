@@ -15,6 +15,7 @@ public class MoverApplication extends Application {
 
     public static final String PREFERENCE_THEME = "theme";
     public static final String PREFERENCE_OPTIMIZATION = "optimization";
+    public static final String PREFERENCE_OPTIMIZATION_WARNING = "optimization_warning";
 
     public static final String PREFERENCE_NAME = "name";
 
@@ -26,6 +27,8 @@ public class MoverApplication extends Application {
     public static final String MANUAL_COUNT = "MANUAL_COUNT";
     public static final String MANUAL_PREFIX = "MANUAL_";
     public static final String MANUAL_PATH = "_PATH";
+
+    public static final String PREFERENCE_LAST = "last";
 
     public static int getTheme(Context context, int light, int dark) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);

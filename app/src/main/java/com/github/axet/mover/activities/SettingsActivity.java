@@ -121,14 +121,13 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         public void onResume() {
             super.onResume();
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-            optimization.onResume();
+            optimization.onResume(MoverApplication.PREFERENCE_OPTIMIZATION_WARNING);
         }
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
             if (item.getItemId() == android.R.id.home) {
-                getActivity().finish();
-                MainActivity.startActivity(getContext());
+                getActivity().onBackPressed();
                 return true;
             }
             return super.onOptionsItemSelected(item);
@@ -221,5 +220,11 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
 
     public void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        MainActivity.startActivity(this);
     }
 }

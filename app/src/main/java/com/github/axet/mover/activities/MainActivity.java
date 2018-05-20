@@ -30,6 +30,7 @@ import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.OpenChoicer;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OpenStorageChoicer;
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.app.Storage;
@@ -397,6 +398,10 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
             FileObserverService.update(this);
+        }
+
+        if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_LAST)) {
+            OptimizationPreferenceCompat.buildKilledWarning(this, true).show();
         }
     }
 
