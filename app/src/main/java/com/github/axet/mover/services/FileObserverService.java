@@ -141,9 +141,11 @@ public class FileObserverService extends Service implements SharedPreferences.On
         Storage storage = new Storage(context);
         String path = sharedPref.getString(MoverApplication.STORAGE, null);
         Uri u = storage.getStoragePath(path);
-        if (u == null) {
+        if (u == null)
             return false;
-        }
+        Uri local = Uri.fromFile(storage.getLocalStorage());
+        if (u.equals(local))
+            return false;
         return true;
     }
 
