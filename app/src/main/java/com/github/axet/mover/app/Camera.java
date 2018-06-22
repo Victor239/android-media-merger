@@ -11,8 +11,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -381,7 +379,7 @@ public class Camera {
                 }
                 if (mask(event, FileObserver.CLOSE_NOWRITE) || mask(event, FileObserver.CLOSE_WRITE) || mask(event, FileObserver.MOVED_TO)) {
                     removeOpen(Uri.fromFile(f));
-                    sync(); //moveFile(ff);
+                    sync(); // moveFile(ff);
                 }
             }
         };
@@ -511,15 +509,6 @@ public class Camera {
     }
 
     void monitorContentObserver() {
-        HandlerThread handlerThread = new HandlerThread("content_observer");
-        handlerThread.start();
-        final Handler handler = new Handler(handlerThread.getLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-            }
-        };
-
         if (mediaObserver != null) {
             context.getContentResolver().unregisterContentObserver(mediaObserver);
         }
@@ -534,10 +523,6 @@ public class Camera {
             }
         };
 
-        context.getContentResolver().registerContentObserver(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                true,
-                mediaObserver
-        );
+        context.getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaObserver);
     }
 }
