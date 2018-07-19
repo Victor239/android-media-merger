@@ -1,0 +1,36 @@
+<resources>
+    <string-array name="theme_text">
+        <item>Tema Claro</item>
+        <item>Tema Oscuro</item>
+    </string-array>
+
+    <string-array name="name_text">
+        <item>Nombre original</item>
+        <item>2017-03-14 14.22.11.ext</item>
+        <item>1493561080.ext</item>
+        <item>20170314T142211.ext</item>
+        <item>Parent/2017-03-14 14.22.11.ext</item>
+    </string-array>
+
+    <string name="app_name">Media Merger</string>
+    <string name="delete_folder">Eliminar carpeta</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="not_syncing">¡Sin sincronizar!\nPor favor, seleccione la \'Carpeta de destino\' con el botón  \'Explorar\' \nY haga clic en la casilla \'Activar sincronización\'</string>
+    <string name="not_selected">(sin seleccionar)</string>
+    <string name="enable">Activar sincronización</string>
+    <string name="permission_title">Permiso de almacenamiento</string>
+    <string name="permission_message">El permiso de almacenamiento debe activarse manualmente.</string>
+    <string name="not_selected_text">Por favor, selecciona la \'Carpeta de destino\' desde la Configuración.</string>
+    <string name="syncing">Sincronizando...</string>
+    <string name="browse">Explorar</string>
+    <string name="syncing_to">hacia:</string>
+
+    <string name="pref_nameformat_title">Nombre de formato</string>
+    <string name="pref_optimization_title">Desactiva la Optimización de batería</string>
+    <string name="pref_optimization_summary">Evita que la aplicación sea removida de la memoria RAM.</string>
+    <string name="pref_storage_title">Carpeta de destino</string>
+    <string name="pref_storage_summary">establece en que carpeta será guardada los archivos multimedia</string>
+    <string name="file_moved">[%s] fue MOVIDO</string>
+    <string name="move_failed">[%s] no pudo ser MOVIDO</string>
+</resources>
