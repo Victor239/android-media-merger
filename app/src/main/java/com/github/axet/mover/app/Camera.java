@@ -27,6 +27,8 @@ import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +154,20 @@ public class Camera {
         }
     }
 
+    public class LastModified implements Comparator<Uri> {
+        @Override
+        public int compare(Uri o1, Uri o2) {
+            final long result = storage.getLastModified(o1) - storage.getLastModified(o2);
+            if (result < 0) {
+                return -1;
+            } else if (result > 0) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
     public Camera(final Context context, final Uri targetDir) {
         this.context = context;
         this.targetDir = targetDir;
@@ -256,6 +272,7 @@ public class Camera {
             @Override
             public void run() {
                 try {
+                    Collections.sort(mm, new LastModified());
                     String[] ss = new String[mm.size()];
                     for (int i = 0; i < mm.size(); i++) {
                         Uri f = mm.get(i);
