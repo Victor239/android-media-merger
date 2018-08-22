@@ -53,7 +53,6 @@ public class Camera {
 
     public static boolean mask(int i, int mask) {
         return (i & mask) == mask;
-
     }
 
     protected Context context;
@@ -119,7 +118,7 @@ public class Camera {
             if (a != null)
                 p = a.getName();
         } else {
-            throw new RuntimeException("unknown uri");
+            throw new Storage.UnknownUri();
         }
 
         f = f.replaceAll("%f", Storage.filterDups(ne));
@@ -178,9 +177,8 @@ public class Camera {
     public void close() {
         closeOrganizes();
         open.clear();
-        if (mediaObserver != null) {
+        if (mediaObserver != null)
             context.getContentResolver().unregisterContentObserver(mediaObserver);
-        }
         mediaObserver = null;
         handler.removeCallbacks(sync);
     }
@@ -203,9 +201,8 @@ public class Camera {
     public ArrayList<Uri> generateDirs() {
         ArrayList<Uri> dd = new ArrayList<>();
         ArrayList<File> dirs = generateDcim();
-        for (File f : dirs) {
+        for (File f : dirs)
             dd.add(Uri.fromFile(f));
-        }
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
             dd.add(Uri.fromFile(screenshotsPath));
         return dd;
@@ -219,9 +216,8 @@ public class Camera {
     // return done - true
     public boolean fsync() {
         long cur = System.currentTimeMillis();
-        if (last + REFRESH_TIME > cur) {
+        if (last + REFRESH_TIME > cur)
             return false;
-        }
 
         last = cur;
         watchingFolders = generateDirs();
@@ -260,10 +256,35 @@ public class Camera {
             @Override
             public void run() {
                 try {
-                    for (Uri f : mm) {
+                    String[] ss = new String[mm.size()];
+                    for (int i = 0; i < mm.size(); i++) {
+                        Uri f = mm.get(i);
+                        ss[i] = getFormatted(f);
+                    }
+                    Uri[] tt = new Uri[mm.size()];
+                    for (int i = 0; i < mm.size(); i++) {
+                        if (tt[i] == null) {
+                            Uri f = mm.get(i);
+                            String s = ss[i];
+                            int count = 0;
+                            for (int k = i + 1; k < mm.size(); k++) {
+                                String m = ss[k];
+                                if (s.equals(m)) {
+                                    tt[i] = getMoveTo(f, s, 1);
+                                    tt[k] = getMoveTo(f, m, count + 2);
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                    for (int i = 0; i < mm.size(); i++) {
+                        Uri f = mm.get(i);
+                        Uri t = tt[i];
+                        if (t == null)
+                            t = getMoveTo(f, ss[i], 0);
                         if (!FileObserverService.isEnabled(context))
                             return;
-                        Uri to = moveFile(f);
+                        Uri to = moveFile(f, t);
                         Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
                         Post(context.getString(R.string.file_moved, storage.getDisplayName(to)));
                     }
@@ -439,7 +460,7 @@ public class Camera {
                 }
             }
         } else {
-            throw new RuntimeException("unknwon scheme");
+            throw new Storage.UnknownUri();
         }
         return list;
     }
@@ -465,14 +486,16 @@ public class Camera {
         }
     }
 
-    Uri moveFile(Uri f) {
+    public String getFormatted(Uri f) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
         Date date = new Date(storage.getLastModified(f));
 
-        s = getFormatted(storage, s, f, date);
+        return getFormatted(storage, s, f, date);
+    }
 
+    public Uri getMoveTo(Uri f, String s, int i) {
         final Uri contentUri = targetDir;
         String q = contentUri.getScheme();
 
@@ -486,8 +509,10 @@ public class Camera {
             return null; // unable to get name, broken or missing file
         String ext = Storage.getExt(n);
 
-        Uri to = storage.getNextFile(contentUri, s, ext);
+        return storage.getNextFile(contentUri, s, i, ext);
+    }
 
+    public Uri moveFile(Uri f, Uri to) {
         to = storage.move(f, to);
         if (to == null)
             return null; // unable to move
@@ -499,7 +524,7 @@ public class Camera {
         return to;
     }
 
-    void Post(final String msg) {
+    public void Post(final String msg) {
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -508,10 +533,9 @@ public class Camera {
         });
     }
 
-    void monitorContentObserver() {
-        if (mediaObserver != null) {
+    public void monitorContentObserver() {
+        if (mediaObserver != null)
             context.getContentResolver().unregisterContentObserver(mediaObserver);
-        }
 
         mediaObserver = new ContentObserver(handler) {
             @Override
