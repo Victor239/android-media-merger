@@ -129,7 +129,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
             deleteDatabase(f);
             return r;
         } else {
-            throw new RuntimeException("unknown uri");
+            throw new UnknownUri();
         }
     }
 
