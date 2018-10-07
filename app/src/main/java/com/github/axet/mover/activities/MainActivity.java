@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
@@ -396,13 +395,11 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        if (Storage.permitted(this, FileObserverService.PERMISSIONS)) {
+        if (Storage.permitted(this, FileObserverService.PERMISSIONS))
             FileObserverService.update(this);
-        }
 
-        if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_LAST)) {
-            OptimizationPreferenceCompat.buildKilledWarning(this, true).show();
-        }
+        if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_LAST))
+            OptimizationPreferenceCompat.buildKilledWarning(this, true, MoverApplication.PREFERENCE_OPTIMIZATION).show();
     }
 
     void updateDirs() {
