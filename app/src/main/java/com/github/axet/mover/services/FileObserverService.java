@@ -30,6 +30,10 @@ public class FileObserverService extends Service implements SharedPreferences.On
     public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
 
+    CameraMan camera;
+
+    OptimizationPreferenceCompat.ServiceReceiver optimization;
+
     public static String[] toArray(List<File> list) {
         List<String> l = new ArrayList<>();
         for (File f : list) {
@@ -38,9 +42,41 @@ public class FileObserverService extends Service implements SharedPreferences.On
         return l.toArray(new String[]{});
     }
 
-    CameraMan camera;
+    public static boolean isEnabled(Context context) {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean b = sharedPref.getBoolean(MoverApplication.ENABLED, false);
+        return isEnabled(context, b);
+    }
 
-    OptimizationPreferenceCompat.ServiceReceiver optimization;
+    public static boolean isEnabled(Context context, boolean b) {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!b)
+            return false;
+        if (!Storage.permitted(context, PERMISSIONS))
+            return false;
+        Storage storage = new Storage(context);
+        String path = sharedPref.getString(MoverApplication.STORAGE, null);
+        Uri u = storage.getStoragePath(path);
+        if (u == null)
+            return false;
+        Uri local = Uri.fromFile(storage.getLocalStorage());
+        if (u.equals(local))
+            return false;
+        return true;
+    }
+
+    public static void startIfEnabled(Context context) {
+        if (!isEnabled(context))
+            return;
+        Intent myIntent = new Intent(context, FileObserverService.class);
+        context.startService(myIntent);
+    }
+
+    public static void update(Context context) {
+        Intent myIntent = new Intent(context, FileObserverService.class);
+        myIntent.setAction(UPDATE);
+        context.startService(myIntent);
+    }
 
     public class CameraMan extends Camera {
         public CameraMan(Context context, Uri target) {
@@ -126,42 +162,6 @@ public class FileObserverService extends Service implements SharedPreferences.On
         }
     }
 
-    public static boolean isEnabled(Context context) {
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean b = sharedPref.getBoolean(MoverApplication.ENABLED, false);
-        return isEnabled(context, b);
-    }
-
-    public static boolean isEnabled(Context context, boolean b) {
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!b)
-            return false;
-        if (!Storage.permitted(context, PERMISSIONS))
-            return false;
-        Storage storage = new Storage(context);
-        String path = sharedPref.getString(MoverApplication.STORAGE, null);
-        Uri u = storage.getStoragePath(path);
-        if (u == null)
-            return false;
-        Uri local = Uri.fromFile(storage.getLocalStorage());
-        if (u.equals(local))
-            return false;
-        return true;
-    }
-
-    public static void startIfEnabled(Context context) {
-        if (!isEnabled(context))
-            return;
-        Intent myIntent = new Intent(context, FileObserverService.class);
-        context.startService(myIntent);
-    }
-
-    public static void update(Context context) {
-        Intent myIntent = new Intent(context, FileObserverService.class);
-        myIntent.setAction(UPDATE);
-        context.startService(myIntent);
-    }
-
     public FileObserverService() {
     }
 
@@ -215,23 +215,20 @@ public class FileObserverService extends Service implements SharedPreferences.On
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand " + intent);
-        if (optimization.onStartCommand(intent, flags, startId)) {
-            return startCamera(intent, flags, startId);
-        }
+        if (optimization.onStartCommand(intent, flags, startId))
+            return startIntent(intent, flags, startId);
 
         String a = intent.getAction();
-        if (a == null) {
-            return startCamera(intent, flags, startId);
-        }
+        if (a == null)
+            return startIntent(intent, flags, startId);
 
-        if (a.equals(UPDATE)) {
-            return startCamera(intent, flags, startId);
-        }
+        if (a.equals(UPDATE))
+            return startIntent(intent, flags, startId);
 
-        return startCamera(intent, flags, startId);
+        return startIntent(intent, flags, startId);
     }
 
-    int startCamera(Intent intent, int flags, int startId) {
+    int startIntent(Intent intent, int flags, int startId) {
         if (camera == null) {
             stopSelf();
             return START_NOT_STICKY;
@@ -275,9 +272,8 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (!start()) {
+        if (!start())
             stopSelf();
-        }
     }
 
     @Override
