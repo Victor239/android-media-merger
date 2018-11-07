@@ -13,6 +13,7 @@ import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.mover.R;
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.app.Storage;
@@ -25,6 +26,8 @@ import java.util.TreeMap;
 public class FileObserverService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = FileObserverService.class.getSimpleName();
 
+    public static int NOTIFICATION_ICON = 200;
+
     public static String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
@@ -33,6 +36,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
     CameraMan camera;
 
     OptimizationPreferenceCompat.ServiceReceiver optimization;
+    OptimizationPreferenceCompat.NotificationIcon icon;
 
     public static String[] toArray(List<File> list) {
         List<String> l = new ArrayList<>();
@@ -193,6 +197,9 @@ public class FileObserverService extends Service implements SharedPreferences.On
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
 
+        icon = new OptimizationPreferenceCompat.NotificationIcon(this, NOTIFICATION_ICON, "status", "Status", MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark));
+        icon.onCreate();
+
         start();
     }
 
@@ -209,6 +216,10 @@ public class FileObserverService extends Service implements SharedPreferences.On
         if (camera != null) {
             camera.close();
             camera = null;
+        }
+        if (icon != null) {
+            icon.onDestroy();
+            icon = null;
         }
     }
 
@@ -281,4 +292,5 @@ public class FileObserverService extends Service implements SharedPreferences.On
         super.onTaskRemoved(rootIntent);
         optimization.onTaskRemoved(rootIntent);
     }
+
 }

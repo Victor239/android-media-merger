@@ -1,8 +1,6 @@
 package com.github.axet.mover.app;
 
-import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.v7.preference.PreferenceManager;
 
 import com.github.axet.androidlibrary.app.MainApplication;
@@ -31,7 +29,7 @@ public class MoverApplication extends MainApplication {
     public static final String PREFERENCE_LAST = "last";
 
     public static int getTheme(Context context, int light, int dark) {
-        return MainApplication.getTheme(context, PREFERENCE_THEME, light, dark);
+        return MainApplication.getTheme(context, PREFERENCE_THEME, light, dark, context.getString(R.string.Theme_Dark));
     }
 
     @Override
