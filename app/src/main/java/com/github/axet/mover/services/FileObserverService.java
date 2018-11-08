@@ -182,7 +182,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass(), MoverApplication.PREFERENCE_OPTIMIZATION) {
             @Override
-            public void check() { // disable application chek (here is no application)
+            public void check() {
                 if (camera != null)
                     camera.sync();
             }
@@ -193,6 +193,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
                 OptimizationPreferenceCompat.setKillCheck(context, next, MoverApplication.PREFERENCE_LAST);
             }
         };
+        optimization.create();
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
