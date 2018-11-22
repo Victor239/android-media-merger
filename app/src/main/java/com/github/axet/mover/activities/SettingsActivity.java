@@ -41,7 +41,6 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
-            String key = preference.getKey();
             if (preference instanceof NameFormatPreferenceCompat) {
                 preference.setSummary(((NameFormatPreferenceCompat) preference).getFormatted(stringValue));
             } else if (preference instanceof ListPreference) {

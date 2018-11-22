@@ -10,8 +10,6 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v7.preference.PreferenceManager;
 
-import com.github.axet.mover.activities.MainActivity;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;
@@ -51,9 +49,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
             return null;
         if (Build.VERSION.SDK_INT >= 21 && path.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri u = Uri.parse(path);
-            if (ejected(u))
-                return null;
-            if (ejected(u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+            if (isEjected(context, u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
                 return null;
             return u;
         }
