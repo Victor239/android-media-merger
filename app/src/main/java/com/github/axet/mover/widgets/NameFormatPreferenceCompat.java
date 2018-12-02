@@ -28,14 +28,9 @@ public class NameFormatPreferenceCompat extends com.github.axet.androidlibrary.w
 
     @Override
     public String getFormatted(String str) {
-        CharSequence[] text = getEntries();
-        CharSequence[] values = getEntryValues();
-        for (int i = 0; i < text.length; i++) {
-            String t = text[i].toString();
-            String v = values[i].toString();
-            if (v.equals(str))
-                return t;
-        }
+        String f = getPredefined(str);
+        if (f != null)
+            return f;
         return Camera.getFormatted(new Storage(getContext()), str, Uri.parse("file://Parent+Folder/IMG_2016010101"), new Date(1493561080000l)) + ".png";
     }
 }

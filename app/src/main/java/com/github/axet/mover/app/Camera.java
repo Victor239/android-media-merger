@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -84,10 +83,12 @@ public class Camera {
     // last sync() time
     long last;
 
+    ContentObserver mediaObserver;
+    TreeMap<File, FileObserver> organizes = new TreeMap<>();
+
     final Object lock = new Object();
     Thread thread;
-    // sync runnable
-    Runnable sync = new Runnable() {
+    Runnable sync = new Runnable() { // sync runnable
         @Override
         public void run() {
             if (!fsync()) {
@@ -99,8 +100,9 @@ public class Camera {
         }
     };
 
-    ContentObserver mediaObserver;
-    TreeMap<File, FileObserver> organizes = new TreeMap<>();
+    public static boolean isHidden(Storage.Node n) {
+        return n.name.startsWith(".");
+    }
 
     public static String getFormatted(Storage storage, String f, Uri targetUri, Date date) {
         String ne = storage.getNameNoExt(targetUri);
@@ -145,6 +147,11 @@ public class Camera {
         public Stats(Uri u) {
             last = storage.getLastModified(u);
             size = storage.getLength(u);
+        }
+
+        public Stats(Storage.Node n) {
+            last = n.last;
+            size = n.size;
         }
 
         @Override
@@ -241,7 +248,7 @@ public class Camera {
         closeOrganizes();
         watch();
 
-        Map<Uri, Stats> list = generateFiles();
+        Map<Uri, Stats> list = list();
 
         if (list.isEmpty())
             return true;
@@ -427,12 +434,12 @@ public class Camera {
     }
 
     // generate file list based on current folders ('watchingFolders')
-    Map<Uri, Stats> generateFiles() {
+    Map<Uri, Stats> list() {
         Map<Uri, Stats> ff = new HashMap<>();
         for (Uri f : watchingFolders) {
             try {
-                for (Uri fd : generateFiles(f)) {
-                    ff.put(fd, new Stats(fd));
+                for (Storage.Node n : list(f)) {
+                    ff.put(n.uri, new Stats(n));
                 }
             } catch (SecurityException e) {
                 Log.d(TAG, "unable to scan", e);
@@ -441,45 +448,14 @@ public class Camera {
         return ff;
     }
 
-    // load file list from dir
-    List<Uri> generateFiles(Uri dir) {
-        ArrayList<Uri> list = new ArrayList<>();
-        String s = dir.getScheme();
-        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
-            Cursor childCursor = null;
-            try {
-                ContentResolver resolver = context.getContentResolver();
-                resolver.takePersistableUriPermission(dir, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                Uri f = DocumentsContract.buildChildDocumentsUriUsingTree(dir, DocumentsContract.getTreeDocumentId(dir));
-                childCursor = resolver.query(f, null, null, null, null);
-                if (childCursor != null) {
-                    while (childCursor.moveToNext()) {
-                        String mime = childCursor.getString(childCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
-                        if (mime.equals(DocumentsContract.Document.MIME_TYPE_DIR))
-                            continue;
-                        String id = childCursor.getString(childCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                        Uri doc = DocumentsContract.buildDocumentUriUsingTree(dir, id);
-                        list.add(doc);
-                    }
-                }
-            } finally {
-                if (childCursor != null)
-                    childCursor.close();
+    // load file list from uri
+    List<Storage.Node> list(Uri uri) {
+        return storage.list(uri, new Storage.NodeFilter() {
+            @Override
+            public boolean accept(Storage.Node n) {
+                return !n.dir && !isHidden(n);
             }
-        } else if (s.equals(ContentResolver.SCHEME_FILE)) {
-            File d = new File(dir.getPath());
-            File[] ff = d.listFiles();
-            if (ff != null) {
-                for (File f : ff) {
-                    if (f.isDirectory() || f.isHidden())
-                        continue;
-                    list.add(Uri.fromFile(f));
-                }
-            }
-        } else {
-            throw new Storage.UnknownUri();
-        }
-        return list;
+        });
     }
 
     // check if file save to move (it is not open by another apps)

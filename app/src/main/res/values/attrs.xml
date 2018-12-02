@@ -1,0 +1,14 @@
+<resources>
+    <string-array name="theme_value" translatable="false">
+        <item>@string/Theme_Light</item>
+        <item>@string/Theme_Dark</item>
+    </string-array>
+
+    <string-array name="name_values" translatable="false">
+        <item formatted="false">%f</item>
+        <item formatted="false">%d</item>
+        <item formatted="false">%t</item>
+        <item formatted="false">%i</item>
+        <item formatted="false">%p/%D %T</item>
+    </string-array>
+</resources>

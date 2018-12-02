@@ -13,6 +13,7 @@ import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.mover.R;
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.app.Storage;
@@ -25,10 +26,17 @@ import java.util.TreeMap;
 public class FileObserverService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = FileObserverService.class.getSimpleName();
 
+    public static int NOTIFICATION_ICON = 200;
+
     public static String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static final String STOP = FileObserverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = FileObserverService.class.getCanonicalName() + ".UPDATE";
+
+    CameraMan camera;
+
+    OptimizationPreferenceCompat.ServiceReceiver optimization;
+    OptimizationPreferenceCompat.NotificationIcon icon;
 
     public static String[] toArray(List<File> list) {
         List<String> l = new ArrayList<>();
@@ -38,9 +46,41 @@ public class FileObserverService extends Service implements SharedPreferences.On
         return l.toArray(new String[]{});
     }
 
-    CameraMan camera;
+    public static boolean isEnabled(Context context) {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean b = sharedPref.getBoolean(MoverApplication.ENABLED, false);
+        return isEnabled(context, b);
+    }
 
-    OptimizationPreferenceCompat.ServiceReceiver optimization;
+    public static boolean isEnabled(Context context, boolean b) {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!b)
+            return false;
+        if (!Storage.permitted(context, PERMISSIONS))
+            return false;
+        Storage storage = new Storage(context);
+        String path = sharedPref.getString(MoverApplication.STORAGE, null);
+        Uri u = storage.getStoragePath(path);
+        if (u == null)
+            return false;
+        Uri local = Uri.fromFile(storage.getLocalStorage());
+        if (u.equals(local))
+            return false;
+        return true;
+    }
+
+    public static void startIfEnabled(Context context) {
+        if (!isEnabled(context))
+            return;
+        Intent myIntent = new Intent(context, FileObserverService.class);
+        context.startService(myIntent);
+    }
+
+    public static void update(Context context) {
+        Intent myIntent = new Intent(context, FileObserverService.class);
+        myIntent.setAction(UPDATE);
+        context.startService(myIntent);
+    }
 
     public class CameraMan extends Camera {
         public CameraMan(Context context, Uri target) {
@@ -126,42 +166,6 @@ public class FileObserverService extends Service implements SharedPreferences.On
         }
     }
 
-    public static boolean isEnabled(Context context) {
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean b = sharedPref.getBoolean(MoverApplication.ENABLED, false);
-        return isEnabled(context, b);
-    }
-
-    public static boolean isEnabled(Context context, boolean b) {
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!b)
-            return false;
-        if (!Storage.permitted(context, PERMISSIONS))
-            return false;
-        Storage storage = new Storage(context);
-        String path = sharedPref.getString(MoverApplication.STORAGE, null);
-        Uri u = storage.getStoragePath(path);
-        if (u == null)
-            return false;
-        Uri local = Uri.fromFile(storage.getLocalStorage());
-        if (u.equals(local))
-            return false;
-        return true;
-    }
-
-    public static void startIfEnabled(Context context) {
-        if (!isEnabled(context))
-            return;
-        Intent myIntent = new Intent(context, FileObserverService.class);
-        context.startService(myIntent);
-    }
-
-    public static void update(Context context) {
-        Intent myIntent = new Intent(context, FileObserverService.class);
-        myIntent.setAction(UPDATE);
-        context.startService(myIntent);
-    }
-
     public FileObserverService() {
     }
 
@@ -178,7 +182,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass(), MoverApplication.PREFERENCE_OPTIMIZATION) {
             @Override
-            public void check() { // disable application chek (here is no application)
+            public void check() {
                 if (camera != null)
                     camera.sync();
             }
@@ -189,9 +193,13 @@ public class FileObserverService extends Service implements SharedPreferences.On
                 OptimizationPreferenceCompat.setKillCheck(context, next, MoverApplication.PREFERENCE_LAST);
             }
         };
+        optimization.create();
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
+
+        icon = new OptimizationPreferenceCompat.NotificationIcon(this, NOTIFICATION_ICON, "status", "Status", MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark));
+        icon.onCreate();
 
         start();
     }
@@ -210,28 +218,29 @@ public class FileObserverService extends Service implements SharedPreferences.On
             camera.close();
             camera = null;
         }
+        if (icon != null) {
+            icon.onDestroy();
+            icon = null;
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand " + intent);
-        if (optimization.onStartCommand(intent, flags, startId)) {
-            return startCamera(intent, flags, startId);
-        }
+        if (optimization.onStartCommand(intent, flags, startId))
+            return startIntent(intent, flags, startId);
 
         String a = intent.getAction();
-        if (a == null) {
-            return startCamera(intent, flags, startId);
-        }
+        if (a == null)
+            return startIntent(intent, flags, startId);
 
-        if (a.equals(UPDATE)) {
-            return startCamera(intent, flags, startId);
-        }
+        if (a.equals(UPDATE))
+            return startIntent(intent, flags, startId);
 
-        return startCamera(intent, flags, startId);
+        return startIntent(intent, flags, startId);
     }
 
-    int startCamera(Intent intent, int flags, int startId) {
+    int startIntent(Intent intent, int flags, int startId) {
         if (camera == null) {
             stopSelf();
             return START_NOT_STICKY;
@@ -275,9 +284,8 @@ public class FileObserverService extends Service implements SharedPreferences.On
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (!start()) {
+        if (!start())
             stopSelf();
-        }
     }
 
     @Override
@@ -285,4 +293,5 @@ public class FileObserverService extends Service implements SharedPreferences.On
         super.onTaskRemoved(rootIntent);
         optimization.onTaskRemoved(rootIntent);
     }
+
 }

@@ -1,14 +1,13 @@
 package com.github.axet.mover.app;
 
-import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.v7.preference.PreferenceManager;
 
+import com.github.axet.androidlibrary.app.MainApplication;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.FileObserverService;
 
-public class MoverApplication extends Application {
+public class MoverApplication extends MainApplication {
 
     public static final String STORAGE = "storage";
     public static final String ENABLED = "enabled";
@@ -30,13 +29,7 @@ public class MoverApplication extends Application {
     public static final String PREFERENCE_LAST = "last";
 
     public static int getTheme(Context context, int light, int dark) {
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        String theme = shared.getString(PREFERENCE_THEME, "");
-        if (theme.equals(context.getString(R.string.Theme_Dark))) {
-            return dark;
-        } else {
-            return light;
-        }
+        return MainApplication.getTheme(context, PREFERENCE_THEME, light, dark, context.getString(R.string.Theme_Dark));
     }
 
     @Override
