@@ -16,6 +16,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.app.SuperUser;
+import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.FileObserverService;
 
@@ -104,8 +106,8 @@ public class Camera {
         return n.name.startsWith(".");
     }
 
-    public static String getFormatted(Storage storage, String f, Uri targetUri, Date date) {
-        String ne = storage.getNameNoExt(targetUri);
+    public static String getFormatted(Context context, String f, Uri targetUri, Date date) {
+        String ne = Storage.getNameNoExt(context, targetUri);
 
         String p = "."; // root
 
@@ -145,8 +147,8 @@ public class Camera {
         }
 
         public Stats(Uri u) {
-            last = storage.getLastModified(u);
-            size = storage.getLength(u);
+            last = Storage.getLastModified(context, u);
+            size = Storage.getLength(context, u);
         }
 
         public Stats(Storage.Node n) {
@@ -164,7 +166,7 @@ public class Camera {
     public class LastModified implements Comparator<Uri> {
         @Override
         public int compare(Uri o1, Uri o2) {
-            final long result = storage.getLastModified(o1) - storage.getLastModified(o2);
+            final long result = Storage.getLastModified(context, o1) - Storage.getLastModified(context, o2);
             if (result < 0) {
                 return -1;
             } else if (result > 0) {
@@ -309,15 +311,12 @@ public class Camera {
                         if (!FileObserverService.isEnabled(context))
                             return;
                         Uri to = moveFile(f, t);
-                        Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
-                        Post(context.getString(R.string.file_moved, storage.getDisplayName(to)));
+                        Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
+                        Post(context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
                     }
                 } catch (RuntimeException e) {
                     Log.d(TAG, "MOVE FAILED", e);
-                    Throwable th = e;
-                    while (th.getCause() != null)
-                        th = th.getCause();
-                    Post(context.getString(R.string.move_failed, th.getMessage()));
+                    Post(context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
                 } finally {
                     synchronized (lock) {
                         thread = null;
@@ -450,7 +449,7 @@ public class Camera {
 
     // load file list from uri
     List<Storage.Node> list(Uri uri) {
-        return storage.list(uri, new Storage.NodeFilter() {
+        return storage.list(context, uri, new Storage.NodeFilter() {
             @Override
             public boolean accept(Storage.Node n) {
                 return !n.dir && !isHidden(n);
@@ -483,9 +482,9 @@ public class Camera {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
-        Date date = new Date(storage.getLastModified(f));
+        Date date = new Date(Storage.getLastModified(context, f));
 
-        return getFormatted(storage, s, f, date);
+        return getFormatted(context, s, f, date);
     }
 
     public Uri getMoveTo(Uri f, String s, int i) {
@@ -497,12 +496,12 @@ public class Camera {
             resolver.takePersistableUriPermission(contentUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         }
 
-        String n = storage.getName(f);
+        String n = Storage.getName(context, f);
         if (n == null)
             return null; // unable to get name, broken or missing file
         String ext = Storage.getExt(n);
 
-        return storage.getNextFile(contentUri, s, i, ext);
+        return Storage.getNextFile(context, contentUri, s, i, ext);
     }
 
     public Uri moveFile(Uri f, Uri to) {

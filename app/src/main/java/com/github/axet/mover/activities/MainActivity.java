@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                 String n;
                 String s = p.getScheme();
                 if (s.equals(ContentResolver.SCHEME_CONTENT)) {
-                    n = storage.getDisplayName(p);
+                    n = Storage.getDisplayName(MainActivity.this, p);
                 } else {
                     n = p.getPath();
                 }
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                                 manual.set(pos, uri);
                                 String s = uri.getScheme();
                                 if (s.equals(ContentResolver.SCHEME_CONTENT)) {
-                                    path.setText(storage.getDisplayName(uri));
+                                    path.setText(Storage.getDisplayName(MainActivity.this, uri));
                                 } else {
                                     path.setText(uri.getPath());
                                 }
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     public void onClick(View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle(R.string.delete_folder);
-                        builder.setMessage(storage.getDisplayName(p) + "\n\n" + getString(R.string.are_you_sure));
+                        builder.setMessage(Storage.getDisplayName(MainActivity.this, p) + "\n\n" + getString(R.string.are_you_sure));
                         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         if (u == null) {
             text = getString(R.string.not_selected);
         } else {
-            text = storage.getDisplayName(u);
+            text = Storage.getDisplayName(this, u);
         }
 
         path.setText(text);

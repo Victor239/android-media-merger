@@ -71,7 +71,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
 
     @TargetApi(21)
     public Uri move(Uri f, Uri dir, String t) {
-        Uri u = createFile(dir, t);
+        Uri u = createFile(context, dir, t);
         if (u == null)
             throw new RuntimeException("unable to create file " + t);
         try {
@@ -80,7 +80,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
             IOUtils.copy(is, os);
             is.close();
             os.close();
-            delete(f);
+            delete(context, f);
             return u;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -89,13 +89,13 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
 
     public File move(Uri f, File to) {
         try {
-            long last = getLastModified(f);
+            long last = getLastModified(context, f);
             InputStream in = resolver.openInputStream(f);
             OutputStream out = new BufferedOutputStream(new FileOutputStream(to));
             IOUtils.copy(in, out);
             in.close();
             out.close();
-            delete(f);
+            delete(context, f);
             to.setLastModified(last);
             return to;
         } catch (IOException e) {
@@ -105,14 +105,14 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
 
     public Uri move(Uri f, Uri t) {
         String s = t.getScheme();
-        if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
             Uri root = getDocumentTreeUri(t);
             Uri to = move(f, root, getDocumentChildPath(t));
             deleteDatabase(f);
             return to;
-        } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
-            String ext = getExt(t);
-            String n = getNameNoExt(t);
+        } else if (s.equals(ContentResolver.SCHEME_FILE)) {
+            String ext = getExt(context, t);
+            String n = getNameNoExt(context, t);
 
             File tf = getFile(t);
             File td = tf.getParentFile();
