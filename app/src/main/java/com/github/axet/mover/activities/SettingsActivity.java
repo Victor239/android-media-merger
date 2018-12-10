@@ -27,7 +27,6 @@ import com.github.axet.mover.services.FileObserverService;
 import com.github.axet.mover.widgets.NameFormatPreferenceCompat;
 
 public class SettingsActivity extends AppCompatSettingsThemeActivity {
-
     public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static final int RESULT_PERMS = 1;

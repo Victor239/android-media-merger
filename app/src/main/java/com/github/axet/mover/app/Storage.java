@@ -21,6 +21,76 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class Storage extends com.github.axet.androidlibrary.app.Storage {
+    @TargetApi(21)
+    public static Uri move(Context context, Uri f, Uri dir, String t) {
+        ContentResolver resolver = context.getContentResolver();
+        Uri u = createFile(context, dir, t);
+        if (u == null)
+            throw new RuntimeException("unable to create file " + t);
+        try {
+            InputStream is = resolver.openInputStream(f);
+            OutputStream os = resolver.openOutputStream(u);
+            IOUtils.copy(is, os);
+            is.close();
+            os.close();
+            delete(context, f);
+            return u;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static File move(Context context, Uri f, File to) {
+        ContentResolver resolver = context.getContentResolver();
+        try {
+            long last = getLastModified(context, f);
+            InputStream in = resolver.openInputStream(f);
+            OutputStream out = new BufferedOutputStream(new FileOutputStream(to));
+            IOUtils.copy(in, out);
+            in.close();
+            out.close();
+            delete(context, f);
+            to.setLastModified(last);
+            return to;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Uri move(Context context, Uri f, Uri t) {
+        String s = t.getScheme();
+        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
+            Uri root = getDocumentTreeUri(t);
+            Uri to = move(context, f, root, getDocumentChildPath(t));
+            deleteDatabase(context, f);
+            return to;
+        } else if (s.equals(ContentResolver.SCHEME_FILE)) {
+            String ext = getExt(context, t);
+            String n = getNameNoExt(context, t);
+
+            File tf = getFile(t);
+            File td = tf.getParentFile();
+
+            if (!td.exists() && !td.mkdirs())
+                throw new RuntimeException("unable to create: " + td);
+
+            File to = Storage.getNextFile(td, n, ext);
+            Uri r = Uri.fromFile(move(context, f, to));
+            deleteDatabase(context, f);
+            return r;
+        } else {
+            throw new UnknownUri();
+        }
+    }
+
+    public static void deleteDatabase(Context context, Uri f) {
+        ContentResolver resolver = context.getContentResolver();
+        String s = f.getScheme();
+        if (s.equals(ContentResolver.SCHEME_FILE)) {
+            Uri e = MediaStore.Images.Media.getContentUri("external");
+            resolver.delete(e, MediaStore.Images.ImageColumns.DATA + " LIKE ?", new String[]{f.getPath()});
+        }
+    }
 
     public Storage(Context context) {
         super(context);
@@ -69,71 +139,4 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         }
     }
 
-    @TargetApi(21)
-    public Uri move(Uri f, Uri dir, String t) {
-        Uri u = createFile(context, dir, t);
-        if (u == null)
-            throw new RuntimeException("unable to create file " + t);
-        try {
-            InputStream is = resolver.openInputStream(f);
-            OutputStream os = resolver.openOutputStream(u);
-            IOUtils.copy(is, os);
-            is.close();
-            os.close();
-            delete(context, f);
-            return u;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public File move(Uri f, File to) {
-        try {
-            long last = getLastModified(context, f);
-            InputStream in = resolver.openInputStream(f);
-            OutputStream out = new BufferedOutputStream(new FileOutputStream(to));
-            IOUtils.copy(in, out);
-            in.close();
-            out.close();
-            delete(context, f);
-            to.setLastModified(last);
-            return to;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Uri move(Uri f, Uri t) {
-        String s = t.getScheme();
-        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
-            Uri root = getDocumentTreeUri(t);
-            Uri to = move(f, root, getDocumentChildPath(t));
-            deleteDatabase(f);
-            return to;
-        } else if (s.equals(ContentResolver.SCHEME_FILE)) {
-            String ext = getExt(context, t);
-            String n = getNameNoExt(context, t);
-
-            File tf = getFile(t);
-            File td = tf.getParentFile();
-
-            if (!td.exists() && !td.mkdirs())
-                throw new RuntimeException("unable to create: " + td);
-
-            File to = Storage.getNextFile(td, n, ext);
-            Uri r = Uri.fromFile(move(f, to));
-            deleteDatabase(f);
-            return r;
-        } else {
-            throw new UnknownUri();
-        }
-    }
-
-    public void deleteDatabase(Uri f) {
-        String s = f.getScheme();
-        if (s.equals(ContentResolver.SCHEME_FILE)) {
-            Uri e = MediaStore.Images.Media.getContentUri("external");
-            resolver.delete(e, MediaStore.Images.ImageColumns.DATA + " LIKE ?", new String[]{f.getPath()});
-        }
-    }
 }

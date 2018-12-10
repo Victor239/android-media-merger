@@ -14,10 +14,9 @@ import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.github.axet.androidlibrary.app.SuperUser;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
+import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.FileObserverService;
 
@@ -104,6 +103,19 @@ public class Camera {
 
     public static boolean isHidden(Storage.Node n) {
         return n.name.startsWith(".");
+    }
+
+
+    public static Uri moveFile(Context context, Uri f, Uri to) {
+        to = Storage.move(context, f, to);
+        if (to == null)
+            return null; // unable to move
+
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        mediaScanIntent.setData(to);
+        context.sendBroadcast(mediaScanIntent);
+
+        return to;
     }
 
     public static String getFormatted(Context context, String f, Uri targetUri, Date date) {
@@ -310,13 +322,13 @@ public class Camera {
                             t = getMoveTo(f, ss[i], 0);
                         if (!FileObserverService.isEnabled(context))
                             return;
-                        Uri to = moveFile(f, t);
+                        Uri to = moveFile(context, f, t);
                         Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
-                        Post(context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
+                        Toast.Post(context, context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
                     }
                 } catch (RuntimeException e) {
                     Log.d(TAG, "MOVE FAILED", e);
-                    Post(context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
+                    Toast.Post(context, context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
                 } finally {
                     synchronized (lock) {
                         thread = null;
@@ -502,27 +514,6 @@ public class Camera {
         String ext = Storage.getExt(n);
 
         return Storage.getNextFile(context, contentUri, s, i, ext);
-    }
-
-    public Uri moveFile(Uri f, Uri to) {
-        to = storage.move(f, to);
-        if (to == null)
-            return null; // unable to move
-
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        mediaScanIntent.setData(to);
-        context.sendBroadcast(mediaScanIntent);
-
-        return to;
-    }
-
-    public void Post(final String msg) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     public void monitorContentObserver() {
