@@ -15,6 +15,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.mover.R;
@@ -105,6 +106,26 @@ public class Camera {
         return n.name.startsWith(".");
     }
 
+    // check if file save to move (it is not open by another apps)
+    //
+    // seems like android allow to write currently writting file. so. this function does not work.
+    public static boolean isSafe(File f) {
+        try {
+            FileOutputStream fis = new FileOutputStream(f, true);
+            FileLock lock = fis.getChannel().tryLock();
+            if (lock != null) {
+                lock.release();
+                fis.close();
+                return true;
+            }
+            fis.close();
+            return false;
+        } catch (NonWritableChannelException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
     public static Uri moveFile(Context context, Uri f, Uri to) {
         to = Storage.move(context, f, to);
@@ -126,10 +147,9 @@ public class Camera {
         String s = targetUri.getScheme();
         if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
             String id = DocumentsContract.getTreeDocumentId(targetUri);
-            String[] ss = id.split(":");
-            if (ss.length > 1) {
+            String[] ss = id.split(Storage.COLON, 2);
+            if (!ss[1].isEmpty())
                 p = ss[1];
-            }
         } else if (s.equals(ContentResolver.SCHEME_FILE)) {
             File a = Storage.getFile(targetUri);
             a = a.getParentFile();
@@ -343,21 +363,11 @@ public class Camera {
 
     public void watch() {
         for (Uri d : watchingFolders) {
-            if (Build.VERSION.SDK_INT >= 21 && Storage.isTreeUri(d)) { // create monitor for internal storage
-                String id = DocumentsContract.getTreeDocumentId(d);
-                String[] ss = id.split(":");
-                if (ss[0].equals(Storage.STORAGE_PRIMARY)) {
-                    File path = Environment.getExternalStorageDirectory();
-                    if (ss.length > 1) // len == 1 if root folder
-                        path = new File(path, ss[1]);
-                    d = Uri.fromFile(path);
-                }
-            }
+            if (Build.VERSION.SDK_INT >= 21 && Storage.isTreeUri(d)) // create monitor for internal storage
+                d = StorageProvider.filterFolderIntent(context, d);
             String s = d.getScheme();
-            if (s.equals(ContentResolver.SCHEME_FILE)) {
-                File f = new File(d.getPath());
-                watchFiles(f);
-            }
+            if (s.equals(ContentResolver.SCHEME_FILE))
+                watchFiles(Storage.getFile(d));
         }
     }
 
@@ -469,27 +479,6 @@ public class Camera {
         });
     }
 
-    // check if file save to move (it is not open by another apps)
-    //
-    // seems like android allow to write currently writting file. so. this function does not work.
-    boolean isSafe(File f) {
-        try {
-            FileOutputStream fis = new FileOutputStream(f, true);
-            FileLock lock = fis.getChannel().tryLock();
-            if (lock != null) {
-                lock.release();
-                fis.close();
-                return true;
-            }
-            fis.close();
-            return false;
-        } catch (NonWritableChannelException e) {
-            return false;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
     public String getFormatted(Uri f) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
@@ -517,19 +506,19 @@ public class Camera {
     }
 
     public void monitorContentObserver() {
+        ContentResolver resolver = context.getContentResolver();
         if (mediaObserver != null)
-            context.getContentResolver().unregisterContentObserver(mediaObserver);
+            resolver.unregisterContentObserver(mediaObserver);
 
         mediaObserver = new ContentObserver(handler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
                 super.onChange(selfChange, uri);
-                if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
+                if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()))
                     sync();
-                }
             }
         };
 
-        context.getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaObserver);
+        resolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaObserver);
     }
 }

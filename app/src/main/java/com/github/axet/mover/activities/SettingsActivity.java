@@ -9,9 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
@@ -24,13 +21,30 @@ import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.FileObserverService;
-import com.github.axet.mover.widgets.NameFormatPreferenceCompat;
 
 public class SettingsActivity extends AppCompatSettingsThemeActivity {
     public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static final int RESULT_PERMS = 1;
     public static final int RESULT_BROWSE = 2;
+
+    public static void warninig(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.permission_title);
+        builder.setMessage(R.string.permission_message);
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Storage.showPermissions(context);
+            }
+        });
+        builder.show();
+    }
 
     public static class PrefFragment extends PreferenceFragmentCompat {
         void initPrefs(final PreferenceManager manager, PreferenceScreen screen) {
@@ -105,24 +119,6 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
                     break;
             }
         }
-    }
-
-    public static void warninig(final Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.permission_title);
-        builder.setMessage(R.string.permission_message);
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Storage.showPermissions(context);
-            }
-        });
-        builder.show();
     }
 
     @Override

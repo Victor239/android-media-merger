@@ -92,6 +92,11 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         }
     }
 
+    public static boolean isTreeUri(Uri uri) {
+        final List<String> paths = uri.getPathSegments();
+        return (paths.size() >= 2 && PATH_TREE.equals(paths.get(0)));
+    }
+
     public Storage(Context context) {
         super(context);
     }
@@ -99,11 +104,6 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
     public String getStoragePath() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         return shared.getString(MoverApplication.STORAGE, null);
-    }
-
-    public static boolean isTreeUri(Uri uri) {
-        final List<String> paths = uri.getPathSegments();
-        return (paths.size() >= 2 && PATH_TREE.equals(paths.get(0)));
     }
 
     @Override
