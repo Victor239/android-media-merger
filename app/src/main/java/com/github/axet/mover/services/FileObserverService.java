@@ -260,7 +260,7 @@ public class FileObserverService extends Service implements SharedPreferences.On
             camera = null;
         }
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
+        boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
         Storage s = new Storage(this);
         Uri u = s.getStoragePath(storage);

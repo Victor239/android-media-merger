@@ -108,7 +108,7 @@ public class Camera {
 
     // check if file save to move (it is not open by another apps)
     //
-    // seems like android allow to write currently writting file. so. this function does not work.
+    // seems like android allow to write currently writting file. so. this trick does not work.
     public static boolean isSafe(File f) {
         try {
             FileOutputStream fis = new FileOutputStream(f, true);
@@ -131,11 +131,9 @@ public class Camera {
         to = Storage.move(context, f, to);
         if (to == null)
             return null; // unable to move
-
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         mediaScanIntent.setData(to);
         context.sendBroadcast(mediaScanIntent);
-
         return to;
     }
 
@@ -309,7 +307,7 @@ public class Camera {
 
         old = list;
 
-        thread = new Thread(new Runnable() {
+        thread = new Thread("sync") {
             @Override
             public void run() {
                 try {
@@ -355,7 +353,7 @@ public class Camera {
                     }
                 }
             }
-        }, "sync");
+        };
         thread.start();
 
         return false; // rescan again, moveFile can be slow, more files appear
