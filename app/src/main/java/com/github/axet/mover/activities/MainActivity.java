@@ -33,7 +33,7 @@ import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.app.Storage;
-import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.services.MoverService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                                 save();
                             }
                         };
-                        choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_SET_FOLDER);
+                        choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_SET_FOLDER);
                         choicer.setStorageAccessFramework(MainActivity.this, RESULT_SET_FOLDER);
                         choicer.show(old);
                     }
@@ -323,8 +323,8 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         storage = new Storage(this);
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(FileObserverService.STOP);
-        filter.addAction(FileObserverService.UPDATE);
+        filter.addAction(MoverService.STOP);
+        filter.addAction(MoverService.UPDATE);
         registerReceiver(receiver, filter);
 
         list = (ListView) findViewById(R.id.list);
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     }
                 };
                 choicer.setTitle(getString(R.string.pref_storage_title));
-                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_STORAGE);
+                choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_STORAGE);
                 choicer.setStorageAccessFramework(MainActivity.this, RESULT_STORAGE);
                 choicer.show(old);
             }
@@ -381,10 +381,10 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     public void onResult(Uri uri) {
                         adapter.add(uri);
                         adapter.save();
-                        FileObserverService.update(MainActivity.this);
+                        MoverService.update(MainActivity.this);
                     }
                 };
-                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_ADD_FOLDER);
+                choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_ADD_FOLDER);
                 choicer.setStorageAccessFramework(MainActivity.this, RESULT_ADD_FOLDER);
                 choicer.show(old);
             }
@@ -395,10 +395,10 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        if (Storage.permitted(this, FileObserverService.PERMISSIONS))
-            FileObserverService.update(this);
+        if (Storage.permitted(this, MoverService.PERMISSIONS))
+            MoverService.update(this);
 
-        if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_LAST))
+        if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
             OptimizationPreferenceCompat.buildKilledWarning(this, true, MoverApplication.PREFERENCE_OPTIMIZATION).show();
     }
 
@@ -408,7 +408,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         String p = storage.getStoragePath();
         Uri u = storage.getStoragePath(p);
 
-        boolean enabled = FileObserverService.isEnabled(this);
+        boolean enabled = MoverService.isEnabled(this);
 
         TextView path = (TextView) footer.findViewById(R.id.path);
 
@@ -434,7 +434,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem menuEnable = menu.findItem(R.id.action_enable);
-        menuEnable.setChecked(FileObserverService.isEnabled(this));
+        menuEnable.setChecked(MoverService.isEnabled(this));
         return true;
     }
 
@@ -462,12 +462,13 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
             final Runnable enabled = new Runnable() {
                 @Override
                 public void run() {
-                    if (FileObserverService.isEnabled(MainActivity.this, true) || !b) {
+                    if (MoverService.isEnabled(MainActivity.this, true) || !b) {
                         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putBoolean(MoverApplication.ENABLED, b);
                         editor.commit();
                         invalidateOptionsMenu();
+                        MoverService.update(MainActivity.this);
                     } else {
                         choicer.show(old);
                     }
@@ -487,7 +488,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     editor.putBoolean(MoverApplication.ENABLED, b); // true
                     editor.commit();
                     invalidateOptionsMenu();
-                    FileObserverService.startIfEnabled(MainActivity.this);
+                    MoverService.startIfEnabled(MainActivity.this);
                     updateDirs();
                 }
 
@@ -520,7 +521,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                 }
             };
             choicer.setTitle(getString(R.string.pref_storage_title));
-            choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_ENABLE);
+            choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_ENABLE);
             choicer.setStorageAccessFramework(MainActivity.this, RESULT_ENABLE);
             enabled.run();
             return true;
@@ -532,7 +533,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     @Override
     protected void onResume() {
         super.onResume();
-        FileObserverService.update(this);
+        MoverService.update(this);
     }
 
     @Override

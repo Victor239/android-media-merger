@@ -19,7 +19,7 @@ import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.mover.R;
-import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.services.MoverService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -338,7 +338,7 @@ public class Camera {
                         Uri t = tt[i];
                         if (t == null)
                             t = getMoveTo(f, ss[i], 0);
-                        if (!FileObserverService.isEnabled(context))
+                        if (!MoverService.isEnabled(context))
                             return;
                         Uri to = moveFile(context, f, t);
                         Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");

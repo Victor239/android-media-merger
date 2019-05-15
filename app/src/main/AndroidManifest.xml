@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppThemeLightLib">
-        <service android:name=".services.FileObserverService" />
+        <service android:name=".services.MoverService" />
 
         <receiver android:name=".services.OnBootReceiver">
             <intent-filter>

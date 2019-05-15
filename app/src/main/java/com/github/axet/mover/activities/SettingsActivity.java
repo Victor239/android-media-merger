@@ -15,12 +15,13 @@ import android.support.v7.preference.PreferenceScreen;
 import android.view.MenuItem;
 
 import com.github.axet.androidlibrary.app.Storage;
+import com.github.axet.androidlibrary.services.PersistentService;
 import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
-import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.services.MoverService;
 
 public class SettingsActivity extends AppCompatSettingsThemeActivity {
     public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -59,7 +60,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
                 c.setStorageAccessFramework(this, RESULT_BROWSE);
 
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-            optimization.enable(FileObserverService.class);
+            optimization.enable(MoverService.class);
         }
 
         @Override
@@ -102,7 +103,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
                     } else {
                         c.onRequestPermissionsResult(permissions, grantResults);
                     }
-                    FileObserverService.update(getContext());
+                    MoverService.update(getContext());
                     break;
             }
         }
@@ -143,7 +144,13 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         super.onSharedPreferenceChanged(sharedPreferences, key);
-        FileObserverService.update(this);
+        if (key.equals(MoverApplication.STORAGE) || key.startsWith(MoverApplication.AUTO_PREFIX) || key.startsWith(MoverApplication.MANUAL_PREFIX))
+            MoverService.update(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

@@ -5,7 +5,7 @@ import android.support.v7.preference.PreferenceManager;
 
 import com.github.axet.androidlibrary.app.MainApplication;
 import com.github.axet.mover.R;
-import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.services.MoverService;
 
 public class MoverApplication extends MainApplication {
 
@@ -26,7 +26,7 @@ public class MoverApplication extends MainApplication {
     public static final String MANUAL_PREFIX = "MANUAL_";
     public static final String MANUAL_PATH = "_PATH";
 
-    public static final String PREFERENCE_LAST = "last";
+    public static final String PREFERENCE_NEXT = "last";
 
     public static int getTheme(Context context, int light, int dark) {
         return MainApplication.getTheme(context, PREFERENCE_THEME, light, dark, context.getString(R.string.Theme_Dark));
@@ -36,6 +36,6 @@ public class MoverApplication extends MainApplication {
     public void onCreate() {
         super.onCreate();
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
-        FileObserverService.startIfEnabled(this);
+        MoverService.startIfEnabled(this);
     }
 }
