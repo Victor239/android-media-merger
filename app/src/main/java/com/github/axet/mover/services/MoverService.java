@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
-import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.services.PersistentService;
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
@@ -179,15 +178,13 @@ public class MoverService extends PersistentService implements SharedPreferences
     }
 
     @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        OptimizationPreferenceCompat.setIcon(base, true);
-        CHANNEL_STATUS = new NotificationChannelCompat(base, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
+    public int getAppTheme() {
+        return MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark);
     }
 
     @Override
-    public int getAppTheme() {
-        return MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark);
+    public NotificationChannelCompat getChannelStatus() {
+        return MoverApplication.from(this).channelStatus;
     }
 
     @Override
@@ -202,8 +199,9 @@ public class MoverService extends PersistentService implements SharedPreferences
     }
 
     @Override
-    public ServiceReceiver createOptimization() {
-        PersistentService.ServiceReceiver optimization = new PersistentService.ServiceReceiver(this, getClass(), PREFERENCE_OPTIMIZATION) {
+    public void onCreateOptimization() {
+        OptimizationPreferenceCompat.setIcon(this, true);
+        optimization = new PersistentService.ServiceReceiver(this, getClass(), PREFERENCE_OPTIMIZATION) {
             @Override
             public void check() {
                 if (camera != null)
@@ -211,7 +209,6 @@ public class MoverService extends PersistentService implements SharedPreferences
             }
         };
         optimization.create();
-        return optimization;
     }
 
     @Override
