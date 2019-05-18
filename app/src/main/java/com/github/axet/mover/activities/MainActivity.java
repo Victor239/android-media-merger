@@ -15,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -399,7 +400,9 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
             MoverService.update(this);
 
         if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
-            OptimizationPreferenceCompat.buildKilledWarning(this, true, MoverApplication.PREFERENCE_OPTIMIZATION).show();
+            OptimizationPreferenceCompat.buildKilledWarning(new ContextThemeWrapper(this, getAppTheme()), true, MoverApplication.PREFERENCE_OPTIMIZATION).show();
+        else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT, MoverApplication.PREFERENCE_INSTALL))
+            OptimizationPreferenceCompat.buildBootWarning(this).show();
     }
 
     void updateDirs() {

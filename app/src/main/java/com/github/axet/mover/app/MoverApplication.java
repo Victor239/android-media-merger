@@ -6,6 +6,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.github.axet.androidlibrary.app.MainApplication;
 import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.MoverService;
 
@@ -30,6 +31,9 @@ public class MoverApplication extends MainApplication {
 
     public static final String PREFERENCE_NEXT = "last";
 
+    public static final String PREFERENCE_INSTALL = "install";
+    public static final String PREFERENCE_BOOT = "boot";
+
     public NotificationChannelCompat channelStatus;
 
     public static MoverApplication from(Context context) {
@@ -45,6 +49,8 @@ public class MoverApplication extends MainApplication {
         super.onCreate();
 
         channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
+
+        OptimizationPreferenceCompat.setIcon(this, true);
 
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
         MoverService.startIfEnabled(this);

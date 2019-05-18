@@ -42,11 +42,11 @@ public class MoverService extends PersistentService implements SharedPreferences
     CameraMan camera;
 
     public static void start(Context context) {
-        PersistentService.start(context, new Intent(context, MoverService.class));
+        start(context, new Intent(context, MoverService.class));
     }
 
     public static void stop(Context context) {
-        PersistentService.stop(context, new Intent(context, MoverService.class));
+        stop(context, new Intent(context, MoverService.class));
     }
 
     public static boolean isEnabled(Context context) {
@@ -200,7 +200,6 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     @Override
     public void onCreateOptimization() {
-        OptimizationPreferenceCompat.setIcon(this, true);
         optimization = new PersistentService.ServiceReceiver(this, getClass(), PREFERENCE_OPTIMIZATION) {
             @Override
             public void check() {
