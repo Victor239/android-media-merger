@@ -1,6 +1,7 @@
 package com.github.axet.mover.services;
 
 import android.Manifest;
+import android.app.Notification;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -178,16 +179,6 @@ public class MoverService extends PersistentService implements SharedPreferences
     }
 
     @Override
-    public int getAppTheme() {
-        return MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark);
-    }
-
-    @Override
-    public NotificationChannelCompat getChannelStatus() {
-        return MoverApplication.from(this).channelStatus;
-    }
-
-    @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate()");
@@ -284,5 +275,12 @@ public class MoverService extends PersistentService implements SharedPreferences
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (!start())
             stopSelf();
+    }
+
+    @Override
+    public Notification build(Intent intent) {
+        return new PersistentIconBuilder()
+                .create(MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark), MoverApplication.from(this).channelStatus)
+                .setAdaptiveIcon(R.drawable.ic_launcher_foreground).build();
     }
 }
