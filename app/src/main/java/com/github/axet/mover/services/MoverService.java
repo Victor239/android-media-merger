@@ -34,10 +34,8 @@ public class MoverService extends PersistentService implements SharedPreferences
     public static final String STOP = MoverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = MoverService.class.getCanonicalName() + ".UPDATE";
 
-    static {
-        NOTIFICATION_PERSISTENT_ICON = NOTIFICATION_ICON;
-        PREFERENCE_OPTIMIZATION = MoverApplication.PREFERENCE_OPTIMIZATION;
-        PREFERENCE_NEXT = MoverApplication.PREFERENCE_NEXT;
+    {
+        id = NOTIFICATION_ICON;
     }
 
     CameraMan camera;
@@ -181,7 +179,6 @@ public class MoverService extends PersistentService implements SharedPreferences
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate()");
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
@@ -191,7 +188,7 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     @Override
     public void onCreateOptimization() {
-        optimization = new PersistentService.ServiceReceiver(this, getClass(), PREFERENCE_OPTIMIZATION) {
+        optimization = new PersistentService.ServiceReceiver(MoverApplication.PREFERENCE_OPTIMIZATION, MoverApplication.PREFERENCE_NEXT) {
             @Override
             public void check() {
                 if (camera != null)
@@ -204,7 +201,6 @@ public class MoverService extends PersistentService implements SharedPreferences
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestory()");
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
         if (camera != null) {
