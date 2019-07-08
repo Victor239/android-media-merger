@@ -11,7 +11,6 @@ import com.github.axet.mover.R;
 import com.github.axet.mover.services.MoverService;
 
 public class MoverApplication extends MainApplication {
-
     public static final String STORAGE = "storage";
     public static final String ENABLED = "enabled";
 
@@ -50,7 +49,7 @@ public class MoverApplication extends MainApplication {
 
         channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
 
-        OptimizationPreferenceCompat.setIcon(this, true);
+        OptimizationPreferenceCompat.setPersistentServiceIcon(this, true);
 
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
         MoverService.startIfEnabled(this);

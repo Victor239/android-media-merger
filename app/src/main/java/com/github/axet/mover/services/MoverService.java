@@ -13,7 +13,6 @@ import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.github.axet.androidlibrary.services.PersistentService;
-import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.Camera;
@@ -33,10 +32,6 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     public static final String STOP = MoverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = MoverService.class.getCanonicalName() + ".UPDATE";
-
-    {
-        id = NOTIFICATION_ICON;
-    }
 
     CameraMan camera;
 
@@ -188,11 +183,18 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     @Override
     public void onCreateOptimization() {
-        optimization = new PersistentService.ServiceReceiver(MoverApplication.PREFERENCE_OPTIMIZATION, MoverApplication.PREFERENCE_NEXT) {
+        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, NOTIFICATION_ICON, MoverApplication.PREFERENCE_OPTIMIZATION, MoverApplication.PREFERENCE_NEXT) {
             @Override
             public void check() {
                 if (camera != null)
                     camera.sync();
+            }
+
+            @Override
+            public Notification build(Intent intent) {
+                return new OptimizationPreferenceCompat.PersistentIconBuilder(context)
+                        .create(MoverApplication.getTheme(context, R.style.AppThemeLight, R.style.AppThemeDark), MoverApplication.from(context).channelStatus)
+                        .setAdaptiveIcon(R.drawable.ic_launcher_foreground).build();
             }
         };
         optimization.create();
@@ -271,12 +273,5 @@ public class MoverService extends PersistentService implements SharedPreferences
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (!start())
             stopSelf();
-    }
-
-    @Override
-    public Notification build(Intent intent) {
-        return new PersistentIconBuilder()
-                .create(MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark), MoverApplication.from(this).channelStatus)
-                .setAdaptiveIcon(R.drawable.ic_launcher_foreground).build();
     }
 }
