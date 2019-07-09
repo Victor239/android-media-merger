@@ -396,13 +396,13 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        if (Storage.permitted(this, MoverService.PERMISSIONS))
-            MoverService.update(this);
-
         if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
-            OptimizationPreferenceCompat.buildKilledWarning(new ContextThemeWrapper(this, getAppTheme()), true, MoverApplication.PREFERENCE_OPTIMIZATION).show();
+            OptimizationPreferenceCompat.buildKilledWarning(new ContextThemeWrapper(this, getAppTheme()), true, MoverApplication.PREFERENCE_OPTIMIZATION, MoverService.class).show();
         else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT, MoverApplication.PREFERENCE_INSTALL))
             OptimizationPreferenceCompat.buildBootWarning(this).show();
+
+        if (Storage.permitted(this, MoverService.PERMISSIONS))
+            MoverService.update(this);
     }
 
     void updateDirs() {
