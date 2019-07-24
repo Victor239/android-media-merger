@@ -14,7 +14,7 @@
         android:summary=""
         android:title="@string/pref_nameformat_title" />
 
-    <com.github.axet.androidlibrary.preferencies.OptimizationPreferenceCompat
+    <com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat
         android:defaultValue="false"
         android:key="optimization"
         android:persistent="false"
