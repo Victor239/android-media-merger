@@ -25,12 +25,12 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.preferences.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.activities.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.OpenChoicer;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OpenStorageChoicer;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.app.Storage;
@@ -271,7 +271,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         public void save() {
             SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-
             SharedPreferences.Editor edit = shared.edit();
             String[] keys = auto.keySet().toArray(new String[]{});
             edit.putInt(MoverApplication.AUTO_COUNT, keys.length);
@@ -282,9 +281,8 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
             }
 
             edit.putInt(MoverApplication.MANUAL_COUNT, manual.size());
-            for (int i = 0; i < manual.size(); i++) {
+            for (int i = 0; i < manual.size(); i++)
                 edit.putString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, manual.get(i).toString());
-            }
             edit.commit();
         }
     }
@@ -399,7 +397,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
             OptimizationPreferenceCompat.buildKilledWarning(new ContextThemeWrapper(this, getAppTheme()), true, MoverApplication.PREFERENCE_OPTIMIZATION, MoverService.class).show();
         else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT, MoverApplication.PREFERENCE_INSTALL))
-            OptimizationPreferenceCompat.buildBootWarning(this).show();
+            OptimizationPreferenceCompat.buildBootWarning(this, MoverApplication.PREFERENCE_BOOT).show();
 
         if (Storage.permitted(this, MoverService.PERMISSIONS))
             MoverService.update(this);
@@ -424,11 +422,10 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         }
 
         String text;
-        if (u == null) {
+        if (u == null)
             text = getString(R.string.not_selected);
-        } else {
+        else
             text = Storage.getDisplayName(this, u);
-        }
 
         path.setText(text);
     }

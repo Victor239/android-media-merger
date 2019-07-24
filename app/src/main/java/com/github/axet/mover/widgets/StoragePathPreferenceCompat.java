@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 
 import com.github.axet.mover.app.Storage;
 
-public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat {
+public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat {
     public StoragePathPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }

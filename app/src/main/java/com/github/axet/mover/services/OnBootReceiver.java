@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.mover.app.MoverApplication;
 
 public class OnBootReceiver extends BroadcastReceiver {

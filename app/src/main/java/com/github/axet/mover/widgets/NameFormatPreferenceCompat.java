@@ -9,7 +9,7 @@ import com.github.axet.mover.app.Storage;
 
 import java.util.Date;
 
-public class NameFormatPreferenceCompat extends com.github.axet.androidlibrary.widgets.NameFormatPreferenceCompat {
+public class NameFormatPreferenceCompat extends com.github.axet.androidlibrary.preferences.NameFormatPreferenceCompat {
     public NameFormatPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }

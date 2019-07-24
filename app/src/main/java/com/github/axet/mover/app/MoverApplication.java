@@ -6,7 +6,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.github.axet.androidlibrary.app.MainApplication;
 import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.services.MoverService;
 

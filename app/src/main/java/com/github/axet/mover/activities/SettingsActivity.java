@@ -14,11 +14,10 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.MenuItem;
 
+import com.github.axet.androidlibrary.activities.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.app.Storage;
-import com.github.axet.androidlibrary.services.PersistentService;
-import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.MoverService;

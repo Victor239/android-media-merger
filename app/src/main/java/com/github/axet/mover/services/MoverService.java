@@ -13,7 +13,7 @@ import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.github.axet.androidlibrary.services.PersistentService;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
