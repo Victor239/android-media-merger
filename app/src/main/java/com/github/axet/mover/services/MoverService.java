@@ -194,7 +194,7 @@ public class MoverService extends PersistentService implements SharedPreferences
             public Notification build(Intent intent) {
                 return new OptimizationPreferenceCompat.PersistentIconBuilder(context)
                         .create(MoverApplication.getTheme(context, R.style.AppThemeLight, R.style.AppThemeDark), MoverApplication.from(context).channelStatus)
-                        .setAdaptiveIcon(R.drawable.ic_launcher_foreground).build();
+                        .setAdaptiveIcon(R.drawable.ic_launcher_foreground).setSmallIcon(R.drawable.ic_launcher_notification).build();
             }
         };
         optimization.create();

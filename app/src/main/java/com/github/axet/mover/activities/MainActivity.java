@@ -389,9 +389,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
             }
         });
 
-//        Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show();
-
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
         if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
