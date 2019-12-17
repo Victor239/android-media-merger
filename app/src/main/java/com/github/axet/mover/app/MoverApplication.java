@@ -30,7 +30,6 @@ public class MoverApplication extends MainApplication {
 
     public static final String PREFERENCE_NEXT = "last";
 
-    public static final String PREFERENCE_INSTALL = "install";
     public static final String PREFERENCE_BOOT = "boot";
 
     public NotificationChannelCompat channelStatus;

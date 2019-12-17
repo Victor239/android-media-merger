@@ -15,7 +15,6 @@ import com.github.axet.mover.app.MoverApplication;
 public class OnUpgradeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        OptimizationPreferenceCompat.setBootInstallTime(context, MoverApplication.PREFERENCE_INSTALL, System.currentTimeMillis());
         MoverService.startIfEnabled(context);
     }
 }

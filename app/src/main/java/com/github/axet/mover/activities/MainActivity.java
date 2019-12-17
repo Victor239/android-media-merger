@@ -393,7 +393,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
             OptimizationPreferenceCompat.buildKilledWarning(new ContextThemeWrapper(this, getAppTheme()), true, MoverApplication.PREFERENCE_OPTIMIZATION, MoverService.class).show();
-        else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT, MoverApplication.PREFERENCE_INSTALL))
+        else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT))
             OptimizationPreferenceCompat.buildBootWarning(this, MoverApplication.PREFERENCE_BOOT).show();
 
         if (Storage.permitted(this, MoverService.PERMISSIONS))
