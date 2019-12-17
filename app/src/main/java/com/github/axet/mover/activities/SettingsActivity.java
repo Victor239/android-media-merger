@@ -9,84 +9,41 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.MenuItem;
 
+import com.github.axet.androidlibrary.activities.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.app.Storage;
-import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
-import com.github.axet.mover.services.FileObserverService;
-import com.github.axet.mover.widgets.NameFormatPreferenceCompat;
+import com.github.axet.mover.services.MoverService;
 
-public class SettingsActivity extends AppCompatSettingsThemeActivity implements PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
-
+public class SettingsActivity extends AppCompatSettingsThemeActivity {
     public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static final int RESULT_PERMS = 1;
     public static final int RESULT_BROWSE = 2;
 
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
-            if (preference instanceof NameFormatPreferenceCompat) {
-                preference.setSummary(((NameFormatPreferenceCompat) preference).getFormatted(stringValue));
-            } else if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-            } else {
-                preference.setSummary(stringValue);
+    public static void warninig(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.permission_title);
+        builder.setMessage(R.string.permission_message);
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
             }
-            return true;
-        }
-    };
-
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
-    }
-
-    @Override
-    public boolean onPreferenceDisplayDialog(PreferenceFragmentCompat caller, Preference pref) {
-        if (pref instanceof NameFormatPreferenceCompat) {
-            NameFormatPreferenceCompat.show(caller, pref.getKey());
-            return true;
-        }
-        return false;
+        });
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Storage.showPermissions(context);
+            }
+        });
+        builder.show();
     }
 
     public static class PrefFragment extends PreferenceFragmentCompat {
@@ -102,7 +59,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
                 c.setStorageAccessFramework(this, RESULT_BROWSE);
 
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
-            optimization.enable(FileObserverService.class);
+            optimization.enable(MoverService.class);
         }
 
         @Override
@@ -145,7 +102,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
                     } else {
                         c.onRequestPermissionsResult(permissions, grantResults);
                     }
-                    FileObserverService.update(getContext());
+                    MoverService.update(getContext());
                     break;
             }
         }
@@ -162,24 +119,6 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
                     break;
             }
         }
-    }
-
-    static void warninig(final Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.permission_title);
-        builder.setMessage(R.string.permission_message);
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Storage.showPermissions(context);
-            }
-        });
-        builder.show();
     }
 
     @Override
@@ -204,7 +143,13 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         super.onSharedPreferenceChanged(sharedPreferences, key);
-        FileObserverService.update(this);
+        if (key.equals(MoverApplication.STORAGE) || key.startsWith(MoverApplication.AUTO_PREFIX) || key.startsWith(MoverApplication.MANUAL_PREFIX))
+            MoverService.update(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

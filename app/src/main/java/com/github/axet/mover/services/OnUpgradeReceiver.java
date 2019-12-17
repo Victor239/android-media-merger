@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.mover.app.MoverApplication;
 
 /**
@@ -12,9 +13,8 @@ import com.github.axet.mover.app.MoverApplication;
  *
  */
 public class OnUpgradeReceiver extends BroadcastReceiver {
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        FileObserverService.startIfEnabled(context);
+        MoverService.startIfEnabled(context);
     }
 }

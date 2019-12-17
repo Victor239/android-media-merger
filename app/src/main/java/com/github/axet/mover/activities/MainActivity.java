@@ -15,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,16 +25,16 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.preferences.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.activities.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.OpenChoicer;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OpenStorageChoicer;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.app.Storage;
-import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.services.MoverService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                 String n;
                 String s = p.getScheme();
                 if (s.equals(ContentResolver.SCHEME_CONTENT)) {
-                    n = storage.getDisplayName(p);
+                    n = Storage.getDisplayName(MainActivity.this, p);
                 } else {
                     n = p.getPath();
                 }
@@ -190,14 +191,14 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                                 manual.set(pos, uri);
                                 String s = uri.getScheme();
                                 if (s.equals(ContentResolver.SCHEME_CONTENT)) {
-                                    path.setText(storage.getDisplayName(uri));
+                                    path.setText(Storage.getDisplayName(MainActivity.this, uri));
                                 } else {
                                     path.setText(uri.getPath());
                                 }
                                 save();
                             }
                         };
-                        choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_SET_FOLDER);
+                        choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_SET_FOLDER);
                         choicer.setStorageAccessFramework(MainActivity.this, RESULT_SET_FOLDER);
                         choicer.show(old);
                     }
@@ -211,7 +212,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     public void onClick(View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle(R.string.delete_folder);
-                        builder.setMessage(storage.getDisplayName(p) + "\n\n" + getString(R.string.are_you_sure));
+                        builder.setMessage(Storage.getDisplayName(MainActivity.this, p) + "\n\n" + getString(R.string.are_you_sure));
                         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -270,7 +271,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         public void save() {
             SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-
             SharedPreferences.Editor edit = shared.edit();
             String[] keys = auto.keySet().toArray(new String[]{});
             edit.putInt(MoverApplication.AUTO_COUNT, keys.length);
@@ -281,9 +281,8 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
             }
 
             edit.putInt(MoverApplication.MANUAL_COUNT, manual.size());
-            for (int i = 0; i < manual.size(); i++) {
+            for (int i = 0; i < manual.size(); i++)
                 edit.putString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, manual.get(i).toString());
-            }
             edit.commit();
         }
     }
@@ -323,8 +322,8 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         storage = new Storage(this);
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(FileObserverService.STOP);
-        filter.addAction(FileObserverService.UPDATE);
+        filter.addAction(MoverService.STOP);
+        filter.addAction(MoverService.UPDATE);
         registerReceiver(receiver, filter);
 
         list = (ListView) findViewById(R.id.list);
@@ -364,7 +363,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     }
                 };
                 choicer.setTitle(getString(R.string.pref_storage_title));
-                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_STORAGE);
+                choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_STORAGE);
                 choicer.setStorageAccessFramework(MainActivity.this, RESULT_STORAGE);
                 choicer.show(old);
             }
@@ -381,25 +380,24 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     public void onResult(Uri uri) {
                         adapter.add(uri);
                         adapter.save();
-                        FileObserverService.update(MainActivity.this);
+                        MoverService.update(MainActivity.this);
                     }
                 };
-                choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_ADD_FOLDER);
+                choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_ADD_FOLDER);
                 choicer.setStorageAccessFramework(MainActivity.this, RESULT_ADD_FOLDER);
                 choicer.show(old);
             }
         });
 
-//        Snackbar.make(view, "Syncing", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show();
-
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        if (Storage.permitted(this, FileObserverService.PERMISSIONS))
-            FileObserverService.update(this);
+        if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
+            OptimizationPreferenceCompat.buildKilledWarning(new ContextThemeWrapper(this, getAppTheme()), true, MoverApplication.PREFERENCE_OPTIMIZATION, MoverService.class).show();
+        else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT))
+            OptimizationPreferenceCompat.buildBootWarning(this, MoverApplication.PREFERENCE_BOOT).show();
 
-        if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_LAST))
-            OptimizationPreferenceCompat.buildKilledWarning(this, true, MoverApplication.PREFERENCE_OPTIMIZATION).show();
+        if (Storage.permitted(this, MoverService.PERMISSIONS))
+            MoverService.update(this);
     }
 
     void updateDirs() {
@@ -408,7 +406,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         String p = storage.getStoragePath();
         Uri u = storage.getStoragePath(p);
 
-        boolean enabled = FileObserverService.isEnabled(this);
+        boolean enabled = MoverService.isEnabled(this);
 
         TextView path = (TextView) footer.findViewById(R.id.path);
 
@@ -421,32 +419,26 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         }
 
         String text;
-        if (u == null) {
+        if (u == null)
             text = getString(R.string.not_selected);
-        } else {
-            text = storage.getDisplayName(u);
-        }
+        else
+            text = Storage.getDisplayName(this, u);
 
         path.setText(text);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem menuEnable = menu.findItem(R.id.action_enable);
-        menuEnable.setChecked(FileObserverService.isEnabled(this));
+        menuEnable.setChecked(MoverService.isEnabled(this));
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(this, SettingsActivity.class);
             startActivity(i);
@@ -467,12 +459,13 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
             final Runnable enabled = new Runnable() {
                 @Override
                 public void run() {
-                    if (FileObserverService.isEnabled(MainActivity.this, true) || !b) {
+                    if (MoverService.isEnabled(MainActivity.this, true) || !b) {
                         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putBoolean(MoverApplication.ENABLED, b);
                         editor.commit();
                         invalidateOptionsMenu();
+                        MoverService.update(MainActivity.this);
                     } else {
                         choicer.show(old);
                     }
@@ -492,7 +485,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     editor.putBoolean(MoverApplication.ENABLED, b); // true
                     editor.commit();
                     invalidateOptionsMenu();
-                    FileObserverService.startIfEnabled(MainActivity.this);
+                    MoverService.startIfEnabled(MainActivity.this);
                     updateDirs();
                 }
 
@@ -525,7 +518,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                 }
             };
             choicer.setTitle(getString(R.string.pref_storage_title));
-            choicer.setPermissionsDialog(MainActivity.this, FileObserverService.PERMISSIONS, RESULT_ENABLE);
+            choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_ENABLE);
             choicer.setStorageAccessFramework(MainActivity.this, RESULT_ENABLE);
             enabled.run();
             return true;
@@ -537,7 +530,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     @Override
     protected void onResume() {
         super.onResume();
-        FileObserverService.update(this);
+        MoverService.update(this);
     }
 
     @Override

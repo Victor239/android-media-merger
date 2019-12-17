@@ -9,7 +9,7 @@ import com.github.axet.mover.app.Storage;
 
 import java.util.Date;
 
-public class NameFormatPreferenceCompat extends com.github.axet.androidlibrary.widgets.NameFormatPreferenceCompat {
+public class NameFormatPreferenceCompat extends com.github.axet.androidlibrary.preferences.NameFormatPreferenceCompat {
     public NameFormatPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
@@ -31,6 +31,6 @@ public class NameFormatPreferenceCompat extends com.github.axet.androidlibrary.w
         String f = getPredefined(str);
         if (f != null)
             return f;
-        return Camera.getFormatted(new Storage(getContext()), str, Uri.parse("file://Parent+Folder/IMG_2016010101"), new Date(1493561080000l)) + ".png";
+        return Camera.getFormatted(getContext(), str, Uri.parse("file://Parent+Folder/IMG_2016010101"), new Date(1493561080000l)) + ".png";
     }
 }

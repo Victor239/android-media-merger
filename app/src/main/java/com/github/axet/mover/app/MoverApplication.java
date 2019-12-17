@@ -4,11 +4,13 @@ import android.content.Context;
 import android.support.v7.preference.PreferenceManager;
 
 import com.github.axet.androidlibrary.app.MainApplication;
+import com.github.axet.androidlibrary.app.NotificationManagerCompat;
+import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.mover.R;
-import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.services.MoverService;
 
 public class MoverApplication extends MainApplication {
-
     public static final String STORAGE = "storage";
     public static final String ENABLED = "enabled";
 
@@ -26,7 +28,15 @@ public class MoverApplication extends MainApplication {
     public static final String MANUAL_PREFIX = "MANUAL_";
     public static final String MANUAL_PATH = "_PATH";
 
-    public static final String PREFERENCE_LAST = "last";
+    public static final String PREFERENCE_NEXT = "last";
+
+    public static final String PREFERENCE_BOOT = "boot";
+
+    public NotificationChannelCompat channelStatus;
+
+    public static MoverApplication from(Context context) {
+        return (MoverApplication) MainApplication.from(context);
+    }
 
     public static int getTheme(Context context, int light, int dark) {
         return MainApplication.getTheme(context, PREFERENCE_THEME, light, dark, context.getString(R.string.Theme_Dark));
@@ -35,7 +45,12 @@ public class MoverApplication extends MainApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
+
+        OptimizationPreferenceCompat.setPersistentServiceIcon(this, true);
+
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
-        FileObserverService.startIfEnabled(this);
+        MoverService.startIfEnabled(this);
     }
 }

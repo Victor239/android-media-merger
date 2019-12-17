@@ -1,17 +1,13 @@
 package com.github.axet.mover.widgets;
 
-import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.net.Uri;
 import android.util.AttributeSet;
 
-import com.github.axet.androidlibrary.widgets.StoragePathPreference;
+import com.github.axet.mover.app.Storage;
 
-import java.io.File;
-
-public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat {
+public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat {
     public StoragePathPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
@@ -35,7 +31,7 @@ public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.
         Uri u = storage.getStoragePath(v);
         if (u != null) {
             setText(u.toString());
-            setSummary(storage.getDisplayName(u));
+            setSummary(Storage.getDisplayName(getContext(), u));
         }
     }
 

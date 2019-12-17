@@ -14,10 +14,12 @@ import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.github.axet.androidlibrary.services.StorageProvider;
+import com.github.axet.androidlibrary.widgets.ErrorDialog;
+import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.mover.R;
-import com.github.axet.mover.services.FileObserverService;
+import com.github.axet.mover.services.MoverService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -104,18 +106,48 @@ public class Camera {
         return n.name.startsWith(".");
     }
 
-    public static String getFormatted(Storage storage, String f, Uri targetUri, Date date) {
-        String ne = storage.getNameNoExt(targetUri);
+    // check if file save to move (it is not open by another apps)
+    //
+    // seems like android allow to write currently writting file. so. this trick does not work.
+    public static boolean isSafe(File f) {
+        try {
+            FileOutputStream fis = new FileOutputStream(f, true);
+            FileLock lock = fis.getChannel().tryLock();
+            if (lock != null) {
+                lock.release();
+                fis.close();
+                return true;
+            }
+            fis.close();
+            return false;
+        } catch (NonWritableChannelException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public static Uri moveFile(Context context, Uri f, Uri to) {
+        to = Storage.move(context, f, to);
+        if (to == null)
+            return null; // unable to move
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        mediaScanIntent.setData(to);
+        context.sendBroadcast(mediaScanIntent);
+        return to;
+    }
+
+    public static String getFormatted(Context context, String f, Uri targetUri, Date date) {
+        String ne = Storage.getNameNoExt(context, targetUri);
 
         String p = "."; // root
 
         String s = targetUri.getScheme();
         if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
             String id = DocumentsContract.getTreeDocumentId(targetUri);
-            String[] ss = id.split(":");
-            if (ss.length > 1) {
+            String[] ss = id.split(Storage.COLON, 2);
+            if (!ss[1].isEmpty())
                 p = ss[1];
-            }
         } else if (s.equals(ContentResolver.SCHEME_FILE)) {
             File a = Storage.getFile(targetUri);
             a = a.getParentFile();
@@ -145,8 +177,8 @@ public class Camera {
         }
 
         public Stats(Uri u) {
-            last = storage.getLastModified(u);
-            size = storage.getLength(u);
+            last = Storage.getLastModified(context, u);
+            size = Storage.getLength(context, u);
         }
 
         public Stats(Storage.Node n) {
@@ -164,7 +196,7 @@ public class Camera {
     public class LastModified implements Comparator<Uri> {
         @Override
         public int compare(Uri o1, Uri o2) {
-            final long result = storage.getLastModified(o1) - storage.getLastModified(o2);
+            final long result = Storage.getLastModified(context, o1) - Storage.getLastModified(context, o2);
             if (result < 0) {
                 return -1;
             } else if (result > 0) {
@@ -275,7 +307,7 @@ public class Camera {
 
         old = list;
 
-        thread = new Thread(new Runnable() {
+        thread = new Thread("sync") {
             @Override
             public void run() {
                 try {
@@ -306,25 +338,22 @@ public class Camera {
                         Uri t = tt[i];
                         if (t == null)
                             t = getMoveTo(f, ss[i], 0);
-                        if (!FileObserverService.isEnabled(context))
+                        if (!MoverService.isEnabled(context))
                             return;
-                        Uri to = moveFile(f, t);
-                        Log.d(TAG, "MOVE [" + f + " to " + storage.getDisplayName(to) + "]");
-                        Post(context.getString(R.string.file_moved, storage.getDisplayName(to)));
+                        Uri to = moveFile(context, f, t);
+                        Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
+                        Toast.Post(context, context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
                     }
                 } catch (RuntimeException e) {
                     Log.d(TAG, "MOVE FAILED", e);
-                    Throwable th = e;
-                    while (th.getCause() != null)
-                        th = th.getCause();
-                    Post(context.getString(R.string.move_failed, th.getMessage()));
+                    Toast.Post(context, context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
                 } finally {
                     synchronized (lock) {
                         thread = null;
                     }
                 }
             }
-        }, "sync");
+        };
         thread.start();
 
         return false; // rescan again, moveFile can be slow, more files appear
@@ -332,21 +361,11 @@ public class Camera {
 
     public void watch() {
         for (Uri d : watchingFolders) {
-            if (Build.VERSION.SDK_INT >= 21 && Storage.isTreeUri(d)) { // create monitor for internal storage
-                String id = DocumentsContract.getTreeDocumentId(d);
-                String[] ss = id.split(":");
-                if (ss[0].equals(Storage.STORAGE_PRIMARY)) {
-                    File path = Environment.getExternalStorageDirectory();
-                    if (ss.length > 1) // len == 1 if root folder
-                        path = new File(path, ss[1]);
-                    d = Uri.fromFile(path);
-                }
-            }
+            if (Build.VERSION.SDK_INT >= 21 && Storage.isTreeUri(d)) // create monitor for internal storage
+                d = StorageProvider.filterFolderIntent(context, d);
             String s = d.getScheme();
-            if (s.equals(ContentResolver.SCHEME_FILE)) {
-                File f = new File(d.getPath());
-                watchFiles(f);
-            }
+            if (s.equals(ContentResolver.SCHEME_FILE))
+                watchFiles(Storage.getFile(d));
         }
     }
 
@@ -450,7 +469,7 @@ public class Camera {
 
     // load file list from uri
     List<Storage.Node> list(Uri uri) {
-        return storage.list(uri, new Storage.NodeFilter() {
+        return storage.list(context, uri, new Storage.NodeFilter() {
             @Override
             public boolean accept(Storage.Node n) {
                 return !n.dir && !isHidden(n);
@@ -458,34 +477,13 @@ public class Camera {
         });
     }
 
-    // check if file save to move (it is not open by another apps)
-    //
-    // seems like android allow to write currently writting file. so. this function does not work.
-    boolean isSafe(File f) {
-        try {
-            FileOutputStream fis = new FileOutputStream(f, true);
-            FileLock lock = fis.getChannel().tryLock();
-            if (lock != null) {
-                lock.release();
-                fis.close();
-                return true;
-            }
-            fis.close();
-            return false;
-        } catch (NonWritableChannelException e) {
-            return false;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
     public String getFormatted(Uri f) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String s = shared.getString(MoverApplication.PREFERENCE_NAME, "%f");
 
-        Date date = new Date(storage.getLastModified(f));
+        Date date = new Date(Storage.getLastModified(context, f));
 
-        return getFormatted(storage, s, f, date);
+        return getFormatted(context, s, f, date);
     }
 
     public Uri getMoveTo(Uri f, String s, int i) {
@@ -497,49 +495,28 @@ public class Camera {
             resolver.takePersistableUriPermission(contentUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         }
 
-        String n = storage.getName(f);
+        String n = Storage.getName(context, f);
         if (n == null)
             return null; // unable to get name, broken or missing file
         String ext = Storage.getExt(n);
 
-        return storage.getNextFile(contentUri, s, i, ext);
-    }
-
-    public Uri moveFile(Uri f, Uri to) {
-        to = storage.move(f, to);
-        if (to == null)
-            return null; // unable to move
-
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        mediaScanIntent.setData(to);
-        context.sendBroadcast(mediaScanIntent);
-
-        return to;
-    }
-
-    public void Post(final String msg) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-            }
-        });
+        return Storage.getNextFile(context, contentUri, s, i, ext);
     }
 
     public void monitorContentObserver() {
+        ContentResolver resolver = context.getContentResolver();
         if (mediaObserver != null)
-            context.getContentResolver().unregisterContentObserver(mediaObserver);
+            resolver.unregisterContentObserver(mediaObserver);
 
         mediaObserver = new ContentObserver(handler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
                 super.onChange(selfChange, uri);
-                if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
+                if (uri.toString().startsWith(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()))
                     sync();
-                }
             }
         };
 
-        context.getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaObserver);
+        resolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaObserver);
     }
 }
