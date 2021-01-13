@@ -93,11 +93,16 @@ public class Camera {
     Runnable sync = new Runnable() { // sync runnable
         @Override
         public void run() {
-            if (!fsync()) {
-                handler.removeCallbacks(sync);
-                handler.postDelayed(sync, REFRESH_TIME);
-            } else {
-                handler.removeCallbacks(sync);
+            try {
+                if (!fsync()) {
+                    handler.removeCallbacks(sync);
+                    handler.postDelayed(sync, REFRESH_TIME);
+                } else {
+                    handler.removeCallbacks(sync);
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "MOVE FAILED", e);
+                Toast.Post(context, context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
             }
         }
     };
