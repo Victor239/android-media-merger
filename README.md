@@ -1,8 +1,8 @@
 # Media Merger
 
-Android OS does not allow you to create symbolic links on /sdcard. It does not allow you to change Camera or Screenshots folder. The only way to put all content created by phone into one place, is to create application which helps combine all folders in one.
+Android OS does not allow you to create symbolic links on /sdcard. It does not allow you to change Camera or Screenshots folder. The only way to put all content created by phone into one place, is to manually move those files into one folder. Or create an app which will automathe the process.
 
-If you want to store SMS as text files please check [SMS Gate](https://gitlab.com/axet/android-sms-gate)
+If you want also store SMS as text files into same folder please check [SMS Gate](https://gitlab.com/axet/android-sms-gate)
 
 Use this app in conjunction with Syncthing to sync / backup files produced by your phone to your computer to manually delete / arrange files .
 
