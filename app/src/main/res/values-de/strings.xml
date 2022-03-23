@@ -1,5 +1,6 @@
 <resources>
     <string-array name="theme_text">
+        <item>@string/system_default</item>
         <item>Theme Light</item>
         <item>Theme Dark</item>
     </string-array>

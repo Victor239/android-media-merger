@@ -22,7 +22,7 @@
         android:title="@string/pref_optimization_title" />
 
     <ListPreference
-        android:defaultValue="@string/Theme_Light"
+        android:defaultValue="@string/Theme_System"
         android:entries="@array/theme_text"
         android:entryValues="@array/theme_value"
         android:key="theme"
