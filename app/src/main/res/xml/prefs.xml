@@ -23,8 +23,8 @@
 
     <ListPreference
         android:defaultValue="@string/Theme_System"
-        android:entries="@array/theme_text"
-        android:entryValues="@array/theme_value"
+        android:entries="@array/themes_text"
+        android:entryValues="@array/themes_values"
         android:key="theme"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"

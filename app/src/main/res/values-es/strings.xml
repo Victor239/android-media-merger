@@ -1,10 +1,4 @@
 <resources>
-    <string-array name="theme_text">
-        <item>@string/system_default</item>
-        <item>Tema Claro</item>
-        <item>Tema Oscuro</item>
-    </string-array>
-
     <string-array name="name_text">
         <item>Nombre original</item>
         <item>2017-03-14 14.22.11.ext</item>
