@@ -1,0 +1,33 @@
+<resources>
+    <string name="folder_name" translatable="false">Media Merger</string>
+
+    <string-array name="name_text">
+        <item>Nome original</item>
+        <item>2017-03-14 14.22.11.ext</item>
+        <item>1493561080.ext</item>
+        <item>20170314T142211.ext</item>
+        <item>Parent/2017-03-14 14.22.11.ext</item>
+    </string-array>
+
+    <string name="app_name">Agregar arquivos</string>
+    <string name="delete_folder">Excluir a pasta</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="not_syncing">Sincronização não está ativada!\nEscolha uma \'Localização\' via o botão de \'Procurar\' abaixo\nE selecione \'Ativar Sinc.\' no menu</string>
+    <string name="not_selected">(não selecionado)</string>
+    <string name="enable">Ativar Sinc.</string>
+    <string name="permission_title">Permissão de armazenamento</string>
+    <string name="permission_message">A permissão de armazenamento tem que ser concedida manualmente</string>
+    <string name="not_selected_text">Configure o \'Local de armazenamento\' em Configurações</string>
+    <string name="syncing">Sincronizando ...</string>
+    <string name="browse">Procurar</string>
+    <string name="syncing_to">para:</string>
+
+    <string name="pref_nameformat_title">Formato de nome</string>
+    <string name="pref_optimization_title">Desativar a Otimização da Bateria</string>
+    <string name="pref_optimization_summary">Impedir que o App seja removido da memória</string>
+    <string name="pref_storage_title">Local de armazenamento</string>
+    <string name="pref_storage_summary">defina onde armazenar os arquivos que estão sendo sincronizados</string>
+    <string name="file_moved">MOVIDO [%s]</string>
+    <string name="move_failed">Não foi possível MOVER [%s]</string>
+</resources>
