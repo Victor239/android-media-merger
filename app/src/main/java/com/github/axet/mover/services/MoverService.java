@@ -7,13 +7,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.annotation.FractionRes;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 
 import com.github.axet.androidlibrary.services.PersistentService;
 import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.OpenChoicer;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.Camera;
 import com.github.axet.mover.app.MoverApplication;
@@ -28,7 +33,7 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     public static int NOTIFICATION_ICON = 200;
 
-    public static String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    public static String[] PERMISSIONS = Storage.PERMISSIONS_RW;
 
     public static final String STOP = MoverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = MoverService.class.getCanonicalName() + ".UPDATE";
@@ -73,8 +78,7 @@ public class MoverService extends PersistentService implements SharedPreferences
     }
 
     public static void update(Context context) {
-        Intent intent = new Intent(context, MoverService.class);
-        intent.setAction(UPDATE);
+        Intent intent = new Intent(context, MoverService.class).setAction(UPDATE);
         context.startService(intent);
     }
 
@@ -92,9 +96,8 @@ public class MoverService extends PersistentService implements SharedPreferences
             {
                 ArrayList<File> dirs = generateDcim();
                 dirs.add(screenshotsPath);
-                for (File f : dirs) {
+                for (File f : dirs)
                     map.put(f.toString(), true);
-                }
             }
 
             // update status on remaining directories only. forget settings for gone directories
@@ -254,7 +257,6 @@ public class MoverService extends PersistentService implements SharedPreferences
         if (enabled && u != null) {
             camera = new CameraMan(this, u);
             camera.create();
-
             Intent i = new Intent(UPDATE);
             sendBroadcast(i);
             return true;
@@ -262,7 +264,6 @@ public class MoverService extends PersistentService implements SharedPreferences
             CameraMan camera = new CameraMan(this, null);
             camera.updatePrefs();
             camera.close();
-
             Intent i = new Intent(STOP);
             sendBroadcast(i);
             return false;

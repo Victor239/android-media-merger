@@ -97,11 +97,10 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
 
             switch (requestCode) {
                 case RESULT_PERMS:
-                    if (!Storage.permitted(getContext(), PERMISSION)) {
+                    if (!Storage.permitted(getContext(), PERMISSION))
                         warninig(getContext());
-                    } else {
+                    else
                         c.onRequestPermissionsResult(permissions, grantResults);
-                    }
                     MoverService.update(getContext());
                     break;
             }

@@ -78,7 +78,7 @@ public class Camera {
     // previous sync() file list
     Map<Uri, Stats> old = new HashMap<>();
 
-    ArrayList<Uri> open = new ArrayList<>();
+    ArrayList<Uri> open = new ArrayList<>(); // open files list (by system or user apps)
 
     Storage storage;
 
@@ -249,9 +249,8 @@ public class Camera {
         File[] ff = dcimPath.listFiles();
         if (ff != null) {
             for (File f : ff) {
-                if (f.exists() && f.isDirectory() && !f.isHidden()) {
+                if (f.exists() && f.isDirectory() && !f.isHidden())
                     dirs.add(f);
-                }
             }
         }
         return dirs;
@@ -265,6 +264,8 @@ public class Camera {
             dd.add(Uri.fromFile(f));
         if (screenshotsPath.exists() && screenshotsPath.isDirectory())
             dd.add(Uri.fromFile(screenshotsPath));
+        if (Build.VERSION.SDK_INT >= 30)
+            dd.add(Uri.fromFile(picturesPath)); // API30 uses picturesPath for camera
         return dd;
     }
 
@@ -462,9 +463,8 @@ public class Camera {
         Map<Uri, Stats> ff = new HashMap<>();
         for (Uri f : watchingFolders) {
             try {
-                for (Storage.Node n : list(f)) {
+                for (Storage.Node n : list(f))
                     ff.put(n.uri, new Stats(n));
-                }
             } catch (SecurityException e) {
                 Log.d(TAG, "unable to scan", e);
             }
