@@ -16,6 +16,7 @@ public class MoverApplication extends MainApplication {
 
     public static final String PREFERENCE_THEME = "theme";
     public static final String PREFERENCE_OPTIMIZATION = "optimization";
+    public static final String PREFERENCE_LEGACY = "legacy";
 
     public static final String PREFERENCE_NAME = "name";
 

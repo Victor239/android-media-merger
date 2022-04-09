@@ -21,6 +21,7 @@ import com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat;
 import com.github.axet.mover.R;
 import com.github.axet.mover.app.MoverApplication;
 import com.github.axet.mover.services.MoverService;
+import com.github.axet.androidlibrary.preferences.LegacyStoragePreferenceCompat;
 
 public class SettingsActivity extends AppCompatSettingsThemeActivity {
     public static String[] PERMISSION = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -78,6 +79,8 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
             super.onResume();
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
             optimization.onResume();
+            LegacyStoragePreferenceCompat legacy = (LegacyStoragePreferenceCompat) findPreference(MoverApplication.PREFERENCE_LEGACY);
+            legacy.onResume();
         }
 
         @Override
