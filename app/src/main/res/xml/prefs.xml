@@ -14,6 +14,12 @@
         android:summary=""
         android:title="@string/pref_nameformat_title" />
 
+    <com.github.axet.androidlibrary.preferences.LegacyStoragePreferenceCompat
+        android:defaultValue="false"
+        android:key="legacy"
+        android:summary="@string/legacy_summary"
+        android:title="@string/legacy_title" />
+
     <com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat
         android:defaultValue="false"
         android:key="optimization"

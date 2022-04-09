@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -200,7 +201,11 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                         };
                         choicer.setPermissionsDialog(MainActivity.this, MoverService.PERMISSIONS, RESULT_SET_FOLDER);
                         choicer.setStorageAccessFramework(MainActivity.this, RESULT_SET_FOLDER);
-                        choicer.show(old);
+                        String s = old.getScheme();
+                        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT))
+                            choicer.showSAF(old);
+                        else
+                            choicer.show(old);
                     }
                 });
 
@@ -531,8 +536,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     protected void onResume() {
         super.onResume();
         MoverService.update(this);
-        if (choicer != null)
-            choicer.onResume();
     }
 
     @Override
