@@ -474,7 +474,7 @@ public class Camera {
 
     // load file list from uri
     List<Storage.Node> list(Uri uri) {
-        return storage.list(context, uri, new Storage.NodeFilter() {
+        return Storage.list(context, uri, new Storage.NodeFilter() {
             @Override
             public boolean accept(Storage.Node n) {
                 return !n.dir && !isHidden(n);
