@@ -50,6 +50,10 @@ public class Camera {
 
     public final static String SCREENSHOTS = "Screenshots";
 
+    public static final File DCIM_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM); // /sdcard/DCIM/
+    public static final File PICTURES_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES); // /sdcard/Pictures/
+    public static final File SCREENSHOTS_PATH = new File(PICTURES_PATH, SCREENSHOTS); // /sdcard/Pictures/Screenshots/
+
     // minimum refresh time, camera file flash recording video set to 10 seconds.
     // do not refresh more often, otherwise we may not detect current recording file video last write time change.
     public static final int REFRESH_TIME = 10 * 1000;
@@ -59,31 +63,17 @@ public class Camera {
     }
 
     protected Context context;
-
     protected Handler handler = new Handler();
+    protected Uri targetDir;  // where to put result files
 
-    // where to put result files
-    protected Uri targetDir;
+    ArrayList<Uri> watchingFolders = new ArrayList<>(); // current sync() folders list
 
-    // /sdcard/DCIM/
-    public final File dcimPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-    // /sdcard/Pictures/
-    public final File picturesPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-    // /sdcard/Pictures/Screenshots/
-    public final File screenshotsPath = new File(picturesPath, SCREENSHOTS);
-
-    // current sync() folders list
-    ArrayList<Uri> watchingFolders = new ArrayList<>();
-
-    // previous sync() file list
-    Map<Uri, Stats> old = new HashMap<>();
-
+    Map<Uri, Stats> old = new HashMap<>(); // previous sync() file list operation (detecting change)
     ArrayList<Uri> open = new ArrayList<>(); // open files list (by system or user apps)
 
     Storage storage;
 
-    // last sync() time
-    long last;
+    long last; // last sync() time
 
     ContentObserver mediaObserver;
     TreeMap<File, FileObserver> organizes = new TreeMap<>();
@@ -246,7 +236,7 @@ public class Camera {
     // scan DCIM folder for sub folders
     public ArrayList<File> generateDcim() {
         ArrayList<File> dirs = new ArrayList<>();
-        File[] ff = dcimPath.listFiles();
+        File[] ff = DCIM_PATH.listFiles();
         if (ff != null) {
             for (File f : ff) {
                 if (f.exists() && f.isDirectory() && !f.isHidden())
@@ -262,10 +252,10 @@ public class Camera {
         ArrayList<File> dirs = generateDcim();
         for (File f : dirs)
             dd.add(Uri.fromFile(f));
-        if (screenshotsPath.exists() && screenshotsPath.isDirectory())
-            dd.add(Uri.fromFile(screenshotsPath));
+        if (SCREENSHOTS_PATH.exists() && SCREENSHOTS_PATH.isDirectory())
+            dd.add(Uri.fromFile(SCREENSHOTS_PATH));
         if (Build.VERSION.SDK_INT >= 30)
-            dd.add(Uri.fromFile(picturesPath)); // API30 uses picturesPath for camera
+            dd.add(Uri.fromFile(PICTURES_PATH)); // API30 uses picturesPath for camera
         return dd;
     }
 

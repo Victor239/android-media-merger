@@ -531,6 +531,8 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     protected void onResume() {
         super.onResume();
         MoverService.update(this);
+        if (choicer != null)
+            choicer.onResume();
     }
 
     @Override

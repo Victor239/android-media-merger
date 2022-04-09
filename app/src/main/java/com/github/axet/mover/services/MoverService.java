@@ -1,20 +1,15 @@
 package com.github.axet.mover.services;
 
-import android.Manifest;
 import android.app.Notification;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.FractionRes;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 
 import com.github.axet.androidlibrary.services.PersistentService;
 import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
@@ -58,7 +53,9 @@ public class MoverService extends PersistentService implements SharedPreferences
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         if (!b)
             return false;
-        if (!Storage.permitted(context, PERMISSIONS))
+        if (Storage.isLegacyRequred(context)) {
+            ; // no permission check
+        } else if (!Storage.permitted(context, PERMISSIONS))
             return false;
         Storage storage = new Storage(context);
         String path = sharedPref.getString(MoverApplication.STORAGE, null);
@@ -95,7 +92,7 @@ public class MoverService extends PersistentService implements SharedPreferences
             // read dir's from sdcard
             {
                 ArrayList<File> dirs = generateDcim();
-                dirs.add(screenshotsPath);
+                dirs.add(SCREENSHOTS_PATH);
                 for (File f : dirs)
                     map.put(f.toString(), true);
             }
@@ -151,13 +148,12 @@ public class MoverService extends PersistentService implements SharedPreferences
             for (int i = 0; i < c; i++) {
                 String s = sharedPref.getString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, "");
                 Uri u;
-                if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                if (s.startsWith(ContentResolver.SCHEME_CONTENT))
                     u = Uri.parse(s);
-                } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
+                else if (s.startsWith(ContentResolver.SCHEME_FILE))
                     u = Uri.parse(s);
-                } else {
+                else
                     u = Uri.fromFile(new File(s));
-                }
                 dirs.add(u);
             }
 
