@@ -124,11 +124,10 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
             return u;
         }
         File f;
-        if (path.startsWith(ContentResolver.SCHEME_FILE)) {
+        if (path.startsWith(ContentResolver.SCHEME_FILE))
             f = getFile(Uri.parse(path));
-        } else {
+        else
             f = new File(path);
-        }
         if (!permitted(context, PERMISSIONS_RW)) {
             return null;
         } else {
