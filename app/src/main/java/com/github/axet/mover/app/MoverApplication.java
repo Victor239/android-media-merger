@@ -47,7 +47,7 @@ public class MoverApplication extends MainApplication {
     public void onCreate() {
         super.onCreate();
 
-        channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
+        channelStatus = new NotificationChannelCompat(this, "status", "Persistent Notifications", NotificationManagerCompat.IMPORTANCE_LOW);
 
         OptimizationPreferenceCompat.setPersistentServiceIcon(this, true);
 
