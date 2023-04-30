@@ -6,9 +6,9 @@ If you want also store SMS as text files (or reply to SMS using text files) into
 
 Use this app in conjunction with Syncthing to sync / backup files produced by your phone to your computer to manually delete / arrange files.
 
-  * This utitily moves all files from `[/sdcard/DCIM/*/*]` and `[/sdcard/Pictures/Screenshots/*]` to user specified folder.
-  * Using two pass scan algorithm (prevent's move during file changes)
-  * All files will be renamed related to it's date `[2015-12-31 13.44.59.png]`.
+  * This utility moves all files from `[/sdcard/DCIM/*/*]` and `[/sdcard/Pictures/Screenshots/*]` to user specified folder.
+  * Using two pass scan algorithm (prevents move during file changes)
+  * All files will be renamed related to their date `[2015-12-31 13.44.59.png]`.
 
 Main app logic is here:
 
