@@ -314,7 +314,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
     @Override
     public int getAppTheme() {
-        return MoverApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar);
+        return MoverApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar, R.style.AppThemeDarkBlack_NoActionBar);
     }
 
     @Override

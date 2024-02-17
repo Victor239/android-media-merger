@@ -22,6 +22,7 @@ import com.github.axet.mover.R;
 import com.github.axet.mover.services.MoverService;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileLock;
@@ -122,7 +123,7 @@ public class Camera {
         }
     }
 
-    public static Uri moveFile(Context context, Uri f, Uri to) {
+    public static Uri moveFile(Context context, Uri f, Uri to) throws FileNotFoundException {
         to = Storage.move(context, f, to);
         if (to == null)
             return null; // unable to move
@@ -340,7 +341,7 @@ public class Camera {
                         Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
                         Toast.Post(context, context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
                     }
-                } catch (RuntimeException e) {
+                } catch (FileNotFoundException | RuntimeException e) {
                     Log.d(TAG, "MOVE FAILED", e);
                     Toast.Post(context, context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
                 } finally {

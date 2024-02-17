@@ -11,7 +11,6 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-
     <style name="AppThemeDark" parent="AppThemeDarkLib"></style>
 
     <style name="AppThemeDark.NoActionBar">
@@ -19,4 +18,10 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="AppThemeDarkBlack" parent="AppThemeDarkBlackLib"></style>
+
+    <style name="AppThemeDarkBlack.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>
