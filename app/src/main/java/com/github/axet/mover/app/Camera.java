@@ -1,6 +1,7 @@
 package com.github.axet.mover.app;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
@@ -22,6 +24,7 @@ import com.github.axet.mover.R;
 import com.github.axet.mover.services.MoverService;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileLock;
@@ -122,13 +125,41 @@ public class Camera {
         }
     }
 
-    public static Uri moveFile(Context context, Uri f, Uri to) {
-        to = Storage.move(context, f, to);
-        if (to == null)
-            return null; // unable to move
+    public static Uri addGallery(Context context, Uri uri) {
+        File file = Storage.getFile(uri);
+        String filePath = file.getAbsolutePath();
+        String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Storage.getExt(file));
+        if (type == null) {
+            mediaScan(context, uri);
+            return null;
+        }
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, file.getName());
+        values.put(MediaStore.Images.Media.TITLE, file.getName());
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.Media.MIME_TYPE, type);
+        values.put(MediaStore.Images.Media.SIZE, file.length());
+        values.put(MediaStore.MediaColumns.DATA, filePath);
+        ContentResolver r = context.getContentResolver();
+        if (type.startsWith("image"))
+            return r.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        if (type.startsWith("video"))
+            return r.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+        mediaScan(context, uri);
+        return null;
+    }
+
+    public static void mediaScan(Context context, Uri to) {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         mediaScanIntent.setData(to);
         context.sendBroadcast(mediaScanIntent);
+    }
+
+    public static Uri moveFile(Context context, Uri f, Uri to) throws FileNotFoundException {
+        to = Storage.move(context, f, to);
+        if (to == null)
+            return null; // unable to move
+        addGallery(context, to);
         return to;
     }
 
@@ -340,7 +371,7 @@ public class Camera {
                         Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
                         Toast.Post(context, context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
                     }
-                } catch (RuntimeException e) {
+                } catch (FileNotFoundException | RuntimeException e) {
                     Log.d(TAG, "MOVE FAILED", e);
                     Toast.Post(context, context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
                 } finally {

@@ -14,6 +14,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,7 @@ import java.util.List;
 
 public class Storage extends com.github.axet.androidlibrary.app.Storage {
     @TargetApi(21)
-    public static Uri move(Context context, Uri f, Uri dir, String t) {
+    public static Uri move(Context context, Uri f, Uri dir, String t) throws FileNotFoundException {
         ContentResolver resolver = context.getContentResolver();
         Uri u = createFile(context, dir, t);
         if (u == null)
@@ -57,7 +58,7 @@ public class Storage extends com.github.axet.androidlibrary.app.Storage {
         }
     }
 
-    public static Uri move(Context context, Uri f, Uri t) {
+    public static Uri move(Context context, Uri f, Uri t) throws FileNotFoundException {
         String s = t.getScheme();
         if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
             Uri root = getDocumentTreeUri(t);
