@@ -11,6 +11,7 @@ android {
         targetSdkVersion 36
         versionCode   130
         versionName   "1.2.117"
+        setProperty("archivesBaseName", "mover-" + versionName)
     }
 
     signingConfigs {
@@ -28,11 +29,6 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-        }
-    }
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFileName = org.apache.commons.io.FilenameUtils.getExtension(android.defaultConfig.applicationId) + "-" + android.defaultConfig.versionName + "-" + variant.buildType.name + ".apk"
         }
     }
 }

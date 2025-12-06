@@ -8,12 +8,13 @@ This project has been successfully upgraded to support Android 16 (API level 36)
 
 ### Gradle Configuration
 
-1. **Updated Gradle Wrapper** to version 7.6 (from 5.4.1)
+1. **Updated Gradle Wrapper** to version 8.7 (from 5.4.1)
    - Location: `gradle/wrapper/gradle-wrapper.properties`
-   - Compatible with AGP 7.4.2 and modern Android SDKs
+   - Required for AGP 8.5.2 and Android SDK 36
 
-2. **Updated Android Gradle Plugin** to version 7.4.2 (from 3.5.4)
+2. **Updated Android Gradle Plugin** to version 8.5.2 (from 3.5.4)
    - Location: `build.gradle`
+   - Supports compileSdk 36 (Android 16)
    - Requires access to Google's Maven repository (dl.google.com)
 
 3. **Updated Repositories**
@@ -72,8 +73,8 @@ Updated in `app/build.gradle`:
    - Android SDK Build-Tools 36.0.0 or higher - ✅ Already installed (36.0.0 and 36.1.0 available)
 
 3. **Java**: 
-   - JDK 11 or higher required for Gradle 7.6
-   - JDK 17 recommended for best compatibility
+   - JDK 17 or higher required for Gradle 8.7 and AGP 8.5.2
+   - JDK 21 recommended for best compatibility
 
 ### Building the App
 
