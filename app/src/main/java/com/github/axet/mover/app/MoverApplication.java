@@ -1,7 +1,7 @@
 package com.github.axet.mover.app;
 
 import android.content.Context;
-import android.support.v7.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 import com.github.axet.androidlibrary.app.MainApplication;
 import com.github.axet.androidlibrary.app.NotificationManagerCompat;
