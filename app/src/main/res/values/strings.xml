@@ -13,6 +13,7 @@
     <string name="delete_folder">Delete folder</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="are_you_sure">Are you sure?</string>
     <string name="not_syncing">Not Synching!\nPlease select \'Storage Path\' with \'Browse\' button\nAnd click \'Enable Sync\' checkbox</string>
     <string name="not_selected">(not selected)</string>
     <string name="enable">Enable Sync</string>

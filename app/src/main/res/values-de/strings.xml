@@ -11,6 +11,7 @@
     <string name="delete_folder">Ordner löschen</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="are_you_sure">Sind Sie sicher?</string>
     <string name="not_syncing">Momentan wird nichts überwacht!\nBitte den \'Speicherpfad\' via \'auswählen\' angeben\nund \'Überwachung aktiv\' anhaken.</string>
     <string name="not_selected">(nicht ausgewählt)</string>
     <string name="enable">Überwachung aktiv</string>

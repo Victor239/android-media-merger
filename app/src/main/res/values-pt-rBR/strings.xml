@@ -13,6 +13,7 @@
     <string name="delete_folder">Excluir a pasta</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
+    <string name="are_you_sure">Tem certeza?</string>
     <string name="not_syncing">Sincronização não está ativada!\nEscolha uma \'Localização\' via o botão de \'Procurar\' abaixo\nE selecione \'Ativar Sinc.\' no menu</string>
     <string name="not_selected">(não selecionado)</string>
     <string name="enable">Ativar Sinc.</string>

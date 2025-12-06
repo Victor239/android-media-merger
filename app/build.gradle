@@ -1,23 +1,26 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 36
+    buildToolsVersion '36.0.0'
+    namespace 'com.github.axet.mover'
 
     defaultConfig {
         applicationId "com.github.axet.mover"
-        minSdkVersion 9
-        targetSdkVersion 30
+        minSdkVersion 21
+        targetSdkVersion 36
         versionCode   130
         versionName   "1.2.117"
     }
 
     signingConfigs {
         release {
-            storeFile file(project.findProperty('RELEASE_STORE_FILE') ?: 'none')
-            storePassword project.findProperty('RELEASE_STORE_PASSWORD')
-            keyAlias project.findProperty('RELEASE_KEY_ALIAS')
-            keyPassword project.findProperty('RELEASE_KEY_PASSWORD')
+            if (project.hasProperty('RELEASE_STORE_FILE')) {
+                storeFile file(project.property('RELEASE_STORE_FILE'))
+                storePassword project.property('RELEASE_STORE_PASSWORD')
+                keyAlias project.property('RELEASE_KEY_ALIAS')
+                keyPassword project.property('RELEASE_KEY_PASSWORD')
+            }
         }
     }
 
@@ -26,18 +29,25 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if (project.hasProperty('RELEASE_STORE_FILE')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
+    
     applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFileName = org.apache.commons.io.FilenameUtils.getExtension(android.defaultConfig.applicationId) + "-" + android.defaultConfig.versionName + "-" + variant.buildType.name + ".apk"
+        variant.outputs.all { output ->
+            def appName = variant.applicationId.contains('.') ? variant.applicationId.tokenize('.').last() : variant.applicationId
+            outputFileName = "${appName}-${variant.versionName}-${variant.buildType.name}.apk"
         }
     }
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.12'
-    implementation 'com.github.axet:android-library:1.37.1' // implementation project(':android-library')
-    implementation 'com.android.support:design:25.3.1'
+    testImplementation 'junit:junit:4.13.2'
+    implementation 'com.github.axet:android-library:1.37.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    
+    // JSR-305 annotations for null-safety (compile-time only, used by dependencies)
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
