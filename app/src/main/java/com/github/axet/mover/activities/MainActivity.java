@@ -323,8 +323,8 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     }
                 }
                 if (allGranted) {
-                    // After normal permissions are granted, request MANAGE_EXTERNAL_STORAGE
-                    requestManageExternalStorage();
+                    // Permissions granted, check MANAGE_EXTERNAL_STORAGE but don't auto-request
+                    checkManageExternalStorage();
                 } else {
                     Toast.makeText(this, 
                         "Some permissions were denied. App may not function properly.", 
@@ -424,9 +424,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        // Request runtime permissions for Android 13+
-        requestRuntimePermissions();
-
         if (OptimizationPreferenceCompat.needKillWarning(this, MoverApplication.PREFERENCE_NEXT))
             OptimizationPreferenceCompat.buildKilledWarning(new ContextThemeWrapper(this, getAppTheme()), true, MoverApplication.PREFERENCE_OPTIMIZATION, MoverService.class).show();
         else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT))
@@ -434,6 +431,9 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         if (Storage.permitted(this, MoverService.PERMISSIONS))
             MoverService.update(this);
+            
+        // Request runtime permissions for Android 13+ after UI is initialized
+        requestRuntimePermissions();
     }
 
     private void requestRuntimePermissions() {
@@ -464,6 +464,18 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                 ActivityCompat.requestPermissions(this, 
                     permissionsToRequest.toArray(new String[0]), 
                     REQUEST_PERMISSIONS);
+            } else {
+                // Permissions already granted, check MANAGE_EXTERNAL_STORAGE
+                checkManageExternalStorage();
+            }
+        }
+    }
+
+    private void checkManageExternalStorage() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 11+
+            if (!Environment.isExternalStorageManager()) {
+                // Don't automatically request - let user trigger it when needed
+                // The app will prompt when user tries to enable the service
             }
         }
     }
