@@ -170,6 +170,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         finish();
         MainActivity.startActivity(this);
     }
