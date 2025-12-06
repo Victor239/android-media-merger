@@ -33,7 +33,7 @@ android {
     
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            def appName = variant.applicationId.tokenize('.').last()
+            def appName = variant.applicationId.contains('.') ? variant.applicationId.tokenize('.').last() : variant.applicationId
             outputFileName = "${appName}-${variant.versionName}-${variant.buildType.name}.apk"
         }
     }

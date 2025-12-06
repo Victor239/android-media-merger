@@ -73,8 +73,8 @@ Updated in `app/build.gradle`:
    - Android SDK Build-Tools 36.0.0 or higher - ✅ Already installed (36.0.0 and 36.1.0 available)
 
 3. **Java**: 
-   - JDK 17 or higher required for Gradle 8.7 and AGP 8.5.2
-   - JDK 21 recommended for best compatibility
+   - JDK 11 minimum required for Gradle 8.7 and AGP 8.5.2
+   - JDK 17 or higher recommended for best compatibility and performance
 
 ### Building the App
 
