@@ -33,7 +33,8 @@ android {
     
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = org.apache.commons.io.FilenameUtils.getExtension(variant.applicationId) + "-" + variant.versionName + "-" + variant.buildType.name + ".apk"
+            def appName = variant.applicationId.tokenize('.').last()
+            outputFileName = "${appName}-${variant.versionName}-${variant.buildType.name}.apk"
         }
     }
 }
