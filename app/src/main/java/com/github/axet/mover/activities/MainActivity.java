@@ -1,6 +1,5 @@
 package com.github.axet.mover.activities;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -8,13 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,10 +20,6 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
@@ -56,8 +48,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     public static final int RESULT_SET_FOLDER = 2;
     public static final int RESULT_STORAGE = 3;
     public static final int RESULT_ENABLE = 4;
-    public static final int REQUEST_PERMISSIONS = 100;
-    public static final int REQUEST_MANAGE_STORAGE = 101;
 
     ListView list;
     FoldersAdapter adapter;
@@ -314,23 +304,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case REQUEST_PERMISSIONS:
-                boolean allGranted = true;
-                for (int result : grantResults) {
-                    if (result != PackageManager.PERMISSION_GRANTED) {
-                        allGranted = false;
-                        break;
-                    }
-                }
-                if (allGranted) {
-                    // Permissions granted, check MANAGE_EXTERNAL_STORAGE but don't auto-request
-                    checkManageExternalStorage();
-                } else {
-                    Toast.makeText(this, 
-                        "Some permissions were denied. App may not function properly.", 
-                        Toast.LENGTH_LONG).show();
-                }
-                break;
             case RESULT_ADD_FOLDER:
             case RESULT_SET_FOLDER:
             case RESULT_STORAGE:
@@ -431,71 +404,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
 
         if (Storage.permitted(this, MoverService.PERMISSIONS))
             MoverService.update(this);
-            
-        // Request runtime permissions for Android 13+ after UI is initialized
-        requestRuntimePermissions();
-    }
-
-    private void requestRuntimePermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
-            java.util.ArrayList<String> permissionsToRequest = new java.util.ArrayList<>();
-
-            // Check POST_NOTIFICATIONS permission
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
-                    != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS);
-            }
-
-            // Check READ_MEDIA permissions for Android 13+
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) 
-                    != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_IMAGES);
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) 
-                    != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_VIDEO);
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) 
-                    != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_AUDIO);
-            }
-
-            if (!permissionsToRequest.isEmpty()) {
-                ActivityCompat.requestPermissions(this, 
-                    permissionsToRequest.toArray(new String[0]), 
-                    REQUEST_PERMISSIONS);
-            } else {
-                // Permissions already granted, check MANAGE_EXTERNAL_STORAGE
-                checkManageExternalStorage();
-            }
-        }
-    }
-
-    private void checkManageExternalStorage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 11+
-            if (!Environment.isExternalStorageManager()) {
-                // Don't automatically request - let user trigger it when needed
-                // The app will prompt when user tries to enable the service
-            }
-        }
-    }
-
-    private void requestManageExternalStorage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 11+
-            if (!Environment.isExternalStorageManager()) {
-                Toast.makeText(this, 
-                    "Please grant 'All files access' permission for full functionality", 
-                    Toast.LENGTH_LONG).show();
-                try {
-                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                    intent.setData(Uri.parse("package:" + getPackageName()));
-                    startActivityForResult(intent, REQUEST_MANAGE_STORAGE);
-                } catch (Exception e) {
-                    Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                    startActivityForResult(intent, REQUEST_MANAGE_STORAGE);
-                }
-            }
-        }
     }
 
     void updateDirs() {
@@ -635,17 +543,6 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_MANAGE_STORAGE:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (Environment.isExternalStorageManager()) {
-                        Toast.makeText(this, "All files access granted", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(this, 
-                            "All files access not granted. Some features may not work.", 
-                            Toast.LENGTH_LONG).show();
-                    }
-                }
-                break;
             case RESULT_SET_FOLDER:
             case RESULT_ADD_FOLDER:
             case RESULT_ENABLE:
