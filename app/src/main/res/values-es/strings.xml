@@ -11,6 +11,7 @@
     <string name="delete_folder">Eliminar carpeta</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
+    <string name="are_you_sure">¿Está seguro?</string>
     <string name="not_syncing">¡No sincronizado!\nPor favor, seleccione la \'Carpeta de destino\' con el botón  \'Explorar\' \nY haga clic en la casilla \'Activar sincronización\'</string>
     <string name="not_selected">(sin seleccionar)</string>
     <string name="enable">Activar sincronización</string>
