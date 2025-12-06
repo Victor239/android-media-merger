@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 36
+    buildToolsVersion '36.0.0'
+    namespace 'com.github.axet.mover'
 
     defaultConfig {
         applicationId "com.github.axet.mover"
-        minSdkVersion 9
-        targetSdkVersion 30
+        minSdkVersion 21
+        targetSdkVersion 36
         versionCode   130
         versionName   "1.2.117"
     }
@@ -37,7 +38,7 @@ android {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.12'
-    implementation 'com.github.axet:android-library:1.37.1' // implementation project(':android-library')
-    implementation 'com.android.support:design:25.3.1'
+    testImplementation 'junit:junit:4.13.2'
+    implementation 'com.github.axet:android-library:1.37.1'
+    implementation 'com.google.android.material:material:1.12.0'
 }
