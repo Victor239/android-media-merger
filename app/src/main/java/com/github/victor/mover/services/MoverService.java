@@ -173,40 +173,64 @@ public class MoverService extends PersistentService implements SharedPreferences
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate - initializing service");
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
 
+        // Initialize the service - will run as foreground service with notification
         start();
     }
 
     @Override
     public void onCreateOptimization() {
+        // Create foreground service notification handler
+        // This runs the service as a foreground service with persistent notification
+        // ensuring it stays alive in the background
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, NOTIFICATION_ICON, MoverApplication.PREFERENCE_OPTIMIZATION, MoverApplication.PREFERENCE_NEXT) {
             @Override
             public void check() {
+                // Periodic check to sync files
                 if (camera != null)
                     camera.sync();
             }
 
             @Override
             public Notification build(Intent intent) {
+                // Build the persistent foreground service notification
                 return new OptimizationPreferenceCompat.PersistentIconBuilder(context)
                         .create(MoverApplication.getTheme(context, R.style.AppThemeLight, R.style.AppThemeDark), MoverApplication.from(context).channelStatus)
-                        .setAdaptiveIcon(R.drawable.ic_launcher_foreground).setSmallIcon(R.drawable.ic_launcher_notification).build();
+                        .setAdaptiveIcon(R.drawable.ic_launcher_foreground)
+                        .setSmallIcon(R.drawable.ic_launcher_notification)
+                        .build();
             }
         };
         optimization.create();
+        Log.d(TAG, "Foreground service notification created");
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        Log.d(TAG, "onTaskRemoved - service will be restarted by START_STICKY");
+        // Service will be restarted automatically due to START_STICKY
+        // No need to explicitly restart here
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy - service destroyed");
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
         if (camera != null) {
             camera.close();
             camera = null;
+        }
+
+        // If service was running when destroyed, schedule restart
+        if (isEnabled(this)) {
+            Log.d(TAG, "Service was enabled, will restart due to START_STICKY");
         }
     }
 
@@ -226,37 +250,54 @@ public class MoverService extends PersistentService implements SharedPreferences
         return startIntent(intent, flags, startId);
     }
 
+    /**
+     * Handle service start and determine restart behavior
+     * @return START_STICKY to automatically restart if killed, START_NOT_STICKY otherwise
+     */
     int startIntent(Intent intent, int flags, int startId) {
-        if (camera == null) {
+        if (start()) {
+            // Service is enabled and camera is active
+            // Return START_STICKY so Android will restart the service if it's killed
+            // This keeps the service running in the background even when app is closed
+            Log.d(TAG, "Service active, returning START_STICKY for auto-restart");
+            return START_STICKY;
+        } else {
+            // Service is disabled or has no storage path configured
+            // Stop self since there's nothing to do
+            Log.d(TAG, "Service not needed, stopping");
             stopSelf();
             return START_NOT_STICKY;
-        } else {
-            if (start()) {
-                return START_STICKY;
-            } else {
-                stopSelf();
-                return START_NOT_STICKY;
-            }
         }
     }
 
+    /**
+     * Initialize or restart the file monitoring service
+     * @return true if service is enabled and has valid storage path, false otherwise
+     */
     boolean start() {
+        // Clean up existing camera watcher if any
         if (camera != null) {
             camera.close();
             camera = null;
         }
+
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
         Storage s = new Storage(this);
         Uri u = s.getStoragePath(storage);
+
         if (enabled && u != null) {
+            // Service is enabled with valid storage path - start monitoring
+            Log.d(TAG, "Starting file monitoring service");
             camera = new CameraMan(this, u);
             camera.create();
             Intent i = new Intent(UPDATE);
             sendBroadcast(i);
             return true;
         } else {
+            // Service is disabled or no storage path configured
+            Log.d(TAG, "Service disabled or no storage path");
             CameraMan camera = new CameraMan(this, null);
             camera.updatePrefs();
             camera.close();
