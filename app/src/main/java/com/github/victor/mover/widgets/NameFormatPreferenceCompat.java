@@ -1,11 +1,11 @@
-package com.github.axet.mover.widgets;
+package com.github.victor.mover.widgets;
 
 import android.content.Context;
 import android.net.Uri;
 import android.util.AttributeSet;
 
-import com.github.axet.mover.app.Camera;
-import com.github.axet.mover.app.Storage;
+import com.github.victor.mover.app.Camera;
+import com.github.victor.mover.app.Storage;
 
 import java.util.Date;
 

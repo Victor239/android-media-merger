@@ -1,4 +1,4 @@
-package com.github.axet.mover.activities;
+package com.github.victor.mover.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -32,10 +32,10 @@ import com.github.axet.androidlibrary.widgets.OpenChoicer;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.OpenStorageChoicer;
 import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
-import com.github.axet.mover.R;
-import com.github.axet.mover.app.MoverApplication;
-import com.github.axet.mover.app.Storage;
-import com.github.axet.mover.services.MoverService;
+import com.github.victor.mover.R;
+import com.github.victor.mover.app.MoverApplication;
+import com.github.victor.mover.app.Storage;
+import com.github.victor.mover.services.MoverService;
 
 import java.io.File;
 import java.util.ArrayList;

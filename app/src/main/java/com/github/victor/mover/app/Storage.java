@@ -1,4 +1,4 @@
-package com.github.axet.mover.app;
+package com.github.victor.mover.app;
 
 import android.annotation.TargetApi;
 import android.content.ContentResolver;

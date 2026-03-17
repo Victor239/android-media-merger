@@ -1,11 +1,11 @@
-package com.github.axet.mover.widgets;
+package com.github.victor.mover.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.net.Uri;
 import android.util.AttributeSet;
 
-import com.github.axet.mover.app.Storage;
+import com.github.victor.mover.app.Storage;
 
 public class StoragePathPreferenceCompat extends com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat {
     public StoragePathPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr) {

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <com.github.axet.mover.widgets.StoragePathPreferenceCompat
+    <com.github.victor.mover.widgets.StoragePathPreferenceCompat
         android:defaultValue="@string/folder_name"
         android:key="storage"
         android:summary="@string/pref_storage_summary"
         android:title="@string/pref_storage_title" />
 
-    <com.github.axet.mover.widgets.NameFormatPreferenceCompat
+    <com.github.victor.mover.widgets.NameFormatPreferenceCompat
         android:defaultValue="%d"
         android:entries="@array/name_text"
         android:entryValues="@array/name_values"
