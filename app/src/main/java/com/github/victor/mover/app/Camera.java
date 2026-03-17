@@ -19,7 +19,7 @@ import android.webkit.MimeTypeMap;
 
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
-import com.github.axet.androidlibrary.widgets.Toast;
+import android.widget.Toast;
 import com.github.victor.mover.R;
 import com.github.victor.mover.services.MoverService;
 
@@ -95,7 +95,8 @@ public class Camera {
                 }
             } catch (Exception e) {
                 Log.d(TAG, "MOVE FAILED", e);
-                Toast.Post(context, context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
+                final String message = context.getString(R.string.move_failed, ErrorDialog.toMessage(e));
+                handler.post(() -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
             }
         }
     };
@@ -363,11 +364,13 @@ public class Camera {
 
                         Uri to = moveFile(context, f, t);
                         Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
-                        Toast.Post(context, context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
+                        final String successMsg = context.getString(R.string.file_moved, Storage.getDisplayName(context, to));
+                        handler.post(() -> Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show());
                     }
                 } catch (FileNotFoundException | RuntimeException e) {
                     Log.d(TAG, "MOVE FAILED", e);
-                    Toast.Post(context, context.getString(R.string.move_failed, ErrorDialog.toMessage(e)));
+                    final String errorMsg = context.getString(R.string.move_failed, ErrorDialog.toMessage(e));
+                    handler.post(() -> Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show());
                 } finally {
                     synchronized (lock) {
                         thread = null;
