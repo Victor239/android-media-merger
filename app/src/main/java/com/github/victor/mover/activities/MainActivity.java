@@ -419,6 +419,13 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         } else {
             MoverService.update(this);
         }
+
+        // Request battery optimization exemption for reliable background sync
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!OptimizationPreferenceCompat.isIgnoringBatteryOptimizations(this)) {
+                OptimizationPreferenceCompat.showOptimization(this);
+            }
+        }
     }
 
     void updateDirs() {
