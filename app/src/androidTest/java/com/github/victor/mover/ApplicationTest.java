@@ -1,4 +1,4 @@
-package com.github.axet.mover;
+package com.github.victor.mover;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

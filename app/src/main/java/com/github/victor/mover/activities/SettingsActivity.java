@@ -1,4 +1,4 @@
-package com.github.axet.mover.activities;
+package com.github.victor.mover.activities;
 
 import android.Manifest;
 import android.content.Context;
@@ -18,9 +18,9 @@ import com.github.axet.androidlibrary.activities.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.app.Storage;
 import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat;
-import com.github.axet.mover.R;
-import com.github.axet.mover.app.MoverApplication;
-import com.github.axet.mover.services.MoverService;
+import com.github.victor.mover.R;
+import com.github.victor.mover.app.MoverApplication;
+import com.github.victor.mover.services.MoverService;
 import com.github.axet.androidlibrary.preferences.LegacyStoragePreferenceCompat;
 
 public class SettingsActivity extends AppCompatSettingsThemeActivity {

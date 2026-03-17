@@ -1,4 +1,4 @@
-package com.github.axet.mover.app;
+package com.github.victor.mover.app;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -20,8 +20,8 @@ import android.webkit.MimeTypeMap;
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.Toast;
-import com.github.axet.mover.R;
-import com.github.axet.mover.services.MoverService;
+import com.github.victor.mover.R;
+import com.github.victor.mover.services.MoverService;
 
 import java.io.File;
 import java.io.FileNotFoundException;

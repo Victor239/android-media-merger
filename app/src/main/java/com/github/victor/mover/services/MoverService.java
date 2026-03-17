@@ -1,4 +1,4 @@
-package com.github.axet.mover.services;
+package com.github.victor.mover.services;
 
 import android.app.Notification;
 import android.content.ContentResolver;
@@ -14,10 +14,10 @@ import android.util.Log;
 import com.github.axet.androidlibrary.services.PersistentService;
 import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.OpenChoicer;
-import com.github.axet.mover.R;
-import com.github.axet.mover.app.Camera;
-import com.github.axet.mover.app.MoverApplication;
-import com.github.axet.mover.app.Storage;
+import com.github.victor.mover.R;
+import com.github.victor.mover.app.Camera;
+import com.github.victor.mover.app.MoverApplication;
+import com.github.victor.mover.app.Storage;
 
 import java.io.File;
 import java.util.ArrayList;

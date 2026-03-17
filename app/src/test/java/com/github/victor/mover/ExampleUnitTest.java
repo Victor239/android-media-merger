@@ -1,4 +1,4 @@
-package com.github.axet.mover;
+package com.github.victor.mover;
 
 import org.junit.Test;
 

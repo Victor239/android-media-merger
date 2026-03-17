@@ -1,20 +1,16 @@
-package com.github.axet.mover.services;
+package com.github.victor.mover.services;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
-import com.github.axet.mover.app.MoverApplication;
+import com.github.victor.mover.app.MoverApplication;
 
-/**
- *
- * http://stackoverflow.com/questions/2133986/how-to-know-my-android-application-has-been-upgraded-in-order-to-reset-an-alarm
- *
- */
-public class OnUpgradeReceiver extends BroadcastReceiver {
+public class OnBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        OptimizationPreferenceCompat.setPrefTime(context, MoverApplication.PREFERENCE_BOOT, System.currentTimeMillis());
         MoverService.startIfEnabled(context);
     }
 }

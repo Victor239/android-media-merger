@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    namespace 'com.github.axet.mover'
+    namespace 'com.github.victor.mover'
     compileSdk 35
     buildToolsVersion '34.0.0'
 
     defaultConfig {
-        applicationId "com.github.axet.mover"
+        applicationId "com.github.victor.mover"
         minSdkVersion 21
         targetSdkVersion 35
         versionCode   131

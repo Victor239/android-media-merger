@@ -1,4 +1,4 @@
-package com.github.axet.mover.app;
+package com.github.victor.mover.app;
 
 import android.content.Context;
 import androidx.preference.PreferenceManager;
@@ -7,8 +7,8 @@ import com.github.axet.androidlibrary.app.MainApplication;
 import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
-import com.github.axet.mover.R;
-import com.github.axet.mover.services.MoverService;
+import com.github.victor.mover.R;
+import com.github.victor.mover.services.MoverService;
 
 public class MoverApplication extends MainApplication {
     public static final String STORAGE = "storage";
