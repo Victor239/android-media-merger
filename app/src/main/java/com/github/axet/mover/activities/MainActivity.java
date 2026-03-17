@@ -11,11 +11,11 @@ import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.PreferenceManager;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     public static final int RESULT_SET_FOLDER = 2;
     public static final int RESULT_STORAGE = 3;
     public static final int RESULT_ENABLE = 4;
+    public static final int RESULT_PERMISSIONS = 5;
 
     ListView list;
     FoldersAdapter adapter;
@@ -303,6 +304,13 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
+            case RESULT_PERMISSIONS:
+                if (Storage.permitted(this, permissions)) {
+                    MoverService.update(this);
+                } else {
+                    SettingsActivity.warninig(this);
+                }
+                break;
             case RESULT_ADD_FOLDER:
             case RESULT_SET_FOLDER:
             case RESULT_STORAGE:
@@ -329,7 +337,11 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         IntentFilter filter = new IntentFilter();
         filter.addAction(MoverService.STOP);
         filter.addAction(MoverService.UPDATE);
-        registerReceiver(receiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(receiver, filter);
+        }
 
         list = (ListView) findViewById(R.id.list);
 
@@ -401,8 +413,12 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
         else if (OptimizationPreferenceCompat.needBootWarning(this, MoverApplication.PREFERENCE_BOOT))
             OptimizationPreferenceCompat.buildBootWarning(this, MoverApplication.PREFERENCE_BOOT).show();
 
-        if (Storage.permitted(this, MoverService.PERMISSIONS))
+        // Request permissions at startup if not granted
+        if (!Storage.permitted(this, MoverService.PERMISSIONS)) {
+            Storage.permitted(this, MoverService.PERMISSIONS, RESULT_PERMISSIONS);
+        } else {
             MoverService.update(this);
+        }
     }
 
     void updateDirs() {
