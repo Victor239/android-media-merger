@@ -1,1 +1,2 @@
 include ':app', ':android-library'
+project(':android-library').projectDir = new File(settingsDir, '../android-library-mm')
