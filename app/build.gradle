@@ -1,15 +1,23 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '28.0.3'
+    namespace 'com.github.axet.mover'
+    compileSdk 35
+    buildToolsVersion '34.0.0'
 
     defaultConfig {
         applicationId "com.github.axet.mover"
-        minSdkVersion 9
-        targetSdkVersion 30
-        versionCode   130
-        versionName   "1.2.117"
+        minSdkVersion 21
+        targetSdkVersion 35
+        versionCode   131
+        versionName   "1.2.118"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     signingConfigs {
@@ -37,7 +45,12 @@ android {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.12'
-    implementation 'com.github.axet:android-library:1.37.1' // implementation project(':android-library')
-    implementation 'com.android.support:design:25.3.1'
+    testImplementation 'junit:junit:4.13.2'
+    implementation project(':android-library')
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation 'commons-io:commons-io:2.11.0'
 }
