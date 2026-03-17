@@ -339,34 +339,28 @@ public class Camera {
             public void run() {
                 try {
                     Collections.sort(mm, new LastModified());
-                    String[] ss = new String[mm.size()];
                     for (int i = 0; i < mm.size(); i++) {
                         Uri f = mm.get(i);
-                        ss[i] = getFormatted(f);
-                    }
-                    Uri[] tt = new Uri[mm.size()];
-                    for (int i = 0; i < mm.size(); i++) {
-                        if (tt[i] == null) {
-                            Uri f = mm.get(i);
-                            String s = ss[i];
-                            int count = 0;
-                            for (int k = i + 1; k < mm.size(); k++) {
-                                String m = ss[k];
-                                if (s.equals(m)) {
-                                    tt[i] = getMoveTo(f, s, 1);
-                                    tt[k] = getMoveTo(f, m, count + 2);
-                                    count++;
-                                }
-                            }
-                        }
-                    }
-                    for (int i = 0; i < mm.size(); i++) {
-                        Uri f = mm.get(i);
-                        Uri t = tt[i];
-                        if (t == null)
-                            t = getMoveTo(f, ss[i], 0);
                         if (!MoverService.isEnabled(context))
                             return;
+
+                        // Use original filename instead of formatted name
+                        String originalName = Storage.getName(context, f);
+                        if (originalName == null)
+                            continue; // unable to get name, skip this file
+
+                        String nameNoExt = Storage.getNameNoExt(originalName);
+                        String ext = Storage.getExt(originalName);
+
+                        // Check if file exists at destination, append timestamp if it does
+                        Uri t = getMoveTo(f, nameNoExt, 0);
+                        if (Storage.exists(context, t)) {
+                            // File exists, append timestamp
+                            String timestamp = ISO8601.format(new Date(Storage.getLastModified(context, f)));
+                            String nameWithTimestamp = nameNoExt + "_" + timestamp;
+                            t = getMoveTo(f, nameWithTimestamp, 0);
+                        }
+
                         Uri to = moveFile(context, f, t);
                         Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
                         Toast.Post(context, context.getString(R.string.file_moved, Storage.getDisplayName(context, to)));
