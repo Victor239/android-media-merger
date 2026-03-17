@@ -14,7 +14,7 @@
         android:padding="5dp"
         android:text="/sdcard/path1" />
 
-    <android.support.v7.widget.SwitchCompat
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/enabled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
