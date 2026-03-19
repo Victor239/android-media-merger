@@ -11,7 +11,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -71,8 +71,8 @@ public class Camera {
 
     ArrayList<Uri> watchingFolders = new ArrayList<>(); // current sync() folders list
 
-    Map<Uri, Stats> old = new HashMap<>(); // previous sync() file list operation (detecting change)
-    ArrayList<Uri> open = new ArrayList<>(); // open files list (by system or user apps)
+    volatile Map<Uri, Stats> old = new java.util.concurrent.ConcurrentHashMap<>(); // previous sync() file list operation (detecting change)
+    List<Uri> open = new java.util.concurrent.CopyOnWriteArrayList<>(); // open files list (by system or user apps)
 
     Storage storage;
 
@@ -308,7 +308,7 @@ public class Camera {
         closeOrganizes();
         watch();
 
-        Map<Uri, Stats> list = list();
+        Map<Uri, Stats> list = new java.util.concurrent.ConcurrentHashMap<>(list());
 
         if (list.isEmpty())
             return true;
@@ -378,6 +378,7 @@ public class Camera {
                 }
             }
         };
+        thread.setDaemon(true); // prevent non-daemon thread from blocking JVM shutdown (ANR)
         thread.start();
 
         return false; // rescan again, moveFile can be slow, more files appear
@@ -431,13 +432,7 @@ public class Camera {
     }
 
     void removeOpen(Uri ff) {
-        for (int i = 0; i < open.size(); i++) {
-            Uri f = open.get(i);
-            if (f.equals(ff)) {
-                open.remove(i);
-                return; // remove one
-            }
-        }
+        open.remove(ff); // removes first occurrence; CopyOnWriteArrayList.remove(Object) is thread-safe
     }
 
     public FileObserver watchFiles(final File path) {

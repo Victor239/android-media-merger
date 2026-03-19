@@ -237,16 +237,8 @@ public class MoverService extends PersistentService implements SharedPreferences
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand " + intent);
-        if (optimization.onStartCommand(intent, flags, startId))
-            return startIntent(intent, flags, startId);
-
-        String a = intent.getAction();
-        if (a == null)
-            return startIntent(intent, flags, startId);
-
-        if (a.equals(UPDATE))
-            return startIntent(intent, flags, startId);
-
+        if (optimization != null)
+            optimization.onStartCommand(intent, flags, startId);
         return startIntent(intent, flags, startId);
     }
 
@@ -282,7 +274,7 @@ public class MoverService extends PersistentService implements SharedPreferences
         }
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, true);
+        boolean enabled = sharedPref.getBoolean(MoverApplication.ENABLED, false);
         String storage = sharedPref.getString(MoverApplication.STORAGE, null);
         Storage s = new Storage(this);
         Uri u = s.getStoragePath(storage);
