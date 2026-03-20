@@ -487,7 +487,7 @@ public class Camera {
             try {
                 for (Storage.Node n : list(f))
                     ff.put(n.uri, new Stats(n));
-            } catch (SecurityException e) {
+            } catch (SecurityException | RuntimeException e) {
                 Log.d(TAG, "unable to scan", e);
             }
         }
