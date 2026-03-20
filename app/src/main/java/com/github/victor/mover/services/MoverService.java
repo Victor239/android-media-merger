@@ -117,7 +117,7 @@ public class MoverService extends PersistentService implements SharedPreferences
                 edit.putString(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_PATH, key);
                 edit.putBoolean(MoverApplication.AUTO_PREFIX + i + MoverApplication.AUTO_ENABLED, map.get(key));
             }
-            edit.commit();
+            edit.apply();
         }
 
         @Override

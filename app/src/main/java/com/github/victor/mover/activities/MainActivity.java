@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
             edit.putInt(MoverApplication.MANUAL_COUNT, manual.size());
             for (int i = 0; i < manual.size(); i++)
                 edit.putString(MoverApplication.MANUAL_PREFIX + i + MoverApplication.MANUAL_PATH, manual.get(i).toString());
-            edit.commit();
+            edit.apply();
         }
     }
 
@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                         SharedPreferences.Editor edit = shared.edit();
                         edit.putString(MoverApplication.STORAGE, uri.toString());
-                        edit.commit();
+                        edit.apply();
                         invalidateOptionsMenu();
                     }
 
@@ -491,7 +491,7 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putBoolean(MoverApplication.ENABLED, b);
-                        editor.commit();
+                        editor.apply();
                         invalidateOptionsMenu();
                         MoverService.update(MainActivity.this);
                     } else {
@@ -506,12 +506,12 @@ public class MainActivity extends AppCompatThemeActivity implements SharedPrefer
                     final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                     SharedPreferences.Editor edit = shared.edit();
                     edit.putString(MoverApplication.STORAGE, uri.toString());
-                    edit.commit();
+                    edit.apply();
                     item.setChecked(b);
                     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putBoolean(MoverApplication.ENABLED, b); // true
-                    editor.commit();
+                    editor.apply();
                     invalidateOptionsMenu();
                     MoverService.startIfEnabled(MainActivity.this);
                     updateDirs();

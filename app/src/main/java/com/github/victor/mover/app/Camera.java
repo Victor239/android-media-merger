@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import android.os.HandlerThread;
+import android.os.Looper;
+
 /**
  * Organize DCIM/Camera && Pictures/Screenshots folders
  */
@@ -66,7 +69,9 @@ public class Camera {
     }
 
     protected Context context;
-    protected Handler handler = new Handler();
+    protected HandlerThread handlerThread;
+    protected Handler handler;
+    protected Handler mainHandler = new Handler(Looper.getMainLooper()); // for UI operations (Toast)
     protected Uri targetDir;  // where to put result files
 
     ArrayList<Uri> watchingFolders = new ArrayList<>(); // current sync() folders list
@@ -96,7 +101,7 @@ public class Camera {
             } catch (Exception e) {
                 Log.d(TAG, "MOVE FAILED", e);
                 final String message = context.getString(R.string.move_failed, ErrorDialog.toMessage(e));
-                handler.post(() -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
+                mainHandler.post(() -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
             }
         }
     };
@@ -238,6 +243,9 @@ public class Camera {
         this.context = context;
         this.targetDir = targetDir;
         this.storage = new Storage(context);
+        handlerThread = new HandlerThread("Camera-sync");
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
     }
 
     public void create() {
@@ -263,6 +271,7 @@ public class Camera {
             context.getContentResolver().unregisterContentObserver(mediaObserver);
         mediaObserver = null;
         handler.removeCallbacks(sync);
+        handlerThread.quitSafely();
     }
 
     // scan DCIM folder for sub folders
@@ -365,12 +374,12 @@ public class Camera {
                         Uri to = moveFile(context, f, t);
                         Log.d(TAG, "MOVE [" + f + " to " + Storage.getDisplayName(context, to) + "]");
                         final String successMsg = context.getString(R.string.file_moved, Storage.getDisplayName(context, to));
-                        handler.post(() -> Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show());
+                        mainHandler.post(() -> Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show());
                     }
                 } catch (FileNotFoundException | RuntimeException e) {
                     Log.d(TAG, "MOVE FAILED", e);
                     final String errorMsg = context.getString(R.string.move_failed, ErrorDialog.toMessage(e));
-                    handler.post(() -> Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show());
+                    mainHandler.post(() -> Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show());
                 } finally {
                     synchronized (lock) {
                         thread = null;
