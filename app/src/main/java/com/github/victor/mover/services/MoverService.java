@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
@@ -33,7 +35,21 @@ public class MoverService extends PersistentService implements SharedPreferences
     public static final String STOP = MoverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = MoverService.class.getCanonicalName() + ".UPDATE";
 
+    // Thread that owns all camera management. Main thread only dispatches to it.
+    HandlerThread serviceThread;
+    Handler serviceHandler;
+
+    // Accessed only from serviceHandler thread.
     CameraMan camera;
+
+    // Debounced restart runnable — posted to serviceHandler on pref changes.
+    final Runnable restartRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!start())
+                stopSelf();
+        }
+    };
 
     public static void start(Context context) {
         start(context, new Intent(context, MoverService.class));
@@ -175,29 +191,38 @@ public class MoverService extends PersistentService implements SharedPreferences
         super.onCreate();
         Log.d(TAG, "onCreate - initializing service");
 
+        serviceThread = new HandlerThread("MoverService-manager");
+        serviceThread.start();
+        serviceHandler = new Handler(serviceThread.getLooper());
+
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
 
-        // Initialize the service - will run as foreground service with notification
-        start();
+        serviceHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                start();
+            }
+        });
     }
 
     @Override
     public void onCreateOptimization() {
-        // Create foreground service notification handler
-        // This runs the service as a foreground service with persistent notification
-        // ensuring it stays alive in the background
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, NOTIFICATION_ICON, MoverApplication.PREFERENCE_OPTIMIZATION, MoverApplication.PREFERENCE_NEXT) {
             @Override
             public void check() {
-                // Periodic check to sync files
-                if (camera != null)
-                    camera.sync();
+                // Periodic check — delegate to serviceHandler so camera access is thread-safe.
+                serviceHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (camera != null)
+                            camera.sync();
+                    }
+                });
             }
 
             @Override
             public Notification build(Intent intent) {
-                // Build the persistent foreground service notification
                 return new OptimizationPreferenceCompat.PersistentIconBuilder(context)
                         .create(MoverApplication.getTheme(context, R.style.AppThemeLight, R.style.AppThemeDark), MoverApplication.from(context).channelStatus)
                         .setAdaptiveIcon(R.drawable.ic_launcher_foreground)
@@ -213,25 +238,27 @@ public class MoverService extends PersistentService implements SharedPreferences
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         Log.d(TAG, "onTaskRemoved - service will be restarted by START_STICKY");
-        // Service will be restarted automatically due to START_STICKY
-        // No need to explicitly restart here
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy - service destroyed");
+
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
-        if (camera != null) {
-            camera.close();
-            camera = null;
-        }
 
-        // If service was running when destroyed, schedule restart
-        if (isEnabled(this)) {
-            Log.d(TAG, "Service was enabled, will restart due to START_STICKY");
-        }
+        serviceHandler.removeCallbacks(restartRunnable);
+        serviceHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (camera != null) {
+                    camera.close();
+                    camera = null;
+                }
+                serviceThread.quitSafely();
+            }
+        });
     }
 
     @Override
@@ -239,35 +266,36 @@ public class MoverService extends PersistentService implements SharedPreferences
         Log.d(TAG, "onStartCommand " + intent);
         if (optimization != null)
             optimization.onStartCommand(intent, flags, startId);
-        return startIntent(intent, flags, startId);
+
+        // Capture startId for use in lambda on serviceHandler thread.
+        final int capturedStartId = startId;
+        final Intent capturedIntent = intent;
+        final int capturedFlags = flags;
+        serviceHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                startIntent(capturedIntent, capturedFlags, capturedStartId);
+            }
+        });
+        return START_STICKY;
     }
 
     /**
-     * Handle service start and determine restart behavior
-     * @return START_STICKY to automatically restart if killed, START_NOT_STICKY otherwise
+     * Runs on serviceHandler thread. Determines whether the service should keep running.
      */
-    int startIntent(Intent intent, int flags, int startId) {
-        if (start()) {
-            // Service is enabled and camera is active
-            // Return START_STICKY so Android will restart the service if it's killed
-            // This keeps the service running in the background even when app is closed
-            Log.d(TAG, "Service active, returning START_STICKY for auto-restart");
-            return START_STICKY;
-        } else {
-            // Service is disabled or has no storage path configured
-            // Stop self since there's nothing to do
+    void startIntent(Intent intent, int flags, int startId) {
+        if (!start()) {
             Log.d(TAG, "Service not needed, stopping");
             stopSelf();
-            return START_NOT_STICKY;
         }
     }
 
     /**
-     * Initialize or restart the file monitoring service
+     * Initialize or restart the file monitoring service.
+     * Must be called only from serviceHandler thread.
      * @return true if service is enabled and has valid storage path, false otherwise
      */
     boolean start() {
-        // Clean up existing camera watcher if any
         if (camera != null) {
             camera.close();
             camera = null;
@@ -280,7 +308,6 @@ public class MoverService extends PersistentService implements SharedPreferences
         Uri u = s.getStoragePath(storage);
 
         if (enabled && u != null) {
-            // Service is enabled with valid storage path - start monitoring
             Log.d(TAG, "Starting file monitoring service");
             camera = new CameraMan(this, u);
             camera.create();
@@ -288,7 +315,6 @@ public class MoverService extends PersistentService implements SharedPreferences
             sendBroadcast(i);
             return true;
         } else {
-            // Service is disabled or no storage path configured
             Log.d(TAG, "Service disabled or no storage path");
             CameraMan camera = new CameraMan(this, null);
             camera.updatePrefs();
@@ -301,7 +327,9 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (!start())
-            stopSelf();
+        // Debounce: cancel any pending restart and schedule a new one after 200ms.
+        // This prevents rapid Camera create/close churn when multiple prefs change at once.
+        serviceHandler.removeCallbacks(restartRunnable);
+        serviceHandler.postDelayed(restartRunnable, 200);
     }
 }
