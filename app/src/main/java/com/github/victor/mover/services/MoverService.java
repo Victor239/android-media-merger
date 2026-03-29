@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 import android.util.Log;
 
@@ -43,11 +44,17 @@ public class MoverService extends PersistentService implements SharedPreferences
     CameraMan camera;
 
     // Debounced restart runnable — posted to serviceHandler on pref changes.
+    // Wrapped in try-catch(Throwable) to prevent serviceHandler thread death on unexpected errors.
     final Runnable restartRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!start())
+            try {
+                if (!start())
+                    stopSelf();
+            } catch (Throwable t) {
+                Log.e(TAG, "restart failed", t);
                 stopSelf();
+            }
         }
     };
 
@@ -188,26 +195,24 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     @Override
     public void onCreate() {
-        super.onCreate();
-        Log.d(TAG, "onCreate - initializing service");
-
+        // Create serviceThread BEFORE super.onCreate() so serviceHandler is available
+        // in onCreateOptimization() (called from super.onCreate()). Previously this was
+        // created after super.onCreate(), leaving serviceHandler null during construction.
         serviceThread = new HandlerThread("MoverService-manager");
+        serviceThread.setDaemon(true); // daemon: don't block JVM shutdown if process is killed
         serviceThread.start();
         serviceHandler = new Handler(serviceThread.getLooper());
 
+        super.onCreate(); // calls onCreateOptimization() → posts create()+start() to serviceHandler
+
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
-
-        serviceHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                start();
-            }
-        });
+        // Note: start() is now posted inside onCreateOptimization(), not here.
     }
 
     @Override
     public void onCreateOptimization() {
+        try {
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, NOTIFICATION_ICON, MoverApplication.PREFERENCE_OPTIMIZATION, MoverApplication.PREFERENCE_NEXT) {
             @Override
             public void check() {
@@ -215,22 +220,58 @@ public class MoverService extends PersistentService implements SharedPreferences
                 serviceHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (camera != null)
-                            camera.sync();
+                        try {
+                            if (camera != null)
+                                camera.sync();
+                        } catch (Throwable t) {
+                            Log.e(TAG, "check failed", t);
+                        }
                     }
                 });
             }
 
             @Override
             public Notification build(Intent intent) {
-                return new OptimizationPreferenceCompat.PersistentIconBuilder(context)
-                        .create(MoverApplication.getTheme(context, R.style.AppThemeLight, R.style.AppThemeDark), MoverApplication.from(context).channelStatus)
-                        .setAdaptiveIcon(R.drawable.ic_launcher_foreground)
+                // Fast path: no PackageManager.getLaunchIntentForPackage() IPC.
+                // The constructor calls this via icon.create() → startForeground(),
+                // satisfying the 5-second FGS deadline without any Binder blocking.
+                return new NotificationCompat.Builder(
+                        MoverService.this,
+                        MoverApplication.from(MoverService.this).channelStatus.channelId)
                         .setSmallIcon(R.drawable.ic_launcher_notification)
+                        .setOngoing(true)
                         .build();
             }
         };
-        optimization.create();
+        // Constructor has already called startForeground() via our fast build() above.
+        // Defer all blocking init to serviceHandler:
+        //   optimization.create() — PackageManager.setComponentEnabledSetting(),
+        //                           PowerManager.isIgnoringBatteryOptimizations(),
+        //                           AlarmManager.set(), registerReceiver()
+        // FIFO ordering guarantees create() completes before any onStartCommand() work.
+        serviceHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    optimization.create();
+                } catch (Throwable t) {
+                    Log.e(TAG, "optimization.create() failed", t);
+                }
+                try {
+                    start();
+                } catch (Throwable t) {
+                    Log.e(TAG, "initial start() failed", t);
+                    stopSelf();
+                }
+            }
+        });
+        } catch (Throwable t) {
+            // ForegroundServiceStartNotAllowedException or any other creation failure.
+            // Stop cleanly — no crash, no zombie process, no ANR.
+            Log.e(TAG, "Service creation failed, stopping: " + t);
+            stopSelf();
+            return;
+        }
         Log.d(TAG, "Foreground service notification created");
     }
 
@@ -242,39 +283,62 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.d(TAG, "onDestroy - service destroyed");
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
 
         serviceHandler.removeCallbacks(restartRunnable);
+
+        // Null optimization BEFORE super.onDestroy() so PersistentService.onDestroy() skips it.
+        // Close it here on the main thread — fast: unregisterReceiver + stopForeground + am.cancel.
+        OptimizationPreferenceCompat.ServiceReceiver capturedOpt = optimization;
+        optimization = null;
+        if (capturedOpt != null) {
+            try {
+                capturedOpt.close(); // may throw IllegalArgumentException if create() not yet run
+            } catch (Throwable t) {
+                Log.e(TAG, "optimization.close() failed", t);
+            }
+        }
+
         serviceHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (camera != null) {
-                    camera.close();
-                    camera = null;
+                try {
+                    if (camera != null) {
+                        camera.close();
+                        camera = null;
+                    }
+                } catch (Throwable t) {
+                    Log.e(TAG, "camera close failed", t);
                 }
                 serviceThread.quitSafely();
             }
         });
+
+        super.onDestroy(); // optimization == null here — PersistentService safely skips close
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand " + intent);
-        if (optimization != null)
-            optimization.onStartCommand(intent, flags, startId);
-
-        // Capture startId for use in lambda on serviceHandler thread.
-        final int capturedStartId = startId;
+        // Post ALL work to serviceHandler — return START_STICKY with zero main-thread blocking.
+        // optimization.onStartCommand() → PowerManager + AlarmManager IPC now runs off main thread.
+        // FIFO ordering guarantees optimization.create() has run before this executes.
         final Intent capturedIntent = intent;
         final int capturedFlags = flags;
+        final int capturedStartId = startId;
         serviceHandler.post(new Runnable() {
             @Override
             public void run() {
-                startIntent(capturedIntent, capturedFlags, capturedStartId);
+                try {
+                    if (optimization != null)
+                        optimization.onStartCommand(capturedIntent, capturedFlags, capturedStartId);
+                    startIntent(capturedIntent, capturedFlags, capturedStartId);
+                } catch (Throwable t) {
+                    Log.e(TAG, "onStartCommand handler failed", t);
+                }
             }
         });
         return START_STICKY;
@@ -282,10 +346,16 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     /**
      * Runs on serviceHandler thread. Determines whether the service should keep running.
+     * Wrapped in try-catch at call sites to prevent serviceHandler thread death.
      */
     void startIntent(Intent intent, int flags, int startId) {
-        if (!start()) {
-            Log.d(TAG, "Service not needed, stopping");
+        try {
+            if (!start()) {
+                Log.d(TAG, "Service not needed, stopping");
+                stopSelf();
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "startIntent failed", t);
             stopSelf();
         }
     }

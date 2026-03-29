@@ -244,6 +244,7 @@ public class Camera {
         this.targetDir = targetDir;
         this.storage = new Storage(context);
         handlerThread = new HandlerThread("Camera-sync");
+        handlerThread.setDaemon(true); // daemon: don't block JVM shutdown if process is killed
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
     }
