@@ -1,0 +1,85 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Renombrar</string>
+    <string name="filedialog_delete">Eliminar</string>
+    <string name="filedialog_newfolder">Nueva carpeta</string>
+    <string name="filedialog_foldername">Nombre de la carpeta</string>
+    <string name="filedialog_unablecreatefolder">No es posible crear carpeta: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Se creó la carpeta \'%1$s\'</string>
+    <string name="filedialog_folderdeleted">Carpeta \'%1$s\' eliminada</string>
+    <string name="filedialog_renameto">Renombrado a: \'%1$s\'</string>
+    <string name="filedialog_empty">Lista vacía</string>
+    <string name="filedialog_readonly">El directorio es de sólo lectura (read-only)</string>
+    <string name="filedialog_selectfolder">Por favor, selecione una carpeta</string>
+
+    <string name="ShareAction">Compartir</string>
+    <string name="shared_via">"Compartir vía %1$s"</string>
+
+    <plurals name="days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+
+    <string name="days_symbol">"d"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f KB</string>
+
+    <string name="optimization_dialog">Ajustes de optimización</string>
+    <string name="optimization_message">Por favor, considera añadir esta aplicación a la lista de excepciones para evitar que el optimizador de batería (o energía) la remueva de la memoria RAM.</string>
+    <string name="optimization_killed">La aplicación fue detenida por el sistema. Considera añadir la aplicación a la lista de excepciones.</string>
+
+    <string name="menu_settings">Configuración</string>
+    <string name="menu_about">Acerca de</string>
+    <string name="open_browser">Abrir Navegador</string>
+    <string name="are_you_sure">¿Estás seguro?</string>
+    <string name="default_button">Predeterminado</string>
+    <string name="not_permitted">No permitido</string>
+    <string name="close">Cerrar</string>
+
+    <string name="system_default">Por defecto del sistema Default</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Mantener encendida On</item>
+        <item>Apagar en los 30 seg</item>
+        <item>Apagar en 1 min</item>
+        <item>Apagar en 5 min</item>
+        <item>Apagar en 30 min</item>
+    </string-array>
+    <string name="pref_screenlock_title">Mantener pantalla encendida</string>
+    <string name="optimization_alive">Mantener servicio activo</string>
+    <string name="optimization_alive_summary">El servicio en segundo plano mantendrá la aplicación funcionando</string>
+    <string name="optimization_icon">Ícono Persistente</string>
+    <string name="optimization_icon_summary">Requerido en algunos dispositivos cuando la aplicación es cerrada constantemente</string>
+    <string name="optimization_system">Optimización de Batería</string>
+    <string name="optimization_system_summary">Abre el diálogo para la optimización del sistema de la batería</string>
+
+    <string name="migrating_data">Migrando datos</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Tema claro</item>
+        <item>Tema oscuro</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

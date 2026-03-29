@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Renommer</string>
+    <string name="filedialog_delete">Supprimer</string>
+    <string name="filedialog_newfolder">Nouveau dossier</string>
+    <string name="filedialog_foldername">Nom du dossier</string>
+    <string name="filedialog_unablecreatefolder">Impossible de créer le dossier : \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Dossier \'%1$s\' créé</string>
+    <string name="filedialog_folderdeleted">\'%1$s\' supprimé</string>
+    <string name="filedialog_renameto">Renommé : \'%1$s\'</string>
+    <string name="filedialog_empty">Liste vide</string>
+    <string name="filedialog_readonly">Dossier en lecture seule</string>
+    <string name="filedialog_selectfolder">Sélectionnez un dossier</string>
+
+    <string name="ShareAction">Partager</string>
+    <string name="shared_via">Partager via %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d jour</item>
+        <item quantity="other">%d jours</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d heure</item>
+        <item quantity="other">%d heures</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="other">%d secondes</item>
+    </plurals>
+
+    <string name="days_symbol">"j"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kB</string>
+
+    <string name="optimization_dialog">Optimisation</string>
+    <string name="optimization_message">Envisagez de modifier les paramètres d\'optimisation de la batterie afin d\'empêcher que la mémoire physique utilisée par l\'application soit libérée.</string>
+    <string name="optimization_killed">L\'execution de l\'application en tâche de fond a été interrompue par le système d\'exploitation. Envisagez de modifier les paramètres d\'optimisation de la batterie.</string>
+
+    <string name="menu_settings">Paramètres</string>
+    <string name="menu_about">À propos</string>
+
+    <string name="open_browser">Ouvrir le navigateur</string>
+    <string name="are_you_sure">Êtes-vous sûr(e) ?</string>
+    <string name="default_button">Défault</string>
+
+    <string name="not_permitted">Action non autorisée</string>
+    <string name="close">Fermer</string>
+
+    <string name="system_default">Valeur par défault du système</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Maintenir allumé</item>
+        <item>Éteindre après 30 sec</item>
+        <item>Éteindre après 1 min</item>
+        <item>Éteindre après 5 min</item>
+        <item>Éteindre après 30 min</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Maintenir l\'écran allumé</string>
+    <string name="optimization_alive">Keep Alive Service</string>
+    <string name="optimization_alive_summary">Background service keep application running</string>
+    <string name="optimization_icon">Persistent Icon</string>
+    <string name="optimization_icon_summary">Requires on some devices when application constantly get removed</string>
+    <string name="optimization_system">Battery Optimization</string>
+    <string name="optimization_system_summary">Open system battery optimization dialog</string>
+
+    <string name="migrating_data">Migrating data</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Thème clair</item>
+        <item>Thème sombre</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

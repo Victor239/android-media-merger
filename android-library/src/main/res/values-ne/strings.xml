@@ -1,0 +1,87 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">पुन: नामाकरण गर्नुहोस्</string>
+    <string name="filedialog_delete">हटाउनुहोस्</string>
+    <string name="filedialog_newfolder">नयाँ फोल्डर</string>
+    <string name="filedialog_foldername">फोल्डरको नाम</string>
+    <string name="filedialog_unablecreatefolder">फोल्डर \'%1$s\' बनाउन सकिएन:  </string>
+    <string name="filedialog_foldercreated">फोल्डर \'%1$s\' सृजना भयो</string>
+    <string name="filedialog_folderdeleted">हटाइयो: \'%1$s\'</string>
+    <string name="filedialog_renameto">यस नाममा पुनः नामाकरण गरियो: \'%1$s\'</string>
+    <string name="filedialog_empty">खाली सूची</string>
+    <string name="filedialog_readonly">पढ्न मात्र मिल्ने निर्देशिका</string>
+    <string name="filedialog_selectfolder">कृपया फोल्डर छान्नुहोस् ।</string>
+
+    <string name="ShareAction">बाँड्नुहोस</string>
+    <string name="shared_via">%1$s मार्फत बाँडियो</string>
+
+    <plurals name="days">
+        <item quantity="one">%d दिन</item>
+        <item quantity="other">%d दिन</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d घण्टा</item>
+        <item quantity="other">%d घण्टा</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d मिनेट</item>
+        <item quantity="other">%d मिनेट</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d सेकन्ड</item>
+        <item quantity="other">%d सेकन्ड</item>
+    </plurals>
+
+    <string name="days_symbol">"d"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">अनुकुल सेटिङ्ग</string>
+    <string name="optimization_message">यस एपलाई फोन मेमोरीबाट हट्न नदिन कृपया बेटरी म्यानेजरको whitelistमा राख्नुहोस् ।</string>
+    <string name="optimization_killed">Application were killed by OS. Consider adding application to whitelist.</string>
+
+    <string name="menu_settings">सेटिङ्ग</string>
+    <string name="menu_about">यस एपको बारेमा</string>
+
+    <string name="open_browser">ब्राउजर खोल्नुहोस</string>
+    <string name="are_you_sure">के तपाईँ निश्चित हुनुहुन्छ?</string>
+    <string name="default_button">पूर्वनिर्धारित</string>
+
+    <string name="not_permitted">अनुमति छैन</string>
+    <string name="close">बन्द गर्नुहोस्</string>
+
+    <string name="system_default">System Default</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Keep On</item>
+        <item>Off after 30 sec</item>
+        <item>Off after 1 min</item>
+        <item>Off after 5 min</item>
+        <item>Off after 30 min</item>
+    </string-array>
+    <string name="pref_screenlock_title">Keep Screen On</string>
+    <string name="optimization_alive">Keep Alive Service</string>
+    <string name="optimization_alive_summary">Background service keep application running</string>
+    <string name="optimization_icon">Persistent Icon</string>
+    <string name="optimization_icon_summary">Requires on some devices when application constantly get removed</string>
+    <string name="optimization_system">Battery Optimization</string>
+    <string name="optimization_system_summary">Open system battery optimization dialog</string>
+
+    <string name="migrating_data">Migrating data</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>उज्यालो थिम</item>
+        <item>अँघ्यारो थिम</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

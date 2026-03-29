@@ -1,0 +1,91 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Premenovať</string>
+    <string name="filedialog_delete">Vymazať</string>
+    <string name="filedialog_newfolder">Nový priečinok</string>
+    <string name="filedialog_foldername">Názov priečinka</string>
+    <string name="filedialog_unablecreatefolder">Nie je možné vytvoriť priečinok: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Vytvorený priečinok \'%1$s\'</string>
+    <string name="filedialog_folderdeleted">Odstránené: \'%1$s\'</string>
+    <string name="filedialog_renameto">Nový názov: \'%1$s\'</string>
+    <string name="filedialog_empty">Prázdny zoznam</string>
+    <string name="filedialog_readonly">Priečinok len na čítanie</string>
+    <string name="filedialog_selectfolder">Prosím, vyberte priečinok</string>
+
+    <string name="ShareAction">Zdieľať</string>
+    <string name="shared_via">"Zdieľané cez %1$s"</string>
+
+    <plurals name="days">
+        <item quantity="one">%d deň</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="other">%d dní</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d hodina</item>
+        <item quantity="few">%d hodiny</item>
+        <item quantity="other">%d hodín</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minúta</item>
+        <item quantity="few">%d minúty</item>
+        <item quantity="other">%d minút</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d sekunda</item>
+        <item quantity="few">%d sekundy</item>
+        <item quantity="other">%d sekúnd</item>
+    </plurals>
+
+    <string name="days_symbol">"d"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Nastavenia optimalizácie</string>
+    <string name="optimization_message">Pridajte aplikáciu v nastavení šetrenia batérie, čím určíte že spotreba tejto aplikácie sa nebude optimalizovať a aplikácia môže bežať bez prerušenia.</string>
+    <string name="optimization_killed">Spustenie tejto aplikácii na pozadí bolo zakázané operačným  systémom. Mali by ste ju pridať do zoznamu výnimiek.</string>
+
+    <string name="menu_settings">Nastavenia</string>
+    <string name="menu_about">O programe</string>
+
+    <string name="open_browser">Otvoriť prehliadač</string>
+    <string name="are_you_sure">Ste si istí?</string>
+    <string name="default_button">Predvolené</string>
+
+    <string name="not_permitted">Nepovolené</string>
+    <string name="close">Zatvoriť</string>
+
+    <string name="system_default">Predvolené nastavenie systému</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Ponechať zapnutú</item>
+        <item>Vypnúť po 30 sek</item>
+        <item>Vypnúť po 1 min</item>
+        <item>Vypnúť po 5 min</item>
+        <item>Vypnúť po 30 min</item>
+    </string-array>
+    <string name="pref_screenlock_title">Časový limit vypnutia obrazovky</string>
+    <string name="optimization_alive">Udržať službu aktívnu</string>
+    <string name="optimization_alive_summary">Umožní aplikácii bežať na pozadí</string>
+    <string name="optimization_icon">Trvalá ikona</string>
+    <string name="optimization_icon_summary">Potrebné na niektorých zariadeniach, kde systém agresívne ukončuje aplikácie spustené na pozadí</string>
+    <string name="optimization_system">Optimalizácia batérie</string>
+    <string name="optimization_system_summary">Otvorí systémové nastavenia optimalizácie batérie</string>
+
+    <string name="migrating_data">Migrácia údajov</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Svetlý vzhľad</item>
+        <item>Tmavý vzhľad</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

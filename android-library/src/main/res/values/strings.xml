@@ -1,0 +1,99 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Rename</string>
+    <string name="filedialog_delete">Delete</string>
+    <string name="filedialog_newfolder">New Folder</string>
+    <string name="filedialog_foldername">Folder Name</string>
+    <string name="filedialog_unablecreatefolder">Unable create folder: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Folder \'%1$s\' created</string>
+    <string name="filedialog_folderdeleted">Deleted: \'%1$s\'</string>
+    <string name="filedialog_renameto">Renamed to: \'%1$s\'</string>
+    <string name="filedialog_empty">Empty List</string>
+    <string name="filedialog_readonly">Read only directory</string>
+    <string name="filedialog_selectfolder">Please select a folder</string>
+
+    <string name="ShareAction">Share</string>
+    <string name="shared_via">Shared via %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+
+    <string name="days_symbol">d</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Optimization Settings</string>
+    <string name="optimization_message">Consider adding application to phone battery manager whitelist to prevent application to be removed from memory.</string>
+    <string name="optimization_killed">Application got killed by OS. Consider adding application to whitelist.</string>
+    <string name="optimization_alive">Keep Alive Service</string>
+    <string name="optimization_alive_summary">Background service keep application running</string>
+    <string name="optimization_icon">Persistent Icon</string>
+    <string name="optimization_icon_summary">Requires on some devices when application constantly get removed</string>
+    <string name="optimization_system">Battery Optimization</string>
+    <string name="optimization_system_summary">Open system battery optimization dialog</string>
+
+    <string name="menu_settings">Settings</string>
+    <string name="menu_about">About</string>
+
+    <string name="open_browser">Open Browser</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="default_button">Default</string>
+
+    <string name="not_permitted">Not permitted</string>
+    <string name="close">Close</string>
+
+    <string name="system_default">System Default</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Keep On</item>
+        <item>Off after 30 sec</item>
+        <item>Off after 1 min</item>
+        <item>Off after 5 min</item>
+        <item>Off after 30 min</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Keep Screen On</string>
+
+    <string name="migrating_data">Migrating data</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Theme White</item>
+        <item>Theme Dark</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+    <string name="repeat_delete">Delete after Send</string>
+    <string name="repeat_once">Once</string>
+    <string name="repeat_6hours">Every 6 Hours</string>
+    <string name="repeat_day">Every Day</string>
+    <string name="repeat_week">Every Week</string>
+    <string name="repeat_month_1">Every Month</string>
+    <string name="repeat_month_2">Every 2 Month</string>
+    <string name="repeat_month_3">Every 3 Month</string>
+    <string name="repeat_month_4">Every 4 Month</string>
+    <string name="repeat_month_6">Every 6 Month</string>
+    <string name="repeat_month_12">Every 12 Month</string>
+</resources>

@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Nimeä uudelleen</string>
+    <string name="filedialog_delete">Poista</string>
+    <string name="filedialog_newfolder">Uusi hakemisto</string>
+    <string name="filedialog_foldername">Hakemiston nimi</string>
+    <string name="filedialog_unablecreatefolder">Hakemiston luonti epäonnistui: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Hakemisto \'%1$s\' luotu</string>
+    <string name="filedialog_folderdeleted">Hakemisto \'%1$s\' poistettu</string>
+    <string name="filedialog_renameto">Nimetty uudelleen, uusi nimi: \'%1$s\'</string>
+    <string name="filedialog_empty">Tyhjä lista</string>
+    <string name="filedialog_readonly">Vain luku-hakemisto</string>
+    <string name="filedialog_selectfolder">Valitse hakemisto</string>
+
+    <string name="ShareAction">Jaa</string>
+    <string name="shared_via">Jaa kohteen %1$s kautta</string>
+
+    <plurals name="days">
+        <item quantity="one">%d päivä</item>
+        <item quantity="other">%d päivää</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d tunti</item>
+        <item quantity="other">%d tuntia</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minuutti</item>
+        <item quantity="other">%d minuuttia</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d sekunti</item>
+        <item quantity="other">%d sekuntia</item>
+    </plurals>
+
+    <string name="days_symbol">pv</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Optimointiasetukset</string>
+    <string name="optimization_message">Harkitse sovelluksen lisäämistä akun käytön valkolistaan, jotta sovellusta ei suljeta taustalla.</string>
+    <string name="optimization_killed">Järjestelmä sulki sovelluksen. Harkitse sovelluksen lisäämistä valkolistalle.</string>
+    <string name="optimization_alive">Keep Alive-palvelu</string>
+    <string name="optimization_alive_summary">Taustapalvelu pitää sovelluksen käynnissä</string>
+    <string name="optimization_icon">Pysyvä kuvake</string>
+    <string name="optimization_icon_summary">Vaaditaan joillain laitteilla, jotta sovellus pysyy käynnissä</string>
+    <string name="optimization_system">Akun optimointi</string>
+    <string name="optimization_system_summary">Avaa järjestelmän akun optimointiasetukset</string>
+
+    <string name="menu_settings">Asetukset</string>
+    <string name="menu_about">Tietoa</string>
+
+    <string name="open_browser">Avaa selain</string>
+    <string name="are_you_sure">Oletko varma?</string>
+    <string name="default_button">Oletus</string>
+
+    <string name="not_permitted">Ei sallittu</string>
+    <string name="close">Sulje</string>
+
+    <string name="system_default">Järjestelmän oletus</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Pidä päällä</item>
+        <item>Sammuta 30 sekunnin kuluttua</item>
+        <item>Sammuta minuutin kuluttua</item>
+        <item>Sammuta 5 minuutin kuluttua</item>
+        <item>Sammuta 30 minuutin kuluttua</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Pidä näyttö päällä</string>
+
+    <string name="migrating_data">Yhdistetään tietoja</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Vaalea</item>
+        <item>Tumma</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

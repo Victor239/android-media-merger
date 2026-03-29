@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Zmień nazwę</string>
+    <string name="filedialog_delete">Usuń</string>
+    <string name="filedialog_newfolder">Utwórz katalog</string>
+    <string name="filedialog_foldername">Nazwa katalogu</string>
+    <string name="filedialog_unablecreatefolder">Nie można utworzyć katalogu: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Katalog \'%1$s\' utworzony</string>
+    <string name="filedialog_folderdeleted">Usunięto: \'%1$s\'</string>
+    <string name="filedialog_renameto">Zmieniono nazwę: \'%1$s\'</string>
+    <string name="filedialog_empty">Pusta lista</string>
+    <string name="filedialog_readonly">Katalog tylko do oczytu</string>
+    <string name="filedialog_selectfolder">Proszę zaznaczyć katalog</string>
+
+    <string name="ShareAction">Udostępnij</string>
+    <string name="shared_via">Udostępnij przez %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d dzień</item>
+        <item quantity="other">%d dni</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d godzina</item>
+        <item quantity="other">%d godzin</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minuta</item>
+        <item quantity="other">%d minut</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d sekunda</item>
+        <item quantity="other">%d sekund</item>
+    </plurals>
+
+    <string name="days_symbol">d</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Ustawienia optymalizacji</string>
+    <string name="optimization_message">Rozważ dodanie aplikacji do białej listy menedżera baterii telefonu, aby zapobiec usunięciu aplikacji z pamięci.</string>
+    <string name="optimization_killed">Aplikacja została zamknięta przez system operacyjny. Rozważ dodanie aplikacji do białej listy.</string>
+    <string name="optimization_alive">Utrzymaj usługę</string>
+    <string name="optimization_alive_summary">Usługa w tle utrzymuje działanie aplikacji</string>
+    <string name="optimization_icon">Trwała ikona</string>
+    <string name="optimization_icon_summary">Wymagane na niektórych urządzeniach, gdy aplikacja jest stale usuwana</string>
+    <string name="optimization_system">Optymalizacja baterii</string>
+    <string name="optimization_system_summary">Otwórz okno dialogowe optymalizacji baterii </string>
+
+    <string name="menu_settings">Ustawienia</string>
+    <string name="menu_about">O</string>
+
+    <string name="open_browser">Otwórz przeglądarkę</string>
+    <string name="are_you_sure">Na pewno?</string>
+    <string name="default_button">Domyślnie</string>
+
+    <string name="not_permitted">Zabronione</string>
+    <string name="close">Zamknij</string>
+
+    <string name="system_default">Domyślne ustawienie systemowe</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Kontynuuj</item>
+        <item>Wyłącz po 30 sek</item>
+        <item>Wyłącz po 1 min</item>
+        <item>Wyłącz po 5 min</item>
+        <item>Wyłącz po 30 min</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Pozostaw ekran włączony</string>
+
+    <string name="migrating_data">Migracja danych</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Jasny motyw</item>
+        <item>Ciemny motyw</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

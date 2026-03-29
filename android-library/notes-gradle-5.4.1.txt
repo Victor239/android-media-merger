@@ -1,0 +1,3 @@
+Notes about gradle 5.4.1 (gradle wrapper)
+
+This is a minimum gradle version for gradle-plugin 3.5.4

@@ -1,0 +1,87 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Hernoemen</string>
+    <string name="filedialog_delete">Verwijderen</string>
+    <string name="filedialog_newfolder">Nieuwe map</string>
+    <string name="filedialog_foldername">Mapnaam</string>
+    <string name="filedialog_unablecreatefolder">Kan map niet aanmaken: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Map \'%1$s\' aangemaakt</string>
+    <string name="filedialog_folderdeleted">Verwijderd: \'%1$s\'</string>
+    <string name="filedialog_renameto">Hernoemd naar: \'%1$s\'</string>
+    <string name="filedialog_empty">Lege lijst</string>
+    <string name="filedialog_readonly">Map is alleen lezen</string>
+    <string name="filedialog_selectfolder">Kies een map</string>
+
+    <string name="ShareAction">Delen</string>
+    <string name="shared_via">Delen via %1$s</string>
+
+    <plurals name="dagen">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+
+    <plurals name="uren">
+        <item quantity="one">%d uur</item>
+        <item quantity="other">%d uur</item>
+    </plurals>
+
+    <plurals name="minuten">
+        <item quantity="one">%d minuut</item>
+        <item quantity="other">%d minuten</item>
+    </plurals>
+
+    <plurals name="seconden">
+        <item quantity="one">%d seconde</item>
+        <item quantity="other">%d seconden</item>
+    </plurals>
+
+    <string name="days_symbol">d</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Optimimalisatie-instellingen</string>
+    <string name="optimization_message">Overweeg de app bij batterijbesparing toe te voegen aan de negeerlijst om te voorkomen dat deze wordt afgebroken.</string>
+    <string name="optimization_killed">Applicatie is door OS onderbroken. Overweeg om de app toe te voegen aan negeerlijst.</string>
+    <string name="optimization_alive">Actief houden</string>
+    <string name="optimization_alive_summary">Achtergrond-service houdt app actief</string>
+    <string name="optimization_icon">Pictogram behouden</string>
+    <string name="optimization_icon_summary">Op sommige apparaten vereist wanneer de applicatie steeds wordt verwijderd</string>
+    <string name="optimization_system">Batterijbesparing</string>
+    <string name="optimization_system_summary">Systeemvenster Batterijbesparing openen</string>
+
+    <string name="menu_settings">Instellingen</string>
+    <string name="menu_about">Over</string>
+
+    <string name="open_browser">Browser openen</string>
+    <string name="are_you_sure">Weet je het zeker?</string>
+    <string name="default_button">Standaard</string>
+
+    <string name="not_permitted">Niet toegestaan</string>
+    <string name="close">Sluiten</string>
+
+    <string name="system_default">Systeemstandaard</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Aan laten</item>
+        <item>Uit na 30 sec</item>
+        <item>Uit na 1 min</item>
+        <item>Uit na 5 min</item>
+        <item>Uit na 30 min</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Scherm aan laten</string>
+
+    <string name="migrating_data">Gegevens overzetten</string>
+    <string name="legacy_summary">Verouderde toegang tot opslag Aan/Uit</string>
+    <string name="legacy_title">Verouderde opslagtoegang</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Wit thema</item>
+        <item>Donker thema</item>
+        <item>Donker Zwart thema</item>
+    </string-array>
+</resources>

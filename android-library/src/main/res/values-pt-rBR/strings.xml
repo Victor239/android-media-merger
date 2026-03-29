@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Alterar o nome</string>
+    <string name="filedialog_delete">Excluir</string>
+    <string name="filedialog_newfolder">Nova pasta</string>
+    <string name="filedialog_foldername">Nome de pasta</string>
+    <string name="filedialog_unablecreatefolder">Não foi possível criar uma pasta: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Pasta \'%1$s\' criada</string>
+    <string name="filedialog_folderdeleted">Excluída: \'%1$s\'</string>
+    <string name="filedialog_renameto">Nome alterado para: \'%1$s\'</string>
+    <string name="filedialog_empty">Lista vazia</string>
+    <string name="filedialog_readonly">Pasta apenas de leitura</string>
+    <string name="filedialog_selectfolder">Por favor, selecione uma pasta</string>
+
+    <string name="ShareAction">Compartilhar</string>
+    <string name="shared_via">Compartilhar via %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d dia</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+
+    <string name="days_symbol">d</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Configurações da otimização</string>
+    <string name="optimization_message">Considere adicionar o App à lista branca em otimização da bateria para evitar que seja removido da memória.</string>
+    <string name="optimization_killed">O App foi interrompido pelo sistema do Android. Considere adicionar o App à lista branca.</string>
+    <string name="optimization_alive">Serviço de manter ativo</string>
+    <string name="optimization_alive_summary">O serviço mantém o App ativo em segundo plano</string>
+    <string name="optimization_icon">Ícone persistente</string>
+    <string name="optimization_icon_summary">Requirido em alguns dispositivos quando o App é constantemente removido</string>
+    <string name="optimization_system">Optimização da bateria</string>
+    <string name="optimization_system_summary">Abrir o diálogo de otimização da bateria do sistema</string>
+
+    <string name="menu_settings">Configurações</string>
+    <string name="menu_about">Sobre</string>
+
+    <string name="open_browser">Abrir navegador</string>
+    <string name="are_you_sure">Tem certeza?</string>
+    <string name="default_button">Padrão</string>
+
+    <string name="not_permitted">Não permitido</string>
+    <string name="close">Fechar</string>
+
+    <string name="system_default">Padrão do sistema</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Sempre</item>
+        <item>Desligar após 30 seg.</item>
+        <item>Desligar após 1 min.</item>
+        <item>Desligar após 5 min.</item>
+        <item>Desligar após 30 min.</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Mantenha a tela ligada</string>
+
+    <string name="migrating_data">Migração de dados</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Tema claro</item>
+        <item>Tema escuro</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

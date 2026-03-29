@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Átnevez</string>
+    <string name="filedialog_delete">Töröl</string>
+    <string name="filedialog_newfolder">Új mappa</string>
+    <string name="filedialog_foldername">Mappa neve</string>
+    <string name="filedialog_unablecreatefolder">Nem sikerült a mappát létrehozni: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">A(z) \'%1$s\' mappa létrehozva</string>
+    <string name="filedialog_folderdeleted">Törölve: \'%1$s\'</string>
+    <string name="filedialog_renameto">Átnevezve: \'%1$s\'</string>
+    <string name="filedialog_empty">A mappa üres</string>
+    <string name="filedialog_readonly">A mappa csak olvasható</string>
+    <string name="filedialog_selectfolder">Válasszon egy mappát</string>
+
+    <string name="ShareAction">Megoszt</string>
+    <string name="shared_via">Megosztás ezen keresztül: %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d nap</item>
+        <item quantity="other">%d nap</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d óra</item>
+        <item quantity="other">%d óra</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d perc</item>
+        <item quantity="other">%d perc</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d másodperc</item>
+        <item quantity="other">%d másodperc</item>
+    </plurals>
+
+    <string name="days_symbol">n</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Optimalizációs beállítások</string>
+    <string name="optimization_message">Fontolja meg, hogy hozzáadja az alkalmazást az akkumulátor-menedzser által nem figyelt alkalmazások listájához.</string>
+    <string name="optimization_killed">Az alkalmazást az OS leállította. Fontolja meg, hogy hozzáadja az alkalmazást az OS által nem figyelt alkalmazások listájához.</string>
+    <string name="optimization_alive">Keep Alive szolgáltatás</string>
+    <string name="optimization_alive_summary">Háttérben futó alkalmazás, ami segít elkerülni az alkalmazás leállását</string>
+    <string name="optimization_icon">Perzisztens ikon</string>
+    <string name="optimization_icon_summary">Egyes eszközökön szükséges, ha az alkalmazást az OS állandóan eltávolítja a memóriából</string>
+    <string name="optimization_system">Akkumulátor-optimalizáció</string>
+    <string name="optimization_system_summary">Az akkumulátor-optimalizációs beállítások megnyitása</string>
+
+    <string name="menu_settings">Beállítások</string>
+    <string name="menu_about">Névjegy</string>
+
+    <string name="open_browser">Böngésző megnyitása</string>
+    <string name="are_you_sure">Biztos?</string>
+    <string name="default_button">Alapértelmezett</string>
+
+    <string name="not_permitted">Nem megengedett</string>
+    <string name="close">Bezárás</string>
+
+    <string name="system_default">Alapértelmezett</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Állandóan bekapcsolva</item>
+        <item>Kikapcsolás 30 másodperc után</item>
+        <item>Kikapcsolás 1 perc után</item>
+        <item>Kikapcsolás 5 perc után</item>
+        <item>Kikapcsolás 30 perc után</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Képernyő bekapcsolva tartása</string>
+
+    <string name="migrating_data">Adatok átmásolása</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Világos téma</item>
+        <item>Sötét téma</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

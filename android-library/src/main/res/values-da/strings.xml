@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Omdøb</string>
+    <string name="filedialog_delete">Slet</string>
+    <string name="filedialog_newfolder">Ny mappe</string>
+    <string name="filedialog_foldername">Mappenavn</string>
+    <string name="filedialog_unablecreatefolder">Kunne ikke oprette mappe: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Mappe \'%1$s\' oprettet</string>
+    <string name="filedialog_folderdeleted">Slettet: \'%1$s\'</string>
+    <string name="filedialog_renameto">Omdøbt til: \'%1$s\'</string>
+    <string name="filedialog_empty">Tom liste</string>
+    <string name="filedialog_readonly">Skrivebeskyttet mappe</string>
+    <string name="filedialog_selectfolder">Vælg venligst en mappe</string>
+
+    <string name="ShareAction">Del</string>
+    <string name="shared_via">Del via %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dage</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d time</item>
+        <item quantity="other">%d timer</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minut</item>
+        <item quantity="other">%d minutter</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d sekund</item>
+        <item quantity="other">%d sekunder</item>
+    </plurals>
+
+    <string name="days_symbol">d</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Optimeringsindstillinger</string>
+    <string name="optimization_message">Overvej at tilføje applikation til telefonbatteristyringens hvidliste for at forhindre, at program fjernes fra hukommelsen.</string>
+    <string name="optimization_killed">App blev lukket af OS. Overvej at tilføje program til hvidliste.</string>
+    <string name="optimization_alive">Keep Alive Service</string>
+    <string name="optimization_alive_summary">Baggrundstjeneste holder applikationen kørende</string>
+    <string name="optimization_icon">Persistent Icon</string>
+    <string name="optimization_icon_summary">Kræves på nogle enheder, når applikationen konstant fjernes</string>
+    <string name="optimization_system">Optimering af batteri</string>
+    <string name="optimization_system_summary">Åbn dialogboks til optimering af systembatteri</string>
+
+    <string name="menu_settings">Indstillinger</string>
+    <string name="menu_about">Om</string>
+
+    <string name="open_browser">Åbn browser</string>
+    <string name="are_you_sure">Er du sikker?</string>
+    <string name="default_button">Default</string>
+
+    <string name="not_permitted">Ikke tilladt</string>
+    <string name="close">Luk</string>
+
+    <string name="system_default">System Default</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Altid tændt</item>
+        <item>Sluk efter 30 sec</item>
+        <item>Sluk efter 1 min</item>
+        <item>Sluk efter 5 min</item>
+        <item>Sluk efter 30 min</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Hold skærmen tændt</string>
+
+    <string name="migrating_data">Migrering af data</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Theme White</item>
+        <item>Theme Dark</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,87 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">重新命名</string>
+    <string name="filedialog_delete">刪除</string>
+    <string name="filedialog_newfolder">新增資料夾</string>
+    <string name="filedialog_foldername">資料夾名稱</string>
+    <string name="filedialog_unablecreatefolder">無法建立資料夾：「%1$s」</string>
+    <string name="filedialog_foldercreated">資料夾「%1$s」已建立</string>
+    <string name="filedialog_folderdeleted">已刪除：「%1$s」</string>
+    <string name="filedialog_renameto">已重新命名為：「%1$s」</string>
+    <string name="filedialog_empty">空的清單</string>
+    <string name="filedialog_readonly">唯讀資料夾</string>
+    <string name="filedialog_selectfolder">請選擇一個資料夾</string>
+
+    <string name="ShareAction">分享</string>
+    <string name="shared_via">經由 %1$s 分享</string>
+
+    <plurals name="days">
+        <item quantity="one">%d 天</item>
+        <item quantity="other">%d 天</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d 小時</item>
+        <item quantity="other">%d 小時</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d 分鐘</item>
+        <item quantity="other">%d 分鐘</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d 秒</item>
+        <item quantity="other">%d 秒</item>
+    </plurals>
+
+    <string name="days_symbol">"d"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">最佳化設定</string>
+    <string name="optimization_message">請考慮將應用程式加入到手機電池管理器白名單，以防止應用程式從記憶體中移除。</string>
+    <string name="optimization_killed">應用程式被作業系統終止。請考慮將應用程式加入到白名單。</string>
+
+    <string name="menu_settings">設定</string>
+    <string name="menu_about">關於</string>
+
+    <string name="open_browser">開啟瀏覽器</string>
+    <string name="are_you_sure">你確定嗎？</string>
+    <string name="default_button">預設</string>
+
+    <string name="not_permitted">不允許</string>
+    <string name="close">關閉</string>
+
+    <string name="system_default">系統預設值</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>保持開啟</item>
+        <item>30 秒後關閉</item>
+        <item>1 分鐘後關閉</item>
+        <item>5 分鐘後關閉</item>
+        <item>30 分鐘後關閉</item>
+    </string-array>
+    <string name="pref_screenlock_title">保持螢幕開啟</string>
+    <string name="optimization_alive">保持活躍服務</string>
+    <string name="optimization_alive_summary">背景服務使應用程式持續執行</string>
+    <string name="optimization_icon">持久性圖示</string>
+    <string name="optimization_icon_summary">在一些應用程式一直被移除的裝置上需要</string>
+    <string name="optimization_system">電池最佳化</string>
+    <string name="optimization_system_summary">開啟系統電池最佳化對話方塊</string>
+
+    <string name="migrating_data">遷移資料</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>亮色佈景主題</item>
+        <item>暗色佈景主題</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,86 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">تغییر نام</string>
+    <string name="filedialog_delete">حذف</string>
+    <string name="filedialog_newfolder">پوشه جدید</string>
+    <string name="filedialog_foldername">نام پوشه</string>
+    <string name="filedialog_unablecreatefolder">\'%1$s\' نمیتوان این پوشه را ایجاد کرد:</string>
+    <string name="filedialog_foldercreated"> \'%1$s\' پوشه ایجاد شد:</string>
+    <string name="filedialog_folderdeleted"> \'%1$s\' حذف شد</string>
+    <string name="filedialog_renameto"> \'%1$s\' نام تغییر کرد:</string>
+    <string name="filedialog_empty">لیست خالی</string>
+    <string name="filedialog_readonly">مسیر فقط خواندنی</string>
+    <string name="filedialog_selectfolder">لطفا یک پوشه انتخاب کنید</string>
+
+    <string name="ShareAction">اشتراک</string>
+    <string name="shared_via">: %1$s اشتراک با: </string>
+
+    <plurals name="days">
+        <item quantity="one">روز %d </item>
+        <item quantity="other">روز %d </item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one"> ساعت %d</item>
+        <item quantity="other"> ساعت %d</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one"> دقیقه %d</item>
+        <item quantity="other"> دقیقه %d</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one"> ثانیه %d</item>
+        <item quantity="other">ثانیه %d</item>
+    </plurals>
+
+    <string name="days_symbol">"d"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">بهینه سازی تنظیمات</string>
+    <string name="optimization_message">در حال اضافه کردن برنامه به لیست سفید مدیر باتری تلفن تا برنامه را هنگام پاک کردن حافظه نادیده بگیرد.</string>
+    <string name="optimization_killed">Application were killed by OS. Consider adding application to whitelist.</string>
+
+    <string name="menu_settings">تنظیمات</string>
+    <string name="menu_about">درباره</string>
+
+    <string name="open_browser">باز کردن مرورگر</string>
+    <string name="are_you_sure">آیا مطمئنید؟</string>
+    <string name="default_button">پیشفرض</string>
+
+    <string name="not_permitted">اجازه ندارد</string>
+    <string name="close">بستن</string>
+
+    <string name="system_default">System Default</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Keep On</item>
+        <item>Off after 30 sec</item>
+        <item>Off after 1 min</item>
+        <item>Off after 5 min</item>
+        <item>Off after 30 min</item>
+    </string-array>
+    <string name="pref_screenlock_title">Keep Screen On</string>
+    <string name="optimization_alive">Keep Alive Service</string>
+    <string name="optimization_alive_summary">Background service keep application running</string>
+    <string name="optimization_icon">Persistent Icon</string>
+    <string name="optimization_icon_summary">Requires on some devices when application constantly get removed</string>
+    <string name="optimization_system">Battery Optimization</string>
+    <string name="optimization_system_summary">Open system battery optimization dialog</string>
+    <string name="migrating_data">Migrating data</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>پوسته روشن</item>
+        <item>پوسته تاریک</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

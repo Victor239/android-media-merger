@@ -1,0 +1,96 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Змяніць назву</string>
+    <string name="filedialog_delete">Выдаліць</string>
+    <string name="filedialog_newfolder">Новая папка</string>
+    <string name="filedialog_foldername">Увядзіце назву</string>
+    <string name="filedialog_unablecreatefolder">Не атрымалася стварыць папку: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Папка \'%1$s\' створана</string>
+    <string name="filedialog_folderdeleted">Выдалена: \'%1$s\'</string>
+    <string name="filedialog_renameto">Зменена назва: \'%1$s\'</string>
+    <string name="filedialog_empty">Пусты спіс</string>
+    <string name="filedialog_readonly">Дырэкторыя толькі для чытання</string>
+    <string name="filedialog_selectfolder">Калі ліска выберыце папку</string>
+
+    <string name="ShareAction">Падзяліцца</string>
+    <string name="shared_via">Падзяліцца з дапамогай %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d дзень</item>
+        <item quantity="few">%d дні </item>
+        <item quantity="many">%d дзён</item>
+        <item quantity="other">%d дзён</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d гадзіна</item>
+        <item quantity="few">%d гадзіны</item>
+        <item quantity="many">%d гадзін</item>
+        <item quantity="other">%d гадзін</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d хвіліна</item>
+        <item quantity="few">%d хвіліны</item>
+        <item quantity="many">%d хвілін</item>
+        <item quantity="other">%d хвілін</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d секунда</item>
+        <item quantity="few">%d секунды</item>
+        <item quantity="many">%d секунд</item>
+        <item quantity="other">%d секунд</item>
+    </plurals>
+
+    <string name="days_symbol">д</string>
+
+    <string name="size_gb">%1$.1f ГБ</string>
+    <string name="size_mb">%1$.1f МБ</string>
+    <string name="size_kb">%1$.1f кб</string>
+
+    <string name="optimization_dialog">Налады аптымізацыі</string>
+    <string name="optimization_message">Дадайце праграму ў белы спіс кіраўніка памяццю тэлефона, каб прадухіліць нежаданыя выключэнні праграмы.</string>
+    <string name="optimization_killed">Праграма выключана АС. Дадайце праграму ў белы спіс кіраўніка памяццю тэлефона.</string>
+    <string name="optimization_alive">Служба "Захаваць жывым"</string>
+    <string name="optimization_alive_summary">Фонавая служба працягвае працаванне праграмы</string>
+    <string name="optimization_icon">Пастаянны значок</string>
+    <string name="optimization_icon_summary">Падрабуецца на некоторых прыладах, калі праграма пастаянна выключаецца</string>
+    <string name="optimization_system">Аптымізацыя батарэі</string>
+    <string name="optimization_system_summary">Адкрыць дыялогавае вакно аптымізацыі батарэі</string>
+
+    <string name="menu_settings">Налады</string>
+    <string name="menu_about">Аб праграме</string>
+
+    <string name="open_browser">Адкрыць браўзер</string>
+    <string name="are_you_sure">Вы ўпэўнены?</string>
+    <string name="default_button">Па змаўчанні</string>
+
+    <string name="not_permitted">Не дазволена</string>
+    <string name="close">Закрыць</string>
+
+    <string name="system_default">Па змаўчанні сістэмы</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Працягваць</item>
+        <item>Выключыць праз 30 сек</item>
+        <item>Выключыць праз 1 хв</item>
+        <item>Выключыць праз 5 хв</item>
+        <item>Выключыць праз 30 хв</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Трымаць экран уключаным</string>
+
+    <string name="migrating_data">Міграцыя даных</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Светлая тэма</item>
+        <item>Цёмная тэма</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

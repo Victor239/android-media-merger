@@ -1,0 +1,89 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Преименувай</string>
+    <string name="filedialog_delete">Изтрий</string>
+    <string name="filedialog_newfolder">Нова папка</string>
+    <string name="filedialog_foldername">Име на папка</string>
+    <string name="filedialog_unablecreatefolder">Не може да се създаде папка: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Създадена: \'%1$s\'</string>
+    <string name="filedialog_folderdeleted">Изтрита: \'%1$s\'</string>
+    <string name="filedialog_renameto">Преименувана до: \'%1$s\'</string>
+    <string name="filedialog_empty">Празен списък</string>
+    <string name="filedialog_readonly">Само за четене</string>
+    <string name="filedialog_selectfolder">Моля, изберете папка</string>
+
+    <string name="ShareAction">Сподели</string>
+    <string name="shared_via">Споделено чрез %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d ден</item>
+        <item quantity="other">%d дни</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d час</item>
+        <item quantity="other">%d часове</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d минута</item>
+        <item quantity="other">%d минути</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d секунда</item>
+        <item quantity="other">%d секунди</item>
+    </plurals>
+
+    <string name="days_symbol">д</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Оптимизации</string>
+    <string name="optimization_message">Опитайте да добавите приложението към списъка на телефона с позволен достъп до батерията, за да не бъде затваряно приложението.</string>
+    <string name="optimization_killed">Приложението беше затворено от ОС. Опитайте се да промените настройите на ОС.</string>
+    <string name="optimization_alive">Keep Alive Сървис</string>
+    <string name="optimization_alive_summary">Услуга на фона поддържа приложението живо</string>
+    <string name="optimization_icon">Постоянна икона</string>
+    <string name="optimization_icon_summary">Изисква се на някой устройства, когато приложението е постоянно премахвано</string>
+    <string name="optimization_system">Оптимизация на батерията</string>
+    <string name="optimization_system_summary">Отвори системния диалог за оптимизация на батерията</string>
+
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_about">Относно</string>
+
+    <string name="open_browser">Отвори браузър</string>
+    <string name="are_you_sure">Сигурен ли сте?</string>
+    <string name="default_button">Подразбиране</string>
+
+    <string name="not_permitted">Забранено</string>
+    <string name="close">Затвори</string>
+
+    <string name="system_default">От системата</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Задръж</item>
+        <item>Изключи след 30 сек</item>
+        <item>Изключи след 1 мин</item>
+        <item>Изключи след 5 мин</item>
+        <item>Изключи след 30 мин</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Дръж екрана включен</string>
+
+    <string name="migrating_data">Мигриране на данните</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Светло</item>
+        <item>Тъмно</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>
+

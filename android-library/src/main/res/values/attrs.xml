@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SquareLinearLayout">
+        <attr name="maxChild" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="CircleImageView">
+        <attr name="civ_border_width" format="dimension" />
+        <attr name="civ_border_color" format="color" />
+        <attr name="civ_border_overlay" format="boolean" />
+        <attr name="civ_fill_color" format="color" />
+        <attr name="shadow_size" format="dimension" />
+        <attr name="shadow_color" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="CircularSeekBar">
+        <attr name="progress" format="integer" />
+        <attr name="max" format="integer" />
+        <attr name="move_outside_circle" format="boolean" />
+        <attr name="maintain_equal_circle" format="boolean" />
+        <attr name="use_custom_radii" format="boolean" />
+        <attr name="lock_enabled" format="boolean" />
+        <attr name="circle_x_radius" format="dimension" />
+        <attr name="circle_y_radius" format="dimension" />
+        <attr name="circle_stroke_width" format="dimension" />
+        <attr name="pointer_radius" format="dimension" />
+        <attr name="pointer_halo_width" format="dimension" />
+        <attr name="pointer_halo_border_width" format="dimension" />
+        <attr name="circle_color" format="color" />
+        <attr name="circle_progress_color" format="color" />
+        <attr name="pointer_color" format="color" />
+        <attr name="pointer_halo_color" format="color" />
+        <attr name="pointer_halo_color_ontouch" format="color" />
+        <attr name="pointer_alpha_ontouch" format="integer" />
+        <attr name="start_angle" format="float" />
+        <attr name="end_angle" format="float" />
+        <attr name="circle_fill" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="AboutPreferenceCompat">
+        <attr name="html" format="reference" />
+    </declare-styleable>
+
+    <attr name="progressbar_round" format="reference" />
+    <attr name="toolbar_icon_bg" format="reference" />
+
+    <string name="Theme_System" translatable="false">Theme_System</string>
+    <string name="Theme_Light" translatable="false">Theme_Light</string>
+    <string name="Theme_Dark" translatable="false">Theme_Dark</string>
+    <string name="Theme_Dark_Black" translatable="false">Theme_Dark_Black</string>
+
+    <string-array name="themes_values" translatable="false">
+        <item>@string/Theme_System</item>
+        <item>@string/Theme_Light</item>
+        <item>@string/Theme_Dark</item>
+        <item>@string/Theme_Dark_Black</item>
+    </string-array>
+
+    <string-array name="screen_lock_values" translatable="false">
+        <item>-1</item>
+        <item>0</item>
+        <item>30</item>
+        <item>60</item>
+        <item>300</item>
+        <item>1800</item>
+    </string-array>
+</resources>

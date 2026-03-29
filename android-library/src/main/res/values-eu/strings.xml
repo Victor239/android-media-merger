@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Berrizendatu</string>
+    <string name="filedialog_delete">Ezabatu</string>
+    <string name="filedialog_newfolder">Karpeta berria</string>
+    <string name="filedialog_foldername">Karpetaren izena</string>
+    <string name="filedialog_unablecreatefolder">Ezin izan da karpeta sortu: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">\'%1$s\' karpeta sortu da</string>
+    <string name="filedialog_folderdeleted">Ezabatuta: \'%1$s\'</string>
+    <string name="filedialog_renameto">Berrizendatuta: \'%1$s\'</string>
+    <string name="filedialog_empty">Zerrenda hutsa</string>
+    <string name="filedialog_readonly">Irakurtzeko soilik den direktorioa</string>
+    <string name="filedialog_selectfolder">Hautatu karpeta bat</string>
+
+    <string name="ShareAction">Partekatu</string>
+    <string name="shared_via">Partekatu %1$s bidez</string>
+
+    <plurals name="days">
+        <item quantity="one">Egun %d</item>
+        <item quantity="other">%d egun</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">Ordu %d</item>
+        <item quantity="other">%d ordu</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">Minutu %d</item>
+        <item quantity="other">%d minutu</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">Segundo %d</item>
+        <item quantity="other">%d segundo</item>
+    </plurals>
+
+    <string name="days_symbol">e</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Optimizazio-ezarpenak</string>
+    <string name="optimization_message">Aplikazioa mugikorraren bateria-kudeatzailearen zerrenda zurira gehitzea gomendatzen dugu, aplikazioa memoriatik kentzea eragozteko.</string>
+    <string name="optimization_killed">Sistema eragileak aplikazioa hil du. Aplikazioa zerrenda zurira gehitzea gomendatzen dugu.</string>
+    <string name="optimization_alive">Mantendu aktibo zerbitzua</string>
+    <string name="optimization_alive_summary">Atzeko planoko zerbitzuak aplikazioa martxan mantentzen du</string>
+    <string name="optimization_icon">Ikono iraunkorra</string>
+    <string name="optimization_icon_summary">Beharrezkoa da zenbait gailutan aplikazioa etengabe kendua denean</string>
+    <string name="optimization_system">Bateriaren optimizazioa</string>
+    <string name="optimization_system_summary">Ireki sistemaren bateriaren optimizazioaren elkarrizketa-koadroa</string>
+
+    <string name="menu_settings">Ezarpenak</string>
+    <string name="menu_about">Honi buruz</string>
+
+    <string name="open_browser">Ireki nabigatzailea</string>
+    <string name="are_you_sure">Ziur zaude?</string>
+    <string name="default_button">Lehenetsia</string>
+
+    <string name="not_permitted">Ez da onartzen</string>
+    <string name="close">Itxi</string>
+
+    <string name="system_default">Sistemaren lehenetsia</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Mantendu aktibo</item>
+        <item>Desaktibatu 30 seg igarotzean</item>
+        <item>Desaktibatu 1 min igarotzean</item>
+        <item>Desaktibatu 5 min igarotzean</item>
+        <item>Desaktibatu 30 min igarotzean</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Mantendu pantaila aktibo</string>
+
+    <string name="migrating_data">Migrazio datuak</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Gai zuria</item>
+        <item>Gai iluna</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

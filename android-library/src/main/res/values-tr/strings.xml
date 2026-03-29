@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Yeniden Adlandır</string>
+    <string name="filedialog_delete">Sil</string>
+    <string name="filedialog_newfolder">Yeni Klasör</string>
+    <string name="filedialog_foldername">Klasör Adı</string>
+    <string name="filedialog_unablecreatefolder">Klasör oluşturulamadı: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">\'%1$s\' Klasörü oluşturuldu.</string>
+    <string name="filedialog_folderdeleted">Silindi: \'%1$s\'</string>
+    <string name="filedialog_renameto">Yeniden Adlandırıldı: \'%1$s\'</string>
+    <string name="filedialog_empty">Liste Boş</string>
+    <string name="filedialog_readonly">Salt Okunur Dizin</string>
+    <string name="filedialog_selectfolder">Lütfen bir klasör seçin</string>
+
+    <string name="ShareAction">Paylaş</string>
+    <string name="shared_via">Şununla paylaş %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d saat</item>
+        <item quantity="other">%d saat</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d dakika</item>
+        <item quantity="other">%d dakika</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d saniye</item>
+        <item quantity="other">%d saniye</item>
+    </plurals>
+
+    <string name="days_symbol">"g"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">En İyileme Ayarları</string>
+    <string name="optimization_message">Uygulamanın kapatılmasını önlemek için pil yöneticisinden beyaz listeye ekleyin.</string>
+    <string name="optimization_killed">Uygulama, işletim sistemi tarafından kapatıldı. Lütfeb beyaz listeye ekleyin.</string>
+    <string name="optimization_alive">Servisi Uyanık Tut</string>
+    <string name="optimization_alive_summary">Arka plan servisi, uygulamanın çalışmasını sağlar</string>
+    <string name="optimization_icon">Kalıcı Simge</string>
+    <string name="optimization_icon_summary">Uygulamanın sürekli kaldırıldığı bazı cihazlarda gereklidir</string>
+    <string name="optimization_system">Pil En İyilemesi</string>
+    <string name="optimization_system_summary">Sistem pil optimizasyon iletişim kutusunu aç</string>
+
+    <string name="menu_settings">Ayarlar</string>
+    <string name="menu_about">Hakkında</string>
+
+    <string name="open_browser">Tarayıcıyı Aç</string>
+    <string name="are_you_sure">Emin misiniz?</string>
+    <string name="default_button">Varsayılan</string>
+
+    <string name="not_permitted">İzin verilmedi</string>
+    <string name="close">Kapat</string>
+
+    <string name="system_default">Sistem Varsayılanı</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Devam et</item>
+        <item>30 sn sonra kapat</item>
+        <item>1 dk sonra kapat</item>
+        <item>5 dk sonra kapat</item>
+        <item>30 dk sonra kapat</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Ekranı açık tut</string>
+
+    <string name="migrating_data">Veri Taşıma</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Aydınlık Gövde</item>
+        <item>Karanlık Gövde</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

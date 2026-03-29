@@ -1,0 +1,68 @@
+<resources>
+
+    <style name="Translucent" parent="@android:style/Theme.Translucent.NoTitleBar" />
+
+    <!-- @android:style/TextAppearance.Toast -->
+    <style name="TextAppearance_Toast" parent="@android:style/TextAppearance">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+    <!-- api 25 vs 27 compatibility https://stackoverflow.com/questions/48241620 @style/TextAppearance.AppCompat.Notification.Info -->
+    <style name="NotificationInfo">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+
+    <!-- api 25 vs 27 compatibility https://stackoverflow.com/questions/48241620 @style/TextAppearance.AppCompat.Notification.Time -->
+    <style name="NotificationTime">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+
+    <style name="AppThemeLightLib" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccentLight</item>
+        <item name="progressbar_round">@drawable/progressbar_round_light</item>
+        <item name="toolbar_icon_bg">@drawable/toolbar_icon_light</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <style name="AppThemeLightDialogLib" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccentLight</item>
+    </style>
+
+    <style name="toolbar_icon_text">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:textSize">8dp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/toolbar_icon_bottom_bg</item>
+    </style>
+
+    <style name="AppThemeDarkLib" parent="Theme.AppCompat">
+        <item name="progressbar_round">@drawable/progressbar_round_dark</item>
+        <item name="toolbar_icon_bg">@drawable/toolbar_icon_dark</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <style name="AppThemeDarkDialogLib" parent="@style/Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccentDark</item>
+        <item name="android:background">@color/background_material_dark</item>
+    </style>
+
+    <style name="AppThemeDarkBlackLib" parent="AppThemeDarkLib">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
+    <style name="AppThemeDarkBlackDialogLib" parent="@style/Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccentDark</item>
+        <item name="android:background">@color/background_material_dark</item>
+    </style>
+
+</resources>

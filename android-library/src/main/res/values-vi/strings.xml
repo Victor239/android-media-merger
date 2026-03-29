@@ -1,0 +1,87 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Đổi tên</string>
+    <string name="filedialog_delete">Xóa</string>
+    <string name="filedialog_newfolder">Tạo thư mục mới</string>
+    <string name="filedialog_foldername">Tên thư mục</string>
+    <string name="filedialog_unablecreatefolder">Không thể tạo thư mục: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Thư mục \'%1$s\' đã tạo</string>
+    <string name="filedialog_folderdeleted">Đã xóa: \'%1$s\'</string>
+    <string name="filedialog_renameto">Đã đổi thành: \'%1$s\'</string>
+    <string name="filedialog_empty">Rỗng</string>
+    <string name="filedialog_readonly">Thư mục chỉ đọc</string>
+    <string name="filedialog_selectfolder">Hãy chọn một thư mục</string>
+
+    <string name="ShareAction">Chia sẻ</string>
+    <string name="shared_via">Chia sẻ qua %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d ngày</item>
+        <item quantity="other">%d ngày</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d giờ</item>
+        <item quantity="other">%d giờ</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d phút</item>
+        <item quantity="other">%d phút</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d giây</item>
+        <item quantity="other">%d giây</item>
+    </plurals>
+
+    <string name="days_symbol">"n"</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Cài đặt tối ưu hóa</string>
+    <string name="optimization_message">Hãy xem xét thêm ứng dụng vào danh sách không bị đóng để ngăn chặn ứng dụng bị đóng tự động.</string>
+    <string name="optimization_killed">Ứng dụng đã bị đóng bởi hệ điều hành. Hãy xem xét thêm ứng dụng vào danh sách không bị đóng.</string>
+    <string name="optimization_alive">Giữ ứng dụng luôn chạy</string>
+    <string name="optimization_alive_summary">Dịch vụ nền Giữ ứng dụng luôn chạy</string>
+    <string name="optimization_icon">Biểu tượng liên tục</string>
+    <string name="optimization_icon_summary">Yêu cầu trên một số thiết bị khi ứng dụng liên tục bị đóng</string>
+    <string name="optimization_system">Tối ưu hóa pin</string>
+    <string name="optimization_system_summary">Mở hộp thoại tối ưu hóa pin</string>
+
+    <string name="menu_settings">Cài đặt</string>
+    <string name="menu_about">Thông tin</string>
+
+    <string name="open_browser">Mở trình duyệt</string>
+    <string name="are_you_sure">Bạn có chắc?</string>
+    <string name="default_button">Mặc định</string>
+
+    <string name="not_permitted">Không được phép</string>
+    <string name="close">Đóng</string>
+
+    <string name="system_default">Mặc định</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Giữ sáng màn hình</item>
+        <item>Tắt sau 30 giây</item>
+        <item>Tắt sau 1 phút</item>
+        <item>Tắt sau 5 phút</item>
+        <item>Tắt sau 30 phút</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Giữ sáng màn hình</string>
+    <string name="migrating_data">Di chuyển dữ liệu</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Chủ đề trắng</item>
+        <item>Chủ đề đen</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

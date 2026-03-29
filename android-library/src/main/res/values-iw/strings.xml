@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">שנה שם</string>
+    <string name="filedialog_delete">מחק</string>
+    <string name="filedialog_newfolder">תיקייה חדשה</string>
+    <string name="filedialog_foldername">שם תיקייה</string>
+    <string name="filedialog_unablecreatefolder">לא ניתן ליצור את תיקיית: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">תיקייה \'%1$s\' created</string>
+    <string name="filedialog_folderdeleted">נמחק: \'%1$s\'</string>
+    <string name="filedialog_renameto">שם שונה לשם: \'%1$s\'</string>
+    <string name="filedialog_empty">רשימה ריקה</string>
+    <string name="filedialog_readonly">סיפרייה לקריאה בלבד</string>
+    <string name="filedialog_selectfolder">אנא בחר תיקייה</string>
+
+    <string name="ShareAction">שתף</string>
+    <string name="shared_via">משותף באמצעות %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d יום</item>
+        <item quantity="other">%d ימים</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d שעה</item>
+        <item quantity="other">%d שעות</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d דקה</item>
+        <item quantity="other">%d דקות</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d שניה</item>
+        <item quantity="other">%d שניות</item>
+    </plurals>
+
+    <string name="days_symbol">"י"</string>
+
+    <string name="size_gb">%1$.1f ג"/ב</string>
+    <string name="size_mb">%1$.1f מ/"ב</string>
+    <string name="size_kb">%1$.1f ק"/ב</string>
+
+    <string name="optimization_dialog">הגדרות אופטימיזציה</string>
+    <string name="optimization_message">שקול להוסיף יישום לרשימת הטלפון הלבנה של מנהל הסוללה כדי למנוע את הסרת היישום מהזיכרון.</string>
+    <string name="optimization_killed">הבקשה נהרגה על ידי מערכת ההפעלה. שקול להוסיף יישום לרשימת ההיתרים.</string>
+
+    <string name="menu_settings">הגדרות</string>
+    <string name="menu_about">אודות</string>
+
+    <string name="open_browser">פתח דפדפן</string>
+    <string name="are_you_sure">האם אתה בטוח?</string>
+    <string name="default_button">ברירת מחדל</string>
+
+    <string name="not_permitted">לא מורשה</string>
+    <string name="close">סגור</string>
+
+    <string name="system_default">ברירת מחדל מערכת</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>שמור פועל</item>
+        <item>כבה לאחר 30 שניות</item>
+        <item>כבה לאחר דקה אחת</item>
+        <item>כבה לאחר 5 דקות</item>
+        <item>כבה לאחר 30 דקות</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">השאר מסך פועל</string>
+    <string name="optimization_alive">Keep Alive Service</string>
+    <string name="optimization_alive_summary">Background service keep application running</string>
+    <string name="optimization_icon">Persistent Icon</string>
+    <string name="optimization_icon_summary">Requires on some devices when application constantly get removed</string>
+    <string name="optimization_system">Battery Optimization</string>
+    <string name="optimization_system_summary">Open system battery optimization dialog</string>
+
+    <string name="migrating_data">העברת נתונים</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>ערכת עיצוב בהירה</item>
+        <item>ערכת עיצוב כהה</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

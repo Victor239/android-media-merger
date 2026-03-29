@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Umbenennen</string>
+    <string name="filedialog_delete">Löschen</string>
+    <string name="filedialog_newfolder">Neuer Ordner</string>
+    <string name="filedialog_foldername">Ordnername</string>
+    <string name="filedialog_unablecreatefolder">Ordner kann nicht erstellt werden: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Ordner \'%1$s\' erstellt</string>
+    <string name="filedialog_folderdeleted">Gelöscht: \'%1$s\'</string>
+    <string name="filedialog_renameto">Umbenannt zu: \'%1$s\'</string>
+    <string name="filedialog_empty">Leere Liste</string>
+    <string name="filedialog_readonly">Schreibgeschützter Ordner</string>
+    <string name="filedialog_selectfolder">Bitte wählen Sie einen Ordner aus</string>
+
+    <string name="ShareAction">Teilen</string>
+    <string name="shared_via">Teilen über %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d Tag</item>
+        <item quantity="other">%d Tage</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d Stunde</item>
+        <item quantity="other">%d Stunden</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d Minute</item>
+        <item quantity="other">%d Minuten</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d Sekunde</item>
+        <item quantity="other">%d Sekunden</item>
+    </plurals>
+
+    <string name="days_symbol">T</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Optimierungsdialog</string>
+    <string name="optimization_message">Überlegen Sie, die App zur Positivliste des Batteriemanagers hinzuzufügen, um eine Entfernung dieser aus dem Arbeitsspeicher zu verhindern.</string>
+    <string name="optimization_killed">Die Anwendung wurde durch das Betriebssystem beendet. Erwägen Sie, die Anwendung zur Ausnahmeliste hinzuzufügen.</string>
+
+    <string name="menu_settings">Einstellungen</string>
+    <string name="menu_about">Über</string>
+
+    <string name="open_browser">Browser öffnen</string>
+    <string name="are_you_sure">Sind Sie sicher?</string>
+    <string name="default_button">Standard</string>
+
+    <string name="not_permitted">Nicht erlaubt</string>
+    <string name="close">Schließen</string>
+
+    <string name="system_default">Systemstandard</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Eingeschaltet lassen</item>
+        <item>Abschalten nach 30 Sekunden</item>
+        <item>Abschalten nach 1 Minute</item>
+        <item>Abschalten nach 5 Minuten</item>
+        <item>Abschalten nach 30 Minuten</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Bildschirm eingeschaltet lassen</string>
+    <string name="optimization_alive">Aufrechterhaltungsdienst</string>
+    <string name="optimization_alive_summary">Hintergrunddienst hält die Anwendung am Laufen.</string>
+    <string name="optimization_icon">Anhaltendes Symbol</string>
+    <string name="optimization_icon_summary">Erfordert auf einigen Geräten, wenn die Anwendung ständig entfernt wird.</string>
+    <string name="optimization_system">Akku-Optimierung</string>
+    <string name="optimization_system_summary">Systemdialogfeld zur Optimierung des Akkus öffnen</string>
+
+    <string name="migrating_data">Migriere Daten</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Helles Aussehen</item>
+        <item>Dunkles Aussehen</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

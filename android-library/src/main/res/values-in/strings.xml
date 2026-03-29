@@ -1,0 +1,88 @@
+<resources>
+    <!--OpenFileDialog-->
+    <string name="filedialog_rename">Ubah Nama</string>
+    <string name="filedialog_delete">Hapus</string>
+    <string name="filedialog_newfolder">Folder Baru</string>
+    <string name="filedialog_foldername">Nama Folder</string>
+    <string name="filedialog_unablecreatefolder">Tidak bisa membuat folder: \'%1$s\'</string>
+    <string name="filedialog_foldercreated">Folder \'%1$s\' dibuat</string>
+    <string name="filedialog_folderdeleted">Dihapus: \'%1$s\'</string>
+    <string name="filedialog_renameto">Nama diubah menjadi: \'%1$s\'</string>
+    <string name="filedialog_empty">Daftar Kosong</string>
+    <string name="filedialog_readonly">Direktori hanya baca</string>
+    <string name="filedialog_selectfolder">Silakan pilih folder</string>
+
+    <string name="ShareAction">Bagikan</string>
+    <string name="shared_via">Bagikan via %1$s</string>
+
+    <plurals name="days">
+        <item quantity="one">%d hari</item>
+        <item quantity="other">%d hari</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d jam</item>
+        <item quantity="other">%d jam</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d menit</item>
+        <item quantity="other">%d menit</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d detik</item>
+        <item quantity="other">%d detik</item>
+    </plurals>
+
+    <string name="days_symbol">h</string>
+
+    <string name="size_gb">%1$.1f GB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="size_kb">%1$.1f kb</string>
+
+    <string name="optimization_dialog">Pengaturan Optimalisasi</string>
+    <string name="optimization_message">Pertimbangkan untuk mengecualikan aplikasi dari daftar penghemat baterai untuk mencegah aplikasi dibuang dari memori.</string>
+    <string name="optimization_killed">Aplikasi ditutup oleh OS. Pertimbangkan untuk menambahkan aplikasi ke daftar putih.</string>
+    <string name="optimization_alive">Jaga Layanan Tetap Berjalan</string>
+    <string name="optimization_alive_summary">Layanan latar belakang menjaga aplikasi tetap berjalan</string>
+    <string name="optimization_icon">Ikon Persisten</string>
+    <string name="optimization_icon_summary">Dibutuhkan pada beberapa parangkat agar aplikasi dapat terus berjalan di latar belakang</string>
+    <string name="optimization_system">Penghemat Baterai</string>
+    <string name="optimization_system_summary">Buka jendela penghemat baterai sistem</string>
+
+    <string name="menu_settings">Pengaturan</string>
+    <string name="menu_about">Tentang</string>
+
+    <string name="open_browser">Buka Peramban</string>
+    <string name="are_you_sure">Apakah anda yakin?</string>
+    <string name="default_button">Default</string>
+
+    <string name="not_permitted">Tidak diizinkan</string>
+    <string name="close">Tutup</string>
+
+    <string name="system_default">Default Sistem</string>
+
+    <string-array name="screen_lock_text">
+        <item>@string/system_default</item>
+        <item>Tetap Nyala</item>
+        <item>Mati setelah 30 dtk</item>
+        <item>Mati setelah 1 mnt</item>
+        <item>Mati setelah 5 mnt</item>
+        <item>Mati setelah 30 mnt</item>
+    </string-array>
+
+    <string name="pref_screenlock_title">Layar Tetap Nyala</string>
+
+    <string name="migrating_data">Memindahkan data</string>
+    <string name="legacy_summary">Enable / Disable legacy storage access</string>
+    <string name="legacy_title">Legacy Storage</string>
+
+    <string-array name="themes_text">
+        <item>@string/system_default</item>
+        <item>Tema Terang</item>
+        <item>Tema Gelap</item>
+        <item>Theme Dark Black</item>
+    </string-array>
+
+</resources>

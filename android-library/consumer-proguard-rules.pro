@@ -1,0 +1,36 @@
+-keep public class android.support.v7.widget.AppCompatButton {*;} # bugged AppCompatButton with non final 'final' variables. crash api 25.3.1
+
+-keep public class com.google.android.exoplayer2.upstream.BandwidthMeter {*;}
+-keep public class com.google.android.exoplayer2.upstream.DefaultBandwidthMeter {*;}
+-keep public class com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection {*;}
+-keep public class com.google.android.exoplayer2.trackselection.TrackSelection {*;}
+-keep public class com.google.android.exoplayer2.trackselection.DefaultTrackSelector {*;}
+-keep public class com.google.android.exoplayer2.trackselection.TrackSelector {*;}
+-keep public class com.google.android.exoplayer2.ExoPlayerFactory {*;}
+-keep public class com.google.android.exoplayer2.Player {*;}
+-keep public class com.google.android.exoplayer2.Player$EventListener {*;}
+-keep public class com.google.android.exoplayer2.ExoPlayer {*;}
+-keep public class com.google.android.exoplayer2.SimpleExoPlayer {*;}
+-keep public class com.google.android.exoplayer2.ExoPlaybackException {*;}
+-keep public class com.google.android.exoplayer2.source.UnrecognizedInputFormatException {*;}
+-keep public class com.google.android.exoplayer2.audio.AudioAttributes {*;}
+-keep public class com.google.android.exoplayer2.audio.AudioAttributes$Builder {*;}
+-keep public class com.google.android.exoplayer2.trackselection.TrackSelectionArray {*;}
+-keep public class com.google.android.exoplayer2.metadata.Metadata {*;}
+-keep public class com.google.android.exoplayer2.Format {*;}
+-keep public class com.google.android.exoplayer2.metadata.id3.ApicFrame {*;}
+-keep public class com.google.android.exoplayer2.util.Util {*;}
+-keep public class com.google.android.exoplayer2.C {*;}
+-keep public class com.google.android.exoplayer2.ui.PlayerView {*;}
+-keep public class com.google.android.exoplayer2.upstream.DefaultDataSourceFactory {*;}
+-keep public class com.google.android.exoplayer2.upstream.DataSource$Factory {*;}
+-keep public class com.google.android.exoplayer2.source.ExtractorMediaSource {*;}
+-keep public class com.google.android.exoplayer2.source.ExtractorMediaSource$EventListener {*;}
+-keep public class com.google.android.exoplayer2.extractor.DefaultExtractorsFactory {*;}
+-keep public class com.google.android.exoplayer2.extractor.ExtractorsFactory {*;}
+-keep public class com.google.android.exoplayer2.source.MediaSource {*;}
+
+-dontwarn de.innosystec.unrar.**
+-dontwarn org.apache.commons.**
+
+-keepclassmembers class * implements android.os.Parcelable { public static final android.os.Parcelable$Creator CREATOR; } # crash save instance
