@@ -31,4 +31,5 @@
     <string name="pref_storage_summary">set where to storage merged media</string>
     <string name="file_moved">MOVE [%s]</string>
     <string name="move_failed">Unable to MOVE [%s]</string>
+    <string name="service_quota_exhausted">Media sync paused — service start not allowed. Will resume when allowed.</string>
 </resources>

@@ -30,6 +30,7 @@ public class MoverService extends PersistentService implements SharedPreferences
     private static final String TAG = MoverService.class.getSimpleName();
 
     public static int NOTIFICATION_ICON = 200;
+    public static int NOTIFICATION_QUOTA = 201;
 
     public static String[] PERMISSIONS = Storage.PERMISSIONS_RW;
 
@@ -269,6 +270,7 @@ public class MoverService extends PersistentService implements SharedPreferences
             // ForegroundServiceStartNotAllowedException or any other creation failure.
             // Stop cleanly — no crash, no zombie process, no ANR.
             Log.e(TAG, "Service creation failed, stopping: " + t);
+            showServiceStoppedNotification(t);
             stopSelf();
             return;
         }
@@ -392,6 +394,24 @@ public class MoverService extends PersistentService implements SharedPreferences
             Intent i = new Intent(STOP);
             sendBroadcast(i);
             return false;
+        }
+    }
+
+    private void showServiceStoppedNotification(Throwable t) {
+        if (android.os.Build.VERSION.SDK_INT < 31) return;
+        if (!(t instanceof android.app.ForegroundServiceStartNotAllowedException)) return;
+        try {
+            androidx.core.app.NotificationManagerCompat nm = androidx.core.app.NotificationManagerCompat.from(this);
+            android.app.Notification n = new NotificationCompat.Builder(
+                    this, MoverApplication.from(this).channelStatus.channelId)
+                    .setSmallIcon(R.drawable.ic_launcher_notification)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText(getString(R.string.service_quota_exhausted))
+                    .setAutoCancel(true)
+                    .build();
+            nm.notify(NOTIFICATION_QUOTA, n);
+        } catch (Throwable ex) {
+            Log.e(TAG, "showServiceStoppedNotification failed", ex);
         }
     }
 
