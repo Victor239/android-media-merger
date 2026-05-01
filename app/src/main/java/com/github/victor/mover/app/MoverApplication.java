@@ -1,6 +1,7 @@
 package com.github.victor.mover.app;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import com.github.axet.androidlibrary.app.MainApplication;
@@ -33,6 +34,16 @@ public class MoverApplication extends MainApplication {
 
     public static final String PREFERENCE_BOOT = "boot";
 
+    // Battery refactor: scheduling mode + interval
+    public static final String PREFERENCE_MODE = "mode";
+    public static final String PREFERENCE_SCHEDULE_INTERVAL = "schedule_interval"; // minutes, string-encoded
+    public static final String PREFERENCE_LAST_SYNC = "last_sync";
+
+    public static final String MODE_SCHEDULED = "scheduled";
+    public static final String MODE_LIVE = "live";
+
+    public static final int DEFAULT_INTERVAL_MIN = 30;
+
     public NotificationChannelCompat channelStatus;
 
     public static MoverApplication from(Context context) {
@@ -52,6 +63,15 @@ public class MoverApplication extends MainApplication {
         OptimizationPreferenceCompat.setPersistentServiceIcon(this, true);
 
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
+
+        // One-time migration: existing installs (pre-refactor) won't have PREFERENCE_MODE set.
+        // Default them to scheduled mode so they get the battery improvement automatically.
+        // Users can opt back into live mode in settings.
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!sp.contains(PREFERENCE_MODE)) {
+            sp.edit().putString(PREFERENCE_MODE, MODE_SCHEDULED).apply();
+        }
+
         MoverService.startIfEnabled(this);
     }
 }

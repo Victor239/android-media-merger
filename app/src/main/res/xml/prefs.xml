@@ -20,6 +20,24 @@
         android:summary="@string/legacy_summary"
         android:title="@string/legacy_title" />
 
+    <PreferenceCategory android:title="@string/pref_battery_category">
+        <ListPreference
+            android:defaultValue="scheduled"
+            android:entries="@array/mode_text"
+            android:entryValues="@array/mode_values"
+            android:key="mode"
+            android:summary="@string/pref_mode_summary"
+            android:title="@string/pref_mode_title" />
+
+        <ListPreference
+            android:defaultValue="30"
+            android:entries="@array/interval_text"
+            android:entryValues="@array/interval_values"
+            android:key="schedule_interval"
+            android:summary="@string/pref_interval_summary"
+            android:title="@string/pref_interval_title" />
+    </PreferenceCategory>
+
     <com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat
         android:defaultValue="false"
         android:key="optimization"

@@ -306,6 +306,43 @@ public class Camera {
         handler.post(sync);
     }
 
+    /**
+     * One-shot synchronous sync pass for scheduled (AlarmManager / JobScheduler) mode.
+     *
+     * Caller is responsible for the Camera lifecycle but does NOT need to call create()
+     * — this method skips registering FileObserver/ContentObserver since there's no
+     * always-on service to receive their events. fsync() is invoked on the calling
+     * thread; the move thread it spawns runs to completion or until timeoutMs elapses.
+     *
+     * @param timeoutMs maximum time to wait for the move thread to drain
+     * @return true if all detected files were processed, false on timeout/interrupt
+     */
+    public boolean syncOnce(long timeoutMs) {
+        watchingFolders = generateDirs();
+        last = 0; // bypass the 10s REFRESH_TIME debounce — we know we want this scan
+        try {
+            fsync();
+        } catch (RuntimeException e) {
+            Log.d(TAG, "syncOnce fsync failed", e);
+            return false;
+        }
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        synchronized (lock) {
+            while (thread != null) {
+                long remaining = deadline - System.currentTimeMillis();
+                if (remaining <= 0)
+                    return false;
+                try {
+                    lock.wait(remaining);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // return done - true
     public boolean fsync() {
         long cur = System.currentTimeMillis();
@@ -384,6 +421,7 @@ public class Camera {
                 } finally {
                     synchronized (lock) {
                         thread = null;
+                        lock.notifyAll(); // wake any syncOnce() waiter
                     }
                 }
             }

@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
@@ -61,6 +63,30 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
 
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
             optimization.enable(MoverService.class);
+
+            // Battery / scheduling: hide interval when in live mode; toggle live-mode
+            // dependent prefs (the Optimization "Disable Battery Optimization" toggle
+            // is only meaningful for live mode).
+            ListPreference modePref = (ListPreference) manager.findPreference(MoverApplication.PREFERENCE_MODE);
+            ListPreference intervalPref = (ListPreference) manager.findPreference(MoverApplication.PREFERENCE_SCHEDULE_INTERVAL);
+            if (modePref != null) {
+                applyModeVisibility(modePref.getValue(), intervalPref, optimization);
+                modePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        applyModeVisibility(String.valueOf(newValue), intervalPref, optimization);
+                        return true;
+                    }
+                });
+            }
+        }
+
+        private void applyModeVisibility(String mode, ListPreference intervalPref, OptimizationPreferenceCompat optimization) {
+            boolean scheduled = MoverApplication.MODE_SCHEDULED.equals(mode);
+            if (intervalPref != null)
+                intervalPref.setVisible(scheduled);
+            if (optimization != null)
+                optimization.setVisible(!scheduled);
         }
 
         @Override
@@ -147,6 +173,12 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
         super.onSharedPreferenceChanged(sharedPreferences, key);
         if (key.equals(MoverApplication.STORAGE) || key.startsWith(MoverApplication.AUTO_PREFIX) || key.startsWith(MoverApplication.MANUAL_PREFIX))
             MoverService.update(this);
+        if (MoverApplication.PREFERENCE_MODE.equals(key) || MoverApplication.PREFERENCE_SCHEDULE_INTERVAL.equals(key)) {
+            // Reschedule / switch FGS lifecycle as needed.
+            sendBroadcast(new Intent(this,
+                    com.github.victor.mover.services.SyncTriggerReceiver.class)
+                    .setAction(com.github.victor.mover.services.SyncTriggerReceiver.ACTION_MODE_CHANGED));
+        }
     }
 
     @Override

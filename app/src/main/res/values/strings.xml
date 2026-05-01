@@ -32,4 +32,35 @@
     <string name="file_moved">MOVE [%s]</string>
     <string name="move_failed">Unable to MOVE [%s]</string>
     <string name="service_quota_exhausted">Media sync paused — service start not allowed. Will resume when allowed.</string>
+
+    <!-- Battery / scheduling preferences -->
+    <string name="pref_battery_category">Battery &amp; Scheduling</string>
+    <string name="pref_mode_title">Sync mode</string>
+    <string name="pref_mode_summary">Scheduled mode wakes the app briefly to move new media. Live mode keeps a foreground service running and uses noticeably more battery.</string>
+    <string name="pref_interval_title">Sync interval</string>
+    <string name="pref_interval_summary">How often the app wakes to scan for new media in scheduled mode. Files added between scans still move within seconds on Android 7+ thanks to the MediaStore content trigger.</string>
+
+    <string-array name="mode_text">
+        <item>Scheduled (battery saver)</item>
+        <item>Live (instant — uses more battery)</item>
+    </string-array>
+    <string-array name="mode_values" translatable="false">
+        <item>scheduled</item>
+        <item>live</item>
+    </string-array>
+
+    <string-array name="interval_text">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>4 hours</item>
+    </string-array>
+    <string-array name="interval_values" translatable="false">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+        <item>240</item>
+    </string-array>
 </resources>

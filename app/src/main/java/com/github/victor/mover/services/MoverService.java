@@ -6,9 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.PowerManager;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
@@ -37,12 +40,27 @@ public class MoverService extends PersistentService implements SharedPreferences
     public static final String STOP = MoverService.class.getCanonicalName() + ".STOP";
     public static final String UPDATE = MoverService.class.getCanonicalName() + ".UPDATE";
 
+    // Scheduled-mode entry point: do one sync pass, then stopSelf().
+    // Started by SyncTriggerReceiver (alarm) or SyncMediaJobService (content trigger).
+    public static final String ACTION_SYNC_ONCE = MoverService.class.getCanonicalName() + ".SYNC_ONCE";
+
+    // 45 s should comfortably cover a typical sync pass; large videos that take
+    // longer get picked up on the next firing thanks to Camera.fsync()'s
+    // last-modified comparison logic.
+    static final long SYNC_ONCE_TIMEOUT_MS = 45_000L;
+
     // Thread that owns all camera management. Main thread only dispatches to it.
     HandlerThread serviceThread;
     Handler serviceHandler;
+    Handler mainHandler;
 
     // Accessed only from serviceHandler thread.
     CameraMan camera;
+
+    // Set in onCreate from preferences. When true, the service skips the live-mode
+    // OptimizationPreferenceCompat keep-alive infrastructure and only services
+    // ACTION_SYNC_ONCE invocations.
+    boolean scheduledMode;
 
     // Debounced restart runnable — posted to serviceHandler on pref changes.
     // Wrapped in try-catch(Throwable) to prevent serviceHandler thread death on unexpected errors.
@@ -95,12 +113,35 @@ public class MoverService extends PersistentService implements SharedPreferences
     public static void startIfEnabled(Context context) {
         if (!isEnabled(context))
             return;
+        if (isScheduledMode(context)) {
+            // Don't start the FGS — just arm the scheduler and the content-trigger job.
+            // The FGS will start briefly when the alarm fires.
+            SyncScheduler.rescheduleNext(context);
+            if (Build.VERSION.SDK_INT >= 24)
+                SyncMediaJobService.enable(context);
+            return;
+        }
         start(context);
     }
 
     public static void update(Context context) {
+        if (isScheduledMode(context)) {
+            // In scheduled mode, "update" means run a sync now to reflect pref changes
+            // (e.g. storage path changed). Route through the receiver so it goes through
+            // the same FGS-start path as alarms / content triggers.
+            Intent broadcast = new Intent(context, SyncTriggerReceiver.class)
+                    .setAction(SyncTriggerReceiver.ACTION_RUN_NOW);
+            context.sendBroadcast(broadcast);
+            return;
+        }
         Intent intent = new Intent(context, MoverService.class).setAction(UPDATE);
         context.startService(intent);
+    }
+
+    public static boolean isScheduledMode(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        String mode = sp.getString(MoverApplication.PREFERENCE_MODE, MoverApplication.MODE_SCHEDULED);
+        return MoverApplication.MODE_SCHEDULED.equals(mode);
     }
 
     public class CameraMan extends Camera {
@@ -203,16 +244,34 @@ public class MoverService extends PersistentService implements SharedPreferences
         serviceThread.setDaemon(true); // daemon: don't block JVM shutdown if process is killed
         serviceThread.start();
         serviceHandler = new Handler(serviceThread.getLooper());
+        mainHandler = new Handler(Looper.getMainLooper());
 
-        super.onCreate(); // calls onCreateOptimization() → posts create()+start() to serviceHandler
+        // Capture the mode at create time. The service may have been started for
+        // ACTION_SYNC_ONCE (scheduled mode one-shot) or for live-mode operation.
+        scheduledMode = isScheduledMode(this);
+
+        super.onCreate(); // calls onCreateOptimization()
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
-        // Note: start() is now posted inside onCreateOptimization(), not here.
     }
 
     @Override
     public void onCreateOptimization() {
+        if (scheduledMode) {
+            // Scheduled mode: don't arm the live-mode keep-alive AlarmManager + persistent
+            // notification. Just satisfy the FGS startForeground() deadline with a silent
+            // notification; the actual sync work runs from onStartCommand(ACTION_SYNC_ONCE)
+            // and the service self-stops when done.
+            try {
+                startForeground(NOTIFICATION_ICON, buildSilent());
+            } catch (Throwable t) {
+                Log.e(TAG, "scheduled-mode startForeground failed", t);
+                showServiceStoppedNotification(t);
+                stopSelf();
+            }
+            return;
+        }
         try {
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, NOTIFICATION_ICON, MoverApplication.PREFERENCE_OPTIMIZATION, MoverApplication.PREFERENCE_NEXT) {
             @Override
@@ -325,9 +384,27 @@ public class MoverService extends PersistentService implements SharedPreferences
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand " + intent);
-        // Post ALL work to serviceHandler — return START_STICKY with zero main-thread blocking.
-        // optimization.onStartCommand() → PowerManager + AlarmManager IPC now runs off main thread.
-        // FIFO ordering guarantees optimization.create() has run before this executes.
+
+        // Scheduled-mode one-shot fast path. Triggered by SyncTriggerReceiver (alarm
+        // or manual run-now) or SyncMediaJobService (MediaStore content trigger).
+        if (scheduledMode) {
+            String action = intent != null ? intent.getAction() : null;
+            if (ACTION_SYNC_ONCE.equals(action)) {
+                handleSyncOnce();
+            } else {
+                // We shouldn't be running in scheduled mode for any other reason —
+                // a stray UPDATE/start from old code paths would just waste resources.
+                Log.d(TAG, "Scheduled mode: ignoring action=" + action + ", stopping");
+                stopForegroundCompat();
+                stopSelf(startId);
+            }
+            return START_NOT_STICKY;
+        }
+
+        // Live-mode path: post ALL work to serviceHandler — return START_STICKY with
+        // zero main-thread blocking. optimization.onStartCommand() → PowerManager +
+        // AlarmManager IPC now runs off main thread. FIFO ordering guarantees
+        // optimization.create() has run before this executes.
         final Intent capturedIntent = intent;
         final int capturedFlags = flags;
         final int capturedStartId = startId;
@@ -344,6 +421,97 @@ public class MoverService extends PersistentService implements SharedPreferences
             }
         });
         return START_STICKY;
+    }
+
+    /**
+     * Run one Camera sync pass on the serviceHandler thread, then stopSelf().
+     * Called only on the scheduled-mode fast path. The FGS notification was
+     * already posted in onCreateOptimization() to satisfy the startForeground deadline.
+     */
+    void handleSyncOnce() {
+        serviceHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                PowerManager.WakeLock wl = null;
+                try {
+                    PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+                    if (pm != null) {
+                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                                MoverService.class.getCanonicalName() + ":sync_once");
+                        wl.setReferenceCounted(false);
+                        // Slightly longer than SYNC_ONCE_TIMEOUT_MS so the lock
+                        // outlives the wait but releases on its own if we leak.
+                        wl.acquire(SYNC_ONCE_TIMEOUT_MS + 5_000L);
+                    }
+
+                    if (!isEnabled(MoverService.this)) {
+                        Log.d(TAG, "syncOnce: not enabled, skipping");
+                        return;
+                    }
+                    final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(MoverService.this);
+                    String storage = sp.getString(MoverApplication.STORAGE, null);
+                    Storage s = new Storage(MoverService.this);
+                    Uri u = s.getStoragePath(storage);
+                    if (u == null) {
+                        Log.d(TAG, "syncOnce: no storage uri");
+                        return;
+                    }
+
+                    CameraMan c = new CameraMan(MoverService.this, u);
+                    try {
+                        boolean done = c.syncOnce(SYNC_ONCE_TIMEOUT_MS);
+                        Log.d(TAG, "syncOnce complete, done=" + done);
+                        sp.edit()
+                                .putLong(MoverApplication.PREFERENCE_LAST_SYNC, System.currentTimeMillis())
+                                .apply();
+                        sendBroadcast(new Intent(UPDATE));
+                    } finally {
+                        try { c.close(); } catch (Throwable ignore) {}
+                    }
+                } catch (Throwable t) {
+                    Log.e(TAG, "syncOnce failed", t);
+                } finally {
+                    if (wl != null && wl.isHeld()) {
+                        try { wl.release(); } catch (Throwable ignore) {}
+                    }
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopForegroundCompat();
+                            stopSelf();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void stopForegroundCompat() {
+        try {
+            if (Build.VERSION.SDK_INT >= 24)
+                stopForeground(STOP_FOREGROUND_REMOVE);
+            else
+                stopForeground(true);
+        } catch (Throwable ignore) {}
+    }
+
+    /**
+     * Build a low-priority silent notification used for the brief FGS window during
+     * a scheduled-mode sync pass. Reuses the existing IMPORTANCE_LOW channel so the
+     * system doesn't make sound or vibrate; PRIORITY_MIN keeps it collapsed at the
+     * bottom of the shade.
+     */
+    private Notification buildSilent() {
+        NotificationCompat.Builder b = new NotificationCompat.Builder(
+                MoverService.this,
+                MoverApplication.from(MoverService.this).channelStatus.channelId)
+                .setSmallIcon(R.drawable.ic_launcher_notification)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setSilent(true);
+        return b.build();
     }
 
     /**
@@ -417,8 +585,23 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // Debounce: cancel any pending restart and schedule a new one after 200ms.
-        // This prevents rapid Camera create/close churn when multiple prefs change at once.
+        // Mode/interval changes are handled by SyncTriggerReceiver — broadcast and
+        // skip the live-mode restart logic.
+        if (MoverApplication.PREFERENCE_MODE.equals(key)
+                || MoverApplication.PREFERENCE_SCHEDULE_INTERVAL.equals(key)) {
+            sendBroadcast(new Intent(this, SyncTriggerReceiver.class)
+                    .setAction(SyncTriggerReceiver.ACTION_MODE_CHANGED));
+            return;
+        }
+        if (scheduledMode) {
+            // Scheduled mode: this MoverService instance is short-lived. Pref edits
+            // during a sync pass don't need to restart the camera — the next sync
+            // pass will pick up new settings. Just return.
+            return;
+        }
+        // Live-mode debounce: cancel any pending restart and schedule a new one
+        // after 200ms. Prevents rapid Camera create/close churn when multiple
+        // prefs change at once.
         serviceHandler.removeCallbacks(restartRunnable);
         serviceHandler.postDelayed(restartRunnable, 200);
     }
