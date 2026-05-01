@@ -35,19 +35,10 @@
 
     <!-- Battery / scheduling preferences -->
     <string name="pref_battery_category">Battery &amp; Scheduling</string>
-    <string name="pref_mode_title">Sync mode</string>
-    <string name="pref_mode_summary">Scheduled mode wakes the app briefly to move new media. Live mode keeps a foreground service running and uses noticeably more battery.</string>
+    <string name="pref_live_mode_title">Live sync (always on)</string>
+    <string name="pref_live_mode_summary">Off (recommended): wakes briefly to move new media; very low battery use. On: keeps a foreground service running for instant moves; uses noticeably more battery.</string>
     <string name="pref_interval_title">Sync interval</string>
-    <string name="pref_interval_summary">How often the app wakes to scan for new media in scheduled mode. Files added between scans still move within seconds on Android 7+ thanks to the MediaStore content trigger.</string>
-
-    <string-array name="mode_text">
-        <item>Scheduled (battery saver)</item>
-        <item>Live (instant — uses more battery)</item>
-    </string-array>
-    <string-array name="mode_values" translatable="false">
-        <item>scheduled</item>
-        <item>live</item>
-    </string-array>
+    <string name="pref_interval_summary">How often the app wakes to scan for new media. Files added between scans still move within seconds on Android 7+ thanks to the MediaStore content trigger.</string>
 
     <string-array name="interval_text">
         <item>15 minutes</item>

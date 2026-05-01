@@ -14,6 +14,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreferenceCompat;
 import android.view.MenuItem;
 
 import com.github.axet.androidlibrary.activities.AppCompatSettingsThemeActivity;
@@ -64,29 +65,28 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
             OptimizationPreferenceCompat optimization = (OptimizationPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_OPTIMIZATION);
             optimization.enable(MoverService.class);
 
-            // Battery / scheduling: hide interval when in live mode; toggle live-mode
-            // dependent prefs (the Optimization "Disable Battery Optimization" toggle
-            // is only meaningful for live mode).
-            ListPreference modePref = (ListPreference) manager.findPreference(MoverApplication.PREFERENCE_MODE);
+            // Battery / scheduling: in scheduled mode (live=off) we show the interval
+            // and hide the OptimizationPreferenceCompat (only meaningful for live mode).
+            // In live mode (live=on) we hide the interval and show OptimizationPreferenceCompat.
+            SwitchPreferenceCompat livePref = (SwitchPreferenceCompat) manager.findPreference(MoverApplication.PREFERENCE_LIVE_MODE);
             ListPreference intervalPref = (ListPreference) manager.findPreference(MoverApplication.PREFERENCE_SCHEDULE_INTERVAL);
-            if (modePref != null) {
-                applyModeVisibility(modePref.getValue(), intervalPref, optimization);
-                modePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            if (livePref != null) {
+                applyModeVisibility(livePref.isChecked(), intervalPref, optimization);
+                livePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        applyModeVisibility(String.valueOf(newValue), intervalPref, optimization);
+                        applyModeVisibility(Boolean.TRUE.equals(newValue), intervalPref, optimization);
                         return true;
                     }
                 });
             }
         }
 
-        private void applyModeVisibility(String mode, ListPreference intervalPref, OptimizationPreferenceCompat optimization) {
-            boolean scheduled = MoverApplication.MODE_SCHEDULED.equals(mode);
+        private void applyModeVisibility(boolean liveMode, ListPreference intervalPref, OptimizationPreferenceCompat optimization) {
             if (intervalPref != null)
-                intervalPref.setVisible(scheduled);
+                intervalPref.setVisible(!liveMode);
             if (optimization != null)
-                optimization.setVisible(!scheduled);
+                optimization.setVisible(liveMode);
         }
 
         @Override
@@ -151,7 +151,12 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
 
     @Override
     public int getAppTheme() {
-        return MoverApplication.getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark, R.style.AppThemeDarkBlack);
+        // NoActionBar variants — SettingsActivity supplies its own Toolbar via
+        // R.layout.activity_settings, so the window must not have a decor action bar.
+        return MoverApplication.getTheme(this,
+                R.style.AppThemeLight_NoActionBar,
+                R.style.AppThemeDark_NoActionBar,
+                R.style.AppThemeDarkBlack_NoActionBar);
     }
 
     @Override
@@ -162,10 +167,24 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new PrefFragment())
-                .commit();
+        // Use an explicit layout with Toolbar + container so the preference list isn't
+        // overlayed by the action bar. The previous replace(android.R.id.content, ...)
+        // approach left the recycler view starting at y=below-status-bar, with the
+        // action bar drawn on top of its first ~130px — clipping the first row.
+        setContentView(R.layout.activity_settings);
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(getString(R.string.app_name));
+        }
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.settings_container, new PrefFragment())
+                    .commit();
+        }
     }
 
     @Override
@@ -173,7 +192,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity {
         super.onSharedPreferenceChanged(sharedPreferences, key);
         if (key.equals(MoverApplication.STORAGE) || key.startsWith(MoverApplication.AUTO_PREFIX) || key.startsWith(MoverApplication.MANUAL_PREFIX))
             MoverService.update(this);
-        if (MoverApplication.PREFERENCE_MODE.equals(key) || MoverApplication.PREFERENCE_SCHEDULE_INTERVAL.equals(key)) {
+        if (MoverApplication.PREFERENCE_LIVE_MODE.equals(key) || MoverApplication.PREFERENCE_SCHEDULE_INTERVAL.equals(key)) {
             // Reschedule / switch FGS lifecycle as needed.
             sendBroadcast(new Intent(this,
                     com.github.victor.mover.services.SyncTriggerReceiver.class)

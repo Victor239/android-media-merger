@@ -21,13 +21,11 @@
         android:title="@string/legacy_title" />
 
     <PreferenceCategory android:title="@string/pref_battery_category">
-        <ListPreference
-            android:defaultValue="scheduled"
-            android:entries="@array/mode_text"
-            android:entryValues="@array/mode_values"
-            android:key="mode"
-            android:summary="@string/pref_mode_summary"
-            android:title="@string/pref_mode_title" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="live_mode"
+            android:summary="@string/pref_live_mode_summary"
+            android:title="@string/pref_live_mode_title" />
 
         <ListPreference
             android:defaultValue="30"

@@ -35,14 +35,18 @@ public class MoverApplication extends MainApplication {
     public static final String PREFERENCE_BOOT = "boot";
 
     // Battery refactor: scheduling mode + interval
-    public static final String PREFERENCE_MODE = "mode";
+    // PREFERENCE_LIVE_MODE: boolean. false = scheduled (battery saver, default),
+    // true = always-on live FGS (legacy behaviour, more battery).
+    public static final String PREFERENCE_LIVE_MODE = "live_mode";
     public static final String PREFERENCE_SCHEDULE_INTERVAL = "schedule_interval"; // minutes, string-encoded
     public static final String PREFERENCE_LAST_SYNC = "last_sync";
 
-    public static final String MODE_SCHEDULED = "scheduled";
-    public static final String MODE_LIVE = "live";
-
     public static final int DEFAULT_INTERVAL_MIN = 30;
+
+    // Legacy key (1.2.118 used a "mode" string ListPreference). Kept only for
+    // migration in onCreate(); never read elsewhere after that.
+    private static final String LEGACY_PREFERENCE_MODE = "mode";
+    private static final String LEGACY_MODE_LIVE = "live";
 
     public NotificationChannelCompat channelStatus;
 
@@ -64,12 +68,16 @@ public class MoverApplication extends MainApplication {
 
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
 
-        // One-time migration: existing installs (pre-refactor) won't have PREFERENCE_MODE set.
-        // Default them to scheduled mode so they get the battery improvement automatically.
-        // Users can opt back into live mode in settings.
+        // One-time migration to the boolean live_mode toggle. New default: scheduled
+        // (live_mode=false). If a previous build (1.2.118) saved the old string-keyed
+        // "mode" pref as "live", carry that forward; otherwise default to scheduled.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!sp.contains(PREFERENCE_MODE)) {
-            sp.edit().putString(PREFERENCE_MODE, MODE_SCHEDULED).apply();
+        if (!sp.contains(PREFERENCE_LIVE_MODE)) {
+            boolean wasLive = LEGACY_MODE_LIVE.equals(sp.getString(LEGACY_PREFERENCE_MODE, null));
+            sp.edit()
+                    .putBoolean(PREFERENCE_LIVE_MODE, wasLive)
+                    .remove(LEGACY_PREFERENCE_MODE)
+                    .apply();
         }
 
         MoverService.startIfEnabled(this);

@@ -140,8 +140,7 @@ public class MoverService extends PersistentService implements SharedPreferences
 
     public static boolean isScheduledMode(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        String mode = sp.getString(MoverApplication.PREFERENCE_MODE, MoverApplication.MODE_SCHEDULED);
-        return MoverApplication.MODE_SCHEDULED.equals(mode);
+        return !sp.getBoolean(MoverApplication.PREFERENCE_LIVE_MODE, false);
     }
 
     public class CameraMan extends Camera {
@@ -587,7 +586,7 @@ public class MoverService extends PersistentService implements SharedPreferences
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // Mode/interval changes are handled by SyncTriggerReceiver — broadcast and
         // skip the live-mode restart logic.
-        if (MoverApplication.PREFERENCE_MODE.equals(key)
+        if (MoverApplication.PREFERENCE_LIVE_MODE.equals(key)
                 || MoverApplication.PREFERENCE_SCHEDULE_INTERVAL.equals(key)) {
             sendBroadcast(new Intent(this, SyncTriggerReceiver.class)
                     .setAction(SyncTriggerReceiver.ACTION_MODE_CHANGED));
